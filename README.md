@@ -1,2 +1,1 @@
-# core-go
-Decentralized Instant Messaging Protocol (Go)
+# Decentralized Instant Messaging Protocol (Go)
