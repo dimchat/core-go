@@ -31,7 +31,7 @@
 package protocol
 
 import (
-	. "github.com/dimchat/mkm-go/mkm"
+	. "github.com/dimchat/mkm-go/protocol"
 )
 
 /**
@@ -47,7 +47,7 @@ import (
 type MetaCommand struct {
 	Command
 
-	_identifier *ID
+	_identifier ID
 	_meta map[string]interface{}
 }
 
@@ -60,16 +60,16 @@ func (cmd *MetaCommand) Init(dictionary map[string]interface{}) *MetaCommand {
 	return cmd
 }
 
-func (cmd *MetaCommand) InitWithCommand(command string, id *ID, meta *Meta) *MetaCommand {
+func (cmd *MetaCommand) InitWithCommand(command string, id ID, meta Meta) *MetaCommand {
 	if cmd.Command.InitWithCommand(command) != nil {
 		// ID
 		cmd._identifier = id
-		cmd.Set("ID", id.String.String())
+		cmd.Set("ID", id.String())
 		// meta
 		if meta == nil {
 			cmd._meta = nil
 		} else {
-			cmd._meta = (*meta).GetMap(false)
+			cmd._meta = meta.GetMap(false)
 		}
 		cmd.Set("meta", cmd._meta)
 	}
@@ -82,7 +82,7 @@ func (cmd *MetaCommand) InitWithCommand(command string, id *ID, meta *Meta) *Met
  * @param identifier - entity ID
  * @param meta - entity Meta
  */
-func (cmd *MetaCommand) InitWithMeta(id *ID, meta *Meta) *MetaCommand {
+func (cmd *MetaCommand) InitWithMeta(id ID, meta Meta) *MetaCommand {
 	return cmd.InitWithCommand(META, id, meta)
 }
 
@@ -91,7 +91,7 @@ func (cmd *MetaCommand) InitWithMeta(id *ID, meta *Meta) *MetaCommand {
  *
  * @param identifier - entity ID
  */
-func (cmd *MetaCommand) InitWithID(id *ID) *MetaCommand {
+func (cmd *MetaCommand) InitWithID(id ID) *MetaCommand {
 	return cmd.InitWithCommand(META, id, nil)
 }
 
@@ -100,11 +100,11 @@ func (cmd *MetaCommand) InitWithID(id *ID) *MetaCommand {
 /*
  *  Entity ID
  */
-func (cmd *MetaCommand) GetID() *ID {
+func (cmd *MetaCommand) GetID() ID {
 	if cmd._identifier == nil {
 		identifier := cmd.Get("ID")
-		delegate := cmd.GetDelegate()
-		cmd._identifier = (*delegate).GetID(identifier)
+		delegate := cmd.Delegate()
+		cmd._identifier = delegate.GetID(identifier)
 	}
 	return cmd._identifier
 }
@@ -125,10 +125,10 @@ func (cmd *MetaCommand) GetMeta() map[string]interface{} {
 
 //-------- factories
 
-func QueryMetaCommand(id *ID) *MetaCommand {
+func QueryMetaCommand(id ID) *MetaCommand {
 	return new(MetaCommand).InitWithID(id)
 }
 
-func RespondMetaCommand(id *ID, meta *Meta) *MetaCommand {
+func RespondMetaCommand(id ID, meta Meta) *MetaCommand {
 	return new(MetaCommand).InitWithMeta(id, meta)
 }

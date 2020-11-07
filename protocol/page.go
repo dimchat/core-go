@@ -33,41 +33,93 @@ package protocol
 import (
 	. "github.com/dimchat/dkd-go/dkd"
 	. "github.com/dimchat/dkd-go/protocol"
+	. "github.com/dimchat/mkm-go/format"
 )
 
 /**
- *  Text message: {
- *      type : 0x01,
+ *  Web Page message: {
+ *      type : 0x20,
  *      sn   : 123,
  *
- *      text : "..."
+ *      URL   : "https://github.com/moky/dimp", // Page URL
+ *      icon  : "...",                          // base64_encode(icon)
+ *      title : "...",
+ *      desc  : "..."
  *  }
  */
-type TextContent struct {
+type PageContent struct {
 	BaseContent
+
+	_icon []byte
 }
 
-func (content *TextContent) Init(dictionary map[string]interface{}) *TextContent {
+func (content *PageContent) Init(dictionary map[string]interface{}) *PageContent {
 	if content.BaseContent.Init(dictionary) != nil {
-		// init
+		// lazy load
+		content._icon = nil
 	}
 	return content
 }
 
-func (content *TextContent) InitWithText(text string) *TextContent {
-	if content.InitWithType(TEXT) != nil {
-		content.SetText(text)
+func (content *PageContent) InitWithURL(url string, title string, desc string, icon []byte) *PageContent {
+	if content.BaseContent.InitWithType(PAGE) != nil {
+		content.SetURL(url)
+		content.SetTitle(title)
+		content.SetDescription(desc)
+		content.SetIcon(icon)
 	}
 	return content
 }
 
 //-------- setter/getter --------
 
-func (content *TextContent) GetText() string {
-	text := content.Get("text")
-	return text.(string)
+func (content *PageContent) GetURL() string {
+	url := content.Get("URL")
+	return url.(string)
 }
 
-func (content *TextContent) SetText(text string) {
-	content.Set("text", text)
+func (content *PageContent) SetURL(url string) {
+	content.Set("URL", url)
+}
+
+func (content *PageContent) GetTitle() string {
+	title := content.Get("title")
+	return title.(string)
+}
+
+func (content *PageContent) SetTitle(title string) {
+	content.Set("title", title)
+}
+
+func (content *PageContent) GetDescription() string {
+	desc := content.Get("desc")
+	if desc == nil {
+		return ""
+	} else {
+		return desc.(string)
+	}
+}
+
+func (content *PageContent) SetDescription(desc string) {
+	content.Set("desc", desc)
+}
+
+func (content *PageContent) GetIcon() []byte {
+	if content._icon == nil {
+		b64 := content.Get("icon")
+		if b64 != nil {
+			content._icon = Base64Decode(b64.(string))
+		}
+	}
+	return content._icon
+}
+
+func (content *PageContent) SetIcon(icon []byte) {
+	if icon == nil {
+		content.Set("icon", nil)
+	} else {
+		b64 := Base64Encode(icon)
+		content.Set("icon", b64)
+	}
+	content._icon = icon
 }

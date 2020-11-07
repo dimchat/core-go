@@ -55,18 +55,18 @@ const (
  *  }
  */
 type Command struct {
-	Content
+	BaseContent
 }
 
 func (cmd *Command) Init(dictionary map[string]interface{}) *Command {
-	if cmd.Content.Init(dictionary) != nil {
+	if cmd.BaseContent.Init(dictionary) != nil {
 		// init
 	}
 	return cmd
 }
 
 func (cmd *Command) InitWithType(t ContentType, command string) *Command {
-	if cmd.Content.InitWithType(t) != nil {
+	if cmd.BaseContent.InitWithType(t) != nil {
 		cmd.SetCommand(command)
 	}
 	return cmd

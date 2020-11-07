@@ -31,7 +31,7 @@
 package protocol
 
 import (
-	. "github.com/dimchat/mkm-go/mkm"
+	. "github.com/dimchat/mkm-go/protocol"
 )
 
 const (
@@ -74,7 +74,7 @@ func (cmd *GroupCommand) Init(dictionary map[string]interface{}) *GroupCommand {
 	return cmd
 }
 
-func (cmd *GroupCommand) InitWithCommand(command string, group *ID) *GroupCommand {
+func (cmd *GroupCommand) InitWithCommand(command string, group ID) *GroupCommand {
 	if cmd.HistoryCommand.InitWithCommand(command) != nil {
 		// group ID
 		cmd.SetGroup(group)
@@ -82,7 +82,7 @@ func (cmd *GroupCommand) InitWithCommand(command string, group *ID) *GroupComman
 	return cmd
 }
 
-func (cmd *GroupCommand) InitWithMember(command string, group *ID, member *ID) *GroupCommand {
+func (cmd *GroupCommand) InitWithMember(command string, group ID, member ID) *GroupCommand {
 	if cmd.InitWithCommand(command, group) != nil {
 		// member ID
 		cmd.SetMember(member)
@@ -90,7 +90,7 @@ func (cmd *GroupCommand) InitWithMember(command string, group *ID, member *ID) *
 	return cmd
 }
 
-func (cmd *GroupCommand) InitWithMembers(command string, group *ID, members []string) *GroupCommand {
+func (cmd *GroupCommand) InitWithMembers(command string, group ID, members []string) *GroupCommand {
 	if cmd.InitWithCommand(command, group) != nil {
 		// member ID list
 		cmd.SetMembers(members)
@@ -103,17 +103,17 @@ func (cmd *GroupCommand) InitWithMembers(command string, group *ID, members []st
 /*
  *  Member ID
  */
-func (cmd *GroupCommand) GetMember() *ID {
+func (cmd *GroupCommand) GetMember() ID {
 	member := cmd.Get("member")
 	if member == nil {
 		return nil
 	}
-	handler := cmd.GetDelegate()
-	return (*handler).GetID(member)
+	delegate := cmd.Delegate()
+	return delegate.GetID(member)
 }
 
-func (cmd *GroupCommand) SetMember(member *ID)  {
-	cmd.Set("member", member.String.String())
+func (cmd *GroupCommand) SetMember(member ID)  {
+	cmd.Set("member", member.String())
 }
 
 /*
@@ -143,12 +143,12 @@ func (cmd *InviteCommand) Init(dictionary map[string]interface{}) *InviteCommand
 	return cmd
 }
 
-func (cmd *InviteCommand) InitWithMember(group *ID, member *ID) *InviteCommand {
+func (cmd *InviteCommand) InitWithMember(group ID, member ID) *InviteCommand {
 	cmd.GroupCommand.InitWithMember(INVITE, group, member)
 	return cmd
 }
 
-func (cmd *InviteCommand) InitWithMembers(group *ID, members []string) *InviteCommand {
+func (cmd *InviteCommand) InitWithMembers(group ID, members []string) *InviteCommand {
 	cmd.GroupCommand.InitWithMembers(INVITE, group, members)
 	return cmd
 }
@@ -163,12 +163,12 @@ func (cmd *ExpelCommand) Init(dictionary map[string]interface{}) *ExpelCommand {
 	return cmd
 }
 
-func (cmd *ExpelCommand) InitWithMember(group *ID, member *ID) *ExpelCommand {
+func (cmd *ExpelCommand) InitWithMember(group ID, member ID) *ExpelCommand {
 	cmd.GroupCommand.InitWithMember(EXPEL, group, member)
 	return cmd
 }
 
-func (cmd *ExpelCommand) InitWithMembers(group *ID, members []string) *ExpelCommand {
+func (cmd *ExpelCommand) InitWithMembers(group ID, members []string) *ExpelCommand {
 	cmd.GroupCommand.InitWithMembers(EXPEL, group, members)
 	return cmd
 }
@@ -183,7 +183,7 @@ func (cmd *JoinCommand) Init(dictionary map[string]interface{}) *JoinCommand {
 	return cmd
 }
 
-func (cmd *JoinCommand) InitWithGroup(group *ID) *JoinCommand {
+func (cmd *JoinCommand) InitWithGroup(group ID) *JoinCommand {
 	cmd.GroupCommand.InitWithCommand(JOIN, group)
 	return cmd
 }
@@ -198,7 +198,7 @@ func (cmd *QuitCommand) Init(dictionary map[string]interface{}) *QuitCommand {
 	return cmd
 }
 
-func (cmd *QuitCommand) InitWithGroup(group *ID) *QuitCommand {
+func (cmd *QuitCommand) InitWithGroup(group ID) *QuitCommand {
 	cmd.GroupCommand.InitWithCommand(QUIT, group)
 	return cmd
 }
@@ -213,7 +213,7 @@ func (cmd *ResetCommand) Init(dictionary map[string]interface{}) *ResetCommand {
 	return cmd
 }
 
-func (cmd *ResetCommand) InitWithMembers(group *ID, members []string) *ResetCommand {
+func (cmd *ResetCommand) InitWithMembers(group ID, members []string) *ResetCommand {
 	cmd.GroupCommand.InitWithMembers(RESET, group, members)
 	return cmd
 }
@@ -233,7 +233,7 @@ func (cmd *QueryCommand) Init(dictionary map[string]interface{}) *QueryCommand {
 	return cmd
 }
 
-func (cmd *QueryCommand) InitWithGroup(group *ID) *QueryCommand {
+func (cmd *QueryCommand) InitWithGroup(group ID) *QueryCommand {
 	cmd.GroupCommand.InitWithCommand(QUERY, group)
 	return cmd
 }

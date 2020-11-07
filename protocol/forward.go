@@ -44,19 +44,19 @@ import (
  *  }
  */
 type ForwardContent struct {
-	Content
+	BaseContent
 
-	_secret *ReliableMessage
+	_secret ReliableMessage
 }
 
 func (content *ForwardContent) Init(dictionary map[string]interface{}) *ForwardContent {
-	if content.Content.Init(dictionary) != nil {
+	if content.BaseContent.Init(dictionary) != nil {
 		// init
 	}
 	return content
 }
 
-func (content *ForwardContent) InitWithMessage(msg *ReliableMessage) *ForwardContent {
+func (content *ForwardContent) InitWithMessage(msg ReliableMessage) *ForwardContent {
 	if content.InitWithType(FORWARD) != nil {
 		dict := msg.GetMap(false)
 		content.Set("forward", dict)
@@ -64,7 +64,7 @@ func (content *ForwardContent) InitWithMessage(msg *ReliableMessage) *ForwardCon
 	return content
 }
 
-func (content *ForwardContent) GetMessage() *ReliableMessage {
+func (content *ForwardContent) GetMessage() ReliableMessage {
 	if content._secret == nil {
 		forward := content.Get("forward")
 		if forward == nil {

@@ -31,7 +31,7 @@
 package protocol
 
 import (
-	. "github.com/dimchat/mkm-go/mkm"
+	. "github.com/dimchat/mkm-go/protocol"
 )
 
 /**
@@ -59,20 +59,20 @@ func (cmd *ProfileCommand) Init(dictionary map[string]interface{}) *ProfileComma
 	}
 	return cmd
 }
-func (cmd *ProfileCommand) InitWithMeta(id *ID, meta *Meta, profile *Profile) *ProfileCommand {
+func (cmd *ProfileCommand) InitWithMeta(id ID, meta Meta, profile Profile) *ProfileCommand {
 	if cmd.MetaCommand.InitWithCommand(PROFILE, id, meta) != nil {
 		// profile
 		if profile == nil {
 			cmd._profile = nil
 		} else {
-			cmd._profile = (*profile).GetMap(false)
+			cmd._profile = profile.GetMap(false)
 		}
 		cmd.Set("profile", cmd._profile)
 	}
 	return cmd
 }
 
-func (cmd *ProfileCommand) InitWithProfile(id *ID, profile *Profile) *ProfileCommand {
+func (cmd *ProfileCommand) InitWithProfile(id ID, profile Profile) *ProfileCommand {
 	return cmd.InitWithMeta(id, nil, profile)
 }
 
@@ -81,7 +81,7 @@ func (cmd *ProfileCommand) InitWithProfile(id *ID, profile *Profile) *ProfileCom
  *
  * @param identifier - entity ID
  */
-func (cmd *ProfileCommand) InitWithID(id *ID) *ProfileCommand {
+func (cmd *ProfileCommand) InitWithID(id ID) *ProfileCommand {
 	return cmd.InitWithMeta(id, nil, nil)
 }
 
@@ -100,10 +100,10 @@ func (cmd *ProfileCommand) GetProfile() map[string]interface{} {
 
 //-------- factories
 
-func QueryProfileCommand(id *ID) *ProfileCommand {
+func QueryProfileCommand(id ID) *ProfileCommand {
 	return new(ProfileCommand).InitWithID(id)
 }
 
-func RespondProfileCommand(id *ID, meta *Meta, profile *Profile) *ProfileCommand {
+func RespondProfileCommand(id ID, meta Meta, profile Profile) *ProfileCommand {
 	return new(ProfileCommand).InitWithMeta(id, meta, profile)
 }
