@@ -100,57 +100,34 @@ func (barrack *Barrack) CacheID(identifier ID) ID {
 	return identifier
 }
 
-func (barrack *Barrack) CreateID(string string) ID {
-	panic("override me!")
-}
-
-func (barrack *Barrack) CreateUser(identifier ID) User {
-	panic("override me!")
-}
-
-func (barrack *Barrack) CreateGroup(identifier ID) Group {
-	panic("override me!")
-}
-
-func (barrack *Barrack) getID(str string) ID {
-	// 1. get from ID cache
-	id := barrack._ids[str]
-	if id != nil {
-		return id
-	}
-	// 2. create and cache it
-	id = barrack.CreateID(str)
-	return barrack.CacheID(id)
-}
-
 //-------- EntityDelegate
 
-func (barrack *Barrack) GetID(str interface{}) ID {
-	if str == nil {
+func (barrack *Barrack) GetID(identifier interface{}) ID {
+	if identifier == nil {
 		return nil
 	}
-	str = ObjectValue(str)
-	switch str.(type) {
+	identifier = ObjectValue(identifier)
+	switch identifier.(type) {
 	case ID:
-		return str.(ID)
+		return identifier.(ID)
 	case string:
-		return barrack.getID(str.(string))
+		return barrack._ids[identifier.(string)]
 	default:
 		return nil
 	}
 }
 
-func (barrack *Barrack) GetUser(identifier ID) User {
-	// 1. get from user cache
-	// 2. create user and cache it
-	return barrack.CreateUser(identifier)
-}
-
-func (barrack *Barrack) GetGroup(identifier ID) Group {
-	// 1. get from group cache
-	// 2. create group and cache it
-	return barrack.CreateGroup(identifier)
-}
+//func (barrack *Barrack) GetUser(identifier ID) *User {
+//	// 1. get from user cache
+//	// 2. create user and cache it
+//	panic("override me!")
+//}
+//
+//func (barrack *Barrack) GetGroup(identifier ID) *Group {
+//	// 1. get from group cache
+//	// 2. create group and cache it
+//	panic("override me!")
+//}
 
 //-------- UserDataSource
 

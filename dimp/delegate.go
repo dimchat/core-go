@@ -31,12 +31,16 @@
 package dimp
 
 import (
+	. "github.com/dimchat/dkd-go/dkd"
 	. "github.com/dimchat/mkm-go/crypto"
 	. "github.com/dimchat/mkm-go/mkm"
 	. "github.com/dimchat/mkm-go/protocol"
 )
 
 type CipherKeyDelegate interface {
+
+	GenerateCipherKey(algorithm string) SymmetricKey
+	ParseCipherKey(keyInfo map[string]interface{}) SymmetricKey
 
 	/**
 	 *  Get cipher key for encrypt message from 'sender' to 'receiver'
@@ -58,14 +62,7 @@ type CipherKeyDelegate interface {
 }
 
 type EntityDelegate interface {
-
-	/**
-	 *  Create entity ID with String
-	 *
-	 * @param string - ID string
-	 * @return ID
-	 */
-	GetID(string interface{}) ID
+	IdentifierDelegate
 
 	/**
 	 *  Create user with ID
@@ -73,7 +70,7 @@ type EntityDelegate interface {
 	 * @param identifier - user ID
 	 * @return user
 	 */
-	GetUser(identifier ID) User
+	GetUser(identifier ID) *User
 
 	/**
 	 *  Create group with ID
@@ -81,5 +78,5 @@ type EntityDelegate interface {
 	 * @param identifier - group ID
 	 * @return group
 	 */
-	GetGroup(identifier ID) Group
+	GetGroup(identifier ID) *Group
 }
