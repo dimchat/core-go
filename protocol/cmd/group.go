@@ -90,7 +90,7 @@ func (cmd *GroupCommand) InitWithMember(command string, group ID, member ID) *Gr
 	return cmd
 }
 
-func (cmd *GroupCommand) InitWithMembers(command string, group ID, members []string) *GroupCommand {
+func (cmd *GroupCommand) InitWithMembers(command string, group ID, members []ID) *GroupCommand {
 	if cmd.InitWithCommand(command, group) != nil {
 		// member ID list
 		cmd.SetMembers(members)
@@ -108,8 +108,7 @@ func (cmd *GroupCommand) GetMember() ID {
 	if member == nil {
 		return nil
 	}
-	delegate := cmd.Delegate()
-	return delegate.GetID(member)
+	return IDParse(member)
 }
 
 func (cmd *GroupCommand) SetMember(member ID)  {
@@ -119,16 +118,26 @@ func (cmd *GroupCommand) SetMember(member ID)  {
 /*
  *  Member ID list
  */
-func (cmd *GroupCommand) GetMembers() []string {
+func (cmd *GroupCommand) GetMembers() []ID {
 	members := cmd.Get("members")
 	if members == nil {
 		return nil
 	}
-	return members.([]string)
+	switch members.(type) {
+	case []interface{}:
+		return IDConvert(members.([]interface{}))
+	default:
+		panic(members)
+		return nil
+	}
 }
 
-func (cmd *GroupCommand) SetMembers(members []string)  {
-	cmd.Set("members", members)
+func (cmd *GroupCommand) SetMembers(members []ID)  {
+	if members == nil {
+		cmd.Set("members", nil)
+	} else {
+		cmd.Set("members", IDRevert(members))
+	}
 }
 
 //-------- Group Commands
@@ -148,7 +157,7 @@ func (cmd *InviteCommand) InitWithMember(group ID, member ID) *InviteCommand {
 	return cmd
 }
 
-func (cmd *InviteCommand) InitWithMembers(group ID, members []string) *InviteCommand {
+func (cmd *InviteCommand) InitWithMembers(group ID, members []ID) *InviteCommand {
 	cmd.GroupCommand.InitWithMembers(INVITE, group, members)
 	return cmd
 }
@@ -168,7 +177,7 @@ func (cmd *ExpelCommand) InitWithMember(group ID, member ID) *ExpelCommand {
 	return cmd
 }
 
-func (cmd *ExpelCommand) InitWithMembers(group ID, members []string) *ExpelCommand {
+func (cmd *ExpelCommand) InitWithMembers(group ID, members []ID) *ExpelCommand {
 	cmd.GroupCommand.InitWithMembers(EXPEL, group, members)
 	return cmd
 }
@@ -213,7 +222,7 @@ func (cmd *ResetCommand) Init(dictionary map[string]interface{}) *ResetCommand {
 	return cmd
 }
 
-func (cmd *ResetCommand) InitWithMembers(group ID, members []string) *ResetCommand {
+func (cmd *ResetCommand) InitWithMembers(group ID, members []ID) *ResetCommand {
 	cmd.GroupCommand.InitWithMembers(RESET, group, members)
 	return cmd
 }

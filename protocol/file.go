@@ -62,11 +62,11 @@ func (content *FileContent) Init(dictionary map[string]interface{}) *FileContent
 	return content
 }
 
-func (content *FileContent) InitWithType(t ContentType, filename string, data []byte) *FileContent {
-	if t == 0 {
-		t = FILE
+func (content *FileContent) InitWithType(msgType uint8, filename string, data []byte) *FileContent {
+	if msgType == 0 {
+		msgType = FILE
 	}
-	if content.BaseContent.InitWithType(t) != nil {
+	if content.BaseContent.InitWithType(msgType) != nil {
 		content.SetFilename(filename)
 		content.SetData(data)
 		//content._key = nil

@@ -98,18 +98,6 @@ func (cmd *MetaCommand) InitWithID(id ID) *MetaCommand {
 //-------- setter/getter --------
 
 /*
- *  Entity ID
- */
-func (cmd *MetaCommand) GetID() ID {
-	if cmd._identifier == nil {
-		identifier := cmd.Get("ID")
-		delegate := cmd.Delegate()
-		cmd._identifier = delegate.GetID(identifier)
-	}
-	return cmd._identifier
-}
-
-/*
  *  Entity Meta
  */
 func (cmd *MetaCommand) GetMeta() map[string]interface{} {

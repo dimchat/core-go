@@ -38,7 +38,7 @@ import (
 const (
 	//-------- command names begin --------
 	META      = "meta"
-	PROFILE   = "profile"
+	DOCUMENT  = "document"
 	RECEIPT   = "receipt"
 	HANDSHAKE = "handshake"
 	LOGIN     = "login"
@@ -65,8 +65,8 @@ func (cmd *Command) Init(dictionary map[string]interface{}) *Command {
 	return cmd
 }
 
-func (cmd *Command) InitWithType(t ContentType, command string) *Command {
-	if cmd.BaseContent.InitWithType(t) != nil {
+func (cmd *Command) InitWithType(msgType uint8, command string) *Command {
+	if cmd.BaseContent.InitWithType(msgType) != nil {
 		cmd.SetCommand(command)
 	}
 	return cmd

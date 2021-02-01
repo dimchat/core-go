@@ -72,7 +72,7 @@ func (content *ForwardContent) GetMessage() ReliableMessage {
 		} else {
 			dict, ok := forward.(map[string]interface{})
 			if ok {
-				content._secret = CreateReliableMessage(dict)
+				content._secret = ReliableMessageParse(dict)
 			} else {
 				panic("forward message error")
 			}

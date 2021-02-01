@@ -28,66 +28,58 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package dimp
+package mkm
 
 import (
-	. "github.com/dimchat/core-go/mkm"
-	. "github.com/dimchat/mkm-go/crypto"
 	. "github.com/dimchat/mkm-go/protocol"
 )
 
-type CipherKeyDelegate interface {
+type Group struct {
+	Entity
 
-	/**
-	 *  Get cipher key for encrypt message from 'sender' to 'receiver'
-	 *
-	 * @param sender - from where (user or contact ID)
-	 * @param receiver - to where (contact or user/group ID)
-	 * @param generate - generate when key not exists
-	 * @return cipher key
-	 */
-	GetCipherKey(sender, receiver ID, generate bool) SymmetricKey
-
-	/**
-	 *  Cache cipher key for reusing, with the direction (from 'sender' to 'receiver')
-	 *
-	 * @param sender - from where (user or contact ID)
-	 * @param receiver - to where (contact or user/group ID)
-	 * @param key - cipher key
-	 */
-	CacheCipherKey(sender, receiver ID, key SymmetricKey)
+	_founder ID
 }
 
-type EntityDelegate interface {
+func (group *Group) Init(identifier ID) *Group {
+	if group.Entity.Init(identifier) != nil {
+		// lazy load
+		group._founder = nil
+	}
+	return group
+}
 
-	/**
-	 *  Get all local users (for decrypting received message)
-	 *
-	 * @return users with private key
-	 */
-	GetLocalUsers() []*User
+func (group Group) DataSource() GroupDataSource {
+	return group._delegate.(GroupDataSource)
+}
 
-	/**
-	 *  Select local user for receiver
-	 *
-	 * @param receiver - user/group ID
-	 * @return local user
-	 */
-	SelectLocalUser(receiver ID) *User
+func (group Group) GetBulletin() Bulletin {
+	doc := group.GetDocument(BULLETIN)
+	if doc != nil {
+		bulletin, ok := doc.(Bulletin)
+		if ok {
+			return bulletin
+		}
+	}
+	return nil
+}
 
-	/**
-	 *  Create user with ID
-	 *
-	 * @param identifier - user ID
-	 * @return user
-	 */
-	GetUser(identifier ID) *User
+func (group *Group) GetFounder() ID {
+	if group._founder == nil {
+		group._founder = group.DataSource().GetFounder(group.ID())
+	}
+	return group._founder
+}
 
-	/**
-	 *  Create group with ID
-	 *
-	 * @param identifier - group ID
-	 * @return group
-	 */
-	GetGroup(identifier ID) *Group
+func (group Group) GetOwner() ID {
+	return group.DataSource().GetOwner(group.ID())
+}
+
+// NOTICE: the owner must be a member
+//         (usually the first one)
+func (group Group) GetMembers() []ID {
+	return group.DataSource().GetMembers(group.ID())
+}
+
+func (group Group) GetAssistants() []ID {
+	return group.DataSource().GetAssistants(group.ID())
 }

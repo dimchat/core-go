@@ -35,7 +35,7 @@ import (
 )
 
 /**
- *  Profile Command message: {
+ *  Document Command message: {
  *      type : 0x88,
  *      sn   : 123,
  *
@@ -46,34 +46,34 @@ import (
  *      signature : "..."      // old profile's signature for querying
  *  }
  */
-type ProfileCommand struct {
+type DocumentCommand struct {
 	MetaCommand
 
 	_profile map[string]interface{}
 }
 
-func (cmd *ProfileCommand) Init(dictionary map[string]interface{}) *ProfileCommand {
+func (cmd *DocumentCommand) Init(dictionary map[string]interface{}) *DocumentCommand {
 	if cmd.MetaCommand.Init(dictionary) != nil {
 		// lazy load
 		cmd._profile = nil
 	}
 	return cmd
 }
-func (cmd *ProfileCommand) InitWithMeta(id ID, meta Meta, profile Profile) *ProfileCommand {
+func (cmd *DocumentCommand) InitWithMeta(id ID, meta Meta, doc Document) *DocumentCommand {
 	if cmd.MetaCommand.InitWithCommand(PROFILE, id, meta) != nil {
-		// profile
-		if profile == nil {
+		// document
+		if doc == nil {
 			cmd._profile = nil
 		} else {
-			cmd._profile = profile.GetMap(false)
+			cmd._profile = doc.GetMap(false)
 		}
 		cmd.Set("profile", cmd._profile)
 	}
 	return cmd
 }
 
-func (cmd *ProfileCommand) InitWithProfile(id ID, profile Profile) *ProfileCommand {
-	return cmd.InitWithMeta(id, nil, profile)
+func (cmd *DocumentCommand) InitWithDocument(id ID, doc Document) *DocumentCommand {
+	return cmd.InitWithMeta(id, nil, doc)
 }
 
 /**
@@ -81,29 +81,33 @@ func (cmd *ProfileCommand) InitWithProfile(id ID, profile Profile) *ProfileComma
  *
  * @param identifier - entity ID
  */
-func (cmd *ProfileCommand) InitWithID(id ID) *ProfileCommand {
+func (cmd *DocumentCommand) InitWithID(id ID) *DocumentCommand {
 	return cmd.InitWithMeta(id, nil, nil)
 }
 
 //-------- setter/getter --------
 
 /*
- *  Entity Profile
+ *  Entity Document
  */
-func (cmd *ProfileCommand) GetProfile() map[string]interface{} {
-	profile := cmd.Get("profile")
-	if profile == nil {
-		return nil
+func (cmd *DocumentCommand) GetDocument() map[string]interface{} {
+	doc := cmd.Get("document")
+	if doc == nil {
+		// compatible with v1.0
+		doc = cmd.Get("profile")
+		if doc == nil {
+			return nil
+		}
 	}
-	return profile.(map[string]interface{})
+	return doc.(map[string]interface{})
 }
 
 //-------- factories
 
-func QueryProfileCommand(id ID) *ProfileCommand {
-	return new(ProfileCommand).InitWithID(id)
+func QueryProfileCommand(id ID) *DocumentCommand {
+	return new(DocumentCommand).InitWithID(id)
 }
 
-func RespondProfileCommand(id ID, meta Meta, profile Profile) *ProfileCommand {
-	return new(ProfileCommand).InitWithMeta(id, meta, profile)
+func RespondProfileCommand(id ID, meta Meta, doc Document) *DocumentCommand {
+	return new(DocumentCommand).InitWithMeta(id, meta, doc)
 }
