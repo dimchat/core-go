@@ -31,78 +31,91 @@
 package dkd
 
 import (
+	. "github.com/dimchat/core-go/protocol"
 	. "github.com/dimchat/core-go/protocol/cmd"
+	. "github.com/dimchat/dkd-go/dkd"
 	. "github.com/dimchat/dkd-go/protocol"
 )
 
 /**
- *  Command Factory
+ *  Register core content parsers
  */
-type GeneralCommandFactory struct {
-	ContentFactory
-	CommandFactory
-}
-
-func (factory *GeneralCommandFactory) ParseContent(content map[string]interface{}) Content {
-	command := CommandGetName(content)
-	// get factory by command name
-	cmdFactory := CommandGetFactory(command)
-	if cmdFactory == nil {
-		// check for group command
-		if ContentGetGroup(content) != nil {
-			cmdFactory = CommandGetFactory("group")
-		}
-		if cmdFactory == nil {
-			cmdFactory = factory
-		}
-	}
-	return cmdFactory.ParseCommand(content)
-}
-
-func (factory *GeneralCommandFactory) ParseCommand(cmd map[string]interface{}) Command {
-	return NewCommand(cmd)
-}
-
-/**
- *  History Command Factory
- */
-type HistoryCommandFactory struct {
-	GeneralCommandFactory
-}
-
-func (factory *HistoryCommandFactory) ParseCommand(cmd map[string]interface{}) Command {
-	return NewHistoryCommand(cmd)
-}
-
-/**
- *  Group Command Factory
- */
-type GroupCommandFactory struct {
-	HistoryCommand
-}
-
-func (factory *GroupCommandFactory) ParseContent(content map[string]interface{}) Content {
-	command := CommandGetName(content)
-	// get factory by command name
-	cmdFactory := CommandGetFactory(command)
-	if cmdFactory == nil {
-		cmdFactory = factory
-	}
-	return cmdFactory.ParseCommand(content)
-}
-
-func (factory *GroupCommandFactory) ParseCommand(cmd map[string]interface{}) Command {
-	return NewGroupCommand(cmd)
-}
-
-//
-//  TODO: build core factories
-//
-
 func BuildContentFactories() {
+	// Top-Secret
+	ContentRegister(FORWARD, NewGeneralContentFactory(func(dict map[string]interface{}) Content {
+		return new(ForwardContent).Init(dict)
+	}))
+	// Text
+	ContentRegister(TEXT, NewGeneralContentFactory(func(dict map[string]interface{}) Content {
+		return new(TextContent).Init(dict)
+	}))
 
+	// File
+	ContentRegister(FILE, NewGeneralContentFactory(func(dict map[string]interface{}) Content {
+		return new(FileContent).Init(dict)
+	}))
+	// Image
+	ContentRegister(IMAGE, NewGeneralContentFactory(func(dict map[string]interface{}) Content {
+		return new(ImageContent).Init(dict)
+	}))
+	// Audio
+	ContentRegister(AUDIO, NewGeneralContentFactory(func(dict map[string]interface{}) Content {
+		return new(AudioContent).Init(dict)
+	}))
+	// Video
+	ContentRegister(VIDEO, NewGeneralContentFactory(func(dict map[string]interface{}) Content {
+		return new(VideoContent).Init(dict)
+	}))
+
+	// Web Page
+	ContentRegister(PAGE, NewGeneralContentFactory(func(dict map[string]interface{}) Content {
+		return new(PageContent).Init(dict)
+	}))
+
+	// Command
+	ContentRegister(COMMAND, NewCommandFactory(nil))
+	// History Command
+	ContentRegister(HISTORY, NewHistoryCommandFactory(nil))
+
+	// unknown content type
+	ContentRegister(0, NewGeneralContentFactory(func(dict map[string]interface{}) Content {
+		return NewContent(dict)
+	}))
 }
 
+/**
+ *  Register core command parsers
+ */
 func BuildCommandFactories() {
+	// Meta Command
+	CommandRegister(META, NewCommandFactory(func(dict map[string]interface{}) Command {
+		return new(MetaCommand).Init(dict)
+	}))
+	// Document Command
+	docParser := NewCommandFactory(func(dict map[string]interface{}) Command {
+		return new(DocumentCommand).Init(dict)
+	})
+	CommandRegister(DOCUMENT, docParser)
+	CommandRegister("profile", docParser)
 
+	// Group Commands
+	CommandRegister("group", NewGroupCommandFactory(nil))
+	CommandRegister(INVITE, NewGroupCommandFactory(func(dict map[string]interface{}) Command {
+		return new(InviteCommand).Init(dict)
+	}))
+	CommandRegister(EXPEL, NewGroupCommandFactory(func(dict map[string]interface{}) Command {
+		return new(ExpelCommand).Init(dict)
+	}))
+	CommandRegister(JOIN, NewGroupCommandFactory(func(dict map[string]interface{}) Command {
+		return new(JoinCommand).Init(dict)
+	}))
+	CommandRegister(QUIT, NewGroupCommandFactory(func(dict map[string]interface{}) Command {
+		return new(QuitCommand).Init(dict)
+	}))
+	CommandRegister(QUERY, NewGroupCommandFactory(func(dict map[string]interface{}) Command {
+		return new(QueryCommand).Init(dict)
+	}))
+	CommandRegister(RESET, NewGroupCommandFactory(func(dict map[string]interface{}) Command {
+		return new(ResetCommand).Init(dict)
+	}))
 }
