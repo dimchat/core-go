@@ -101,7 +101,7 @@ func (entity Entity) Type() uint8 {
 	return entity.ID().Type()
 }
 
-func (entity *Entity) GetMeta() Meta {
+func (entity Entity) GetMeta() Meta {
 	delegate := entity.DataSource()
 	if delegate == nil {
 		return nil
@@ -109,7 +109,7 @@ func (entity *Entity) GetMeta() Meta {
 	return delegate.GetMeta(entity.ID())
 }
 
-func (entity *Entity) GetDocument(docType string) Document {
+func (entity Entity) GetDocument(docType string) Document {
 	delegate := entity.DataSource()
 	if delegate == nil {
 		return nil

@@ -45,14 +45,14 @@ import (
  *  }
  */
 type MetaCommand struct {
-	Command
+	BaseCommand
 
 	_identifier ID
 	_meta map[string]interface{}
 }
 
-func (cmd *MetaCommand) Init(dictionary map[string]interface{}) *MetaCommand {
-	if cmd.Command.Init(dictionary) != nil {
+func (cmd *MetaCommand) Init(dict map[string]interface{}) *MetaCommand {
+	if cmd.BaseCommand.Init(dict) != nil {
 		// lazy load
 		cmd._identifier = nil
 		cmd._meta = nil
@@ -61,7 +61,7 @@ func (cmd *MetaCommand) Init(dictionary map[string]interface{}) *MetaCommand {
 }
 
 func (cmd *MetaCommand) InitWithCommand(command string, id ID, meta Meta) *MetaCommand {
-	if cmd.Command.InitWithCommand(command) != nil {
+	if cmd.BaseCommand.InitWithCommand(command) != nil {
 		// ID
 		cmd._identifier = id
 		cmd.Set("ID", id.String())

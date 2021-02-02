@@ -53,8 +53,8 @@ type PageContent struct {
 	_icon []byte
 }
 
-func (content *PageContent) Init(dictionary map[string]interface{}) *PageContent {
-	if content.BaseContent.Init(dictionary) != nil {
+func (content *PageContent) Init(dict map[string]interface{}) *PageContent {
+	if content.BaseContent.Init(dict) != nil {
 		// lazy load
 		content._icon = nil
 	}
@@ -77,16 +77,17 @@ func (content *PageContent) GetURL() string {
 	url := content.Get("URL")
 	return url.(string)
 }
-
 func (content *PageContent) SetURL(url string) {
 	content.Set("URL", url)
 }
 
 func (content *PageContent) GetTitle() string {
 	title := content.Get("title")
+	if title == nil {
+		return ""
+	}
 	return title.(string)
 }
-
 func (content *PageContent) SetTitle(title string) {
 	content.Set("title", title)
 }
@@ -95,11 +96,9 @@ func (content *PageContent) GetDescription() string {
 	desc := content.Get("desc")
 	if desc == nil {
 		return ""
-	} else {
-		return desc.(string)
 	}
+	return desc.(string)
 }
-
 func (content *PageContent) SetDescription(desc string) {
 	content.Set("desc", desc)
 }
@@ -113,7 +112,6 @@ func (content *PageContent) GetIcon() []byte {
 	}
 	return content._icon
 }
-
 func (content *PageContent) SetIcon(icon []byte) {
 	if icon == nil {
 		content.Set("icon", nil)

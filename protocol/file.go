@@ -33,6 +33,7 @@ package protocol
 import (
 	. "github.com/dimchat/dkd-go/dkd"
 	. "github.com/dimchat/dkd-go/protocol"
+	. "github.com/dimchat/mkm-go/crypto"
 	. "github.com/dimchat/mkm-go/format"
 )
 
@@ -50,14 +51,14 @@ type FileContent struct {
 	BaseContent
 
 	_data []byte       // file data (plaintext)
-	//_key SymmetricKey  // key to decrypt data
+	_key SymmetricKey  // symmetric key to decrypt the encrypted data from URL
 }
 
-func (content *FileContent) Init(dictionary map[string]interface{}) *FileContent {
-	if content.BaseContent.Init(dictionary) != nil {
+func (content *FileContent) Init(dict map[string]interface{}) *FileContent {
+	if content.BaseContent.Init(dict) != nil {
 		// lazy load
 		content._data = nil
-		//content._key = nil
+		content._key = nil
 	}
 	return content
 }
@@ -69,7 +70,7 @@ func (content *FileContent) InitWithType(msgType uint8, filename string, data []
 	if content.BaseContent.InitWithType(msgType) != nil {
 		content.SetFilename(filename)
 		content.SetData(data)
-		//content._key = nil
+		content._key = nil
 	}
 	return content
 }
@@ -78,9 +79,11 @@ func (content *FileContent) InitWithType(msgType uint8, filename string, data []
 
 func (content *FileContent) GetURL() string {
 	url := content.Get("URL")
+	if url == nil {
+		return ""
+	}
 	return url.(string)
 }
-
 func (content *FileContent) SetURL(url string) {
 	content.Set("URL", url)
 }
@@ -94,7 +97,6 @@ func (content *FileContent) GetData() []byte {
 	}
 	return content._data
 }
-
 func (content *FileContent) SetData(data []byte) {
 	if data == nil {
 		content.Set("data", nil)
@@ -107,21 +109,31 @@ func (content *FileContent) SetData(data []byte) {
 
 func (content *FileContent) GetFilename() string {
 	filename := content.Get("filename")
+	if filename == nil {
+		return ""
+	}
 	return filename.(string)
 }
-
 func (content *FileContent) SetFilename(filename string) {
 	content.Set("filename", filename)
 }
 
-//func (content *FileContent) GetPassword() SymmetricKey {
-//	// TODO: implements me!
-//	return nil
-//}
-//
-//func (content *FileContent) SetPassword(password SymmetricKey) {
-//	// TODO: implements me!
-//}
+func (content *FileContent) GetPassword() SymmetricKey {
+	if content._key == nil {
+		dict := content.Get("password")
+		content._key = SymmetricKeyParse(dict)
+	}
+	return content._key
+}
+
+func (content *FileContent) SetPassword(password SymmetricKey) {
+	if password == nil {
+		content.Set("password", nil)
+	} else {
+		content.Set("password", password.GetMap(false))
+	}
+	content._key = password
+}
 
 /**
  *  Image message: {
@@ -140,8 +152,8 @@ type ImageContent struct {
 	_thumbnail []byte
 }
 
-func (content *ImageContent) Init(dictionary map[string]interface{}) *ImageContent {
-	if content.FileContent.Init(dictionary) != nil {
+func (content *ImageContent) Init(dict map[string]interface{}) *ImageContent {
+	if content.FileContent.Init(dict) != nil {
 		// lazy load
 		content._thumbnail = nil
 	}
@@ -190,8 +202,8 @@ type AudioContent struct {
 	FileContent
 }
 
-func (content *AudioContent) Init(dictionary map[string]interface{}) *AudioContent {
-	if content.FileContent.Init(dictionary) != nil {
+func (content *AudioContent) Init(dict map[string]interface{}) *AudioContent {
+	if content.FileContent.Init(dict) != nil {
 		// init
 	}
 	return content
@@ -221,8 +233,8 @@ type VideoContent struct {
 	_snapshot []byte
 }
 
-func (content *VideoContent) Init(dictionary map[string]interface{}) *VideoContent {
-	if content.FileContent.Init(dictionary) != nil {
+func (content *VideoContent) Init(dict map[string]interface{}) *VideoContent {
+	if content.FileContent.Init(dict) != nil {
 		// lazy load
 		content._snapshot = nil
 	}

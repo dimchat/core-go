@@ -54,25 +54,36 @@ const (
  *      extra   : info   // command parameters
  *  }
  */
-type Command struct {
-	BaseContent
+type Command interface {
+	Content
+
+	Name() string
 }
 
-func (cmd *Command) Init(dictionary map[string]interface{}) *Command {
-	if cmd.BaseContent.Init(dictionary) != nil {
+type BaseCommand struct {
+	BaseContent
+	Command
+}
+
+func NewCommand(dict map[string]interface{}) *BaseCommand {
+	return new(BaseCommand).Init(dict)
+}
+
+func (cmd *BaseCommand) Init(dict map[string]interface{}) *BaseCommand {
+	if cmd.BaseContent.Init(dict) != nil {
 		// init
 	}
 	return cmd
 }
 
-func (cmd *Command) InitWithType(msgType uint8, command string) *Command {
+func (cmd *BaseCommand) InitWithType(msgType uint8, command string) *BaseCommand {
 	if cmd.BaseContent.InitWithType(msgType) != nil {
-		cmd.SetCommand(command)
+		cmd.Set("command", command)
 	}
 	return cmd
 }
 
-func (cmd *Command) InitWithCommand(command string) *Command {
+func (cmd *BaseCommand) InitWithCommand(command string) *BaseCommand {
 	return cmd.InitWithType(COMMAND, command)
 }
 
@@ -83,11 +94,36 @@ func (cmd *Command) InitWithCommand(command string) *Command {
  *
  * @return command name string
  */
-func (cmd *Command) GetCommand() string {
-	command := cmd.Get("command")
+func (cmd *BaseCommand) GetCommand() string {
+	return CommandGetName(cmd.GetMap(false))
+}
+
+func CommandGetName(cmd map[string]interface{}) string {
+	command := cmd["command"]
 	return command.(string)
 }
 
-func (cmd *Command) SetCommand(command string) {
-	cmd.Set("command", command)
+/**
+ *  Command Factory
+ *  ~~~~~~~~~~~~~~~
+ */
+type CommandFactory interface {
+
+	/**
+	 *  Parse map object to command
+	 *
+	 * @param cmd - command info
+	 * @return Command
+	 */
+	ParseCommand(cmd map[string]interface{}) Command
+}
+
+var commandFactories = make(map[string]CommandFactory)
+
+func CommandRegister(command string, factory CommandFactory) {
+	commandFactories[command] = factory
+}
+
+func CommandGetFactory(command string) CommandFactory {
+	return commandFactories[command]
 }

@@ -49,8 +49,8 @@ type ForwardContent struct {
 	_secret ReliableMessage
 }
 
-func (content *ForwardContent) Init(dictionary map[string]interface{}) *ForwardContent {
-	if content.BaseContent.Init(dictionary) != nil {
+func (content *ForwardContent) Init(dict map[string]interface{}) *ForwardContent {
+	if content.BaseContent.Init(dict) != nil {
 		// init
 	}
 	return content
@@ -58,8 +58,7 @@ func (content *ForwardContent) Init(dictionary map[string]interface{}) *ForwardC
 
 func (content *ForwardContent) InitWithMessage(msg ReliableMessage) *ForwardContent {
 	if content.InitWithType(FORWARD) != nil {
-		dict := msg.GetMap(false)
-		content.Set("forward", dict)
+		content.Set("forward", msg.GetMap(false))
 	}
 	return content
 }
@@ -67,16 +66,7 @@ func (content *ForwardContent) InitWithMessage(msg ReliableMessage) *ForwardCont
 func (content *ForwardContent) GetMessage() ReliableMessage {
 	if content._secret == nil {
 		forward := content.Get("forward")
-		if forward == nil {
-			panic("forward message not found")
-		} else {
-			dict, ok := forward.(map[string]interface{})
-			if ok {
-				content._secret = ReliableMessageParse(dict)
-			} else {
-				panic("forward message error")
-			}
-		}
+		content._secret = ReliableMessageParse(forward)
 	}
 	return content._secret
 }

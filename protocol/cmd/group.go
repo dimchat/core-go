@@ -67,8 +67,12 @@ type GroupCommand struct {
 	HistoryCommand
 }
 
-func (cmd *GroupCommand) Init(dictionary map[string]interface{}) *GroupCommand {
-	if cmd.HistoryCommand.Init(dictionary) != nil {
+func NewGroupCommand(dict map[string]interface{}) *GroupCommand {
+	return new(GroupCommand).Init(dict)
+}
+
+func (cmd *GroupCommand) Init(dict map[string]interface{}) *GroupCommand {
+	if cmd.HistoryCommand.Init(dict) != nil {
 		// init
 	}
 	return cmd
@@ -147,8 +151,8 @@ type InviteCommand struct {
 	GroupCommand
 }
 
-func (cmd *InviteCommand) Init(dictionary map[string]interface{}) *InviteCommand {
-	cmd.GroupCommand.Init(dictionary)
+func (cmd *InviteCommand) Init(dict map[string]interface{}) *InviteCommand {
+	cmd.GroupCommand.Init(dict)
 	return cmd
 }
 
@@ -167,8 +171,8 @@ type ExpelCommand struct {
 	GroupCommand
 }
 
-func (cmd *ExpelCommand) Init(dictionary map[string]interface{}) *ExpelCommand {
-	cmd.GroupCommand.Init(dictionary)
+func (cmd *ExpelCommand) Init(dict map[string]interface{}) *ExpelCommand {
+	cmd.GroupCommand.Init(dict)
 	return cmd
 }
 
@@ -187,8 +191,8 @@ type JoinCommand struct {
 	GroupCommand
 }
 
-func (cmd *JoinCommand) Init(dictionary map[string]interface{}) *JoinCommand {
-	cmd.GroupCommand.Init(dictionary)
+func (cmd *JoinCommand) Init(dict map[string]interface{}) *JoinCommand {
+	cmd.GroupCommand.Init(dict)
 	return cmd
 }
 
@@ -202,8 +206,8 @@ type QuitCommand struct {
 	GroupCommand
 }
 
-func (cmd *QuitCommand) Init(dictionary map[string]interface{}) *QuitCommand {
-	cmd.GroupCommand.Init(dictionary)
+func (cmd *QuitCommand) Init(dict map[string]interface{}) *QuitCommand {
+	cmd.GroupCommand.Init(dict)
 	return cmd
 }
 
@@ -217,8 +221,8 @@ type ResetCommand struct {
 	GroupCommand
 }
 
-func (cmd *ResetCommand) Init(dictionary map[string]interface{}) *ResetCommand {
-	cmd.GroupCommand.Init(dictionary)
+func (cmd *ResetCommand) Init(dict map[string]interface{}) *ResetCommand {
+	cmd.GroupCommand.Init(dict)
 	return cmd
 }
 
@@ -237,8 +241,8 @@ type QueryCommand struct {
 	GroupCommand
 }
 
-func (cmd *QueryCommand) Init(dictionary map[string]interface{}) *QueryCommand {
-	cmd.GroupCommand.Init(dictionary)
+func (cmd *QueryCommand) Init(dict map[string]interface{}) *QueryCommand {
+	cmd.GroupCommand.Init(dict)
 	return cmd
 }
 

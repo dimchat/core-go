@@ -36,36 +36,7 @@ import (
 	. "github.com/dimchat/mkm-go/protocol"
 )
 
-type CipherKeyDelegate interface {
-
-	/**
-	 *  Get cipher key for encrypt message from 'sender' to 'receiver'
-	 *
-	 * @param sender - from where (user or contact ID)
-	 * @param receiver - to where (contact or user/group ID)
-	 * @param generate - generate when key not exists
-	 * @return cipher key
-	 */
-	GetCipherKey(sender, receiver ID, generate bool) SymmetricKey
-
-	/**
-	 *  Cache cipher key for reusing, with the direction (from 'sender' to 'receiver')
-	 *
-	 * @param sender - from where (user or contact ID)
-	 * @param receiver - to where (contact or user/group ID)
-	 * @param key - cipher key
-	 */
-	CacheCipherKey(sender, receiver ID, key SymmetricKey)
-}
-
 type EntityDelegate interface {
-
-	/**
-	 *  Get all local users (for decrypting received message)
-	 *
-	 * @return users with private key
-	 */
-	GetLocalUsers() []*User
 
 	/**
 	 *  Select local user for receiver
@@ -90,4 +61,26 @@ type EntityDelegate interface {
 	 * @return group
 	 */
 	GetGroup(identifier ID) *Group
+}
+
+type CipherKeyDelegate interface {
+
+	/**
+	 *  Get cipher key for encrypt message from 'sender' to 'receiver'
+	 *
+	 * @param sender - from where (user or contact ID)
+	 * @param receiver - to where (contact or user/group ID)
+	 * @param generate - generate when key not exists
+	 * @return cipher key
+	 */
+	GetCipherKey(sender, receiver ID, generate bool) SymmetricKey
+
+	/**
+	 *  Cache cipher key for reusing, with the direction (from 'sender' to 'receiver')
+	 *
+	 * @param sender - from where (user or contact ID)
+	 * @param receiver - to where (contact or user/group ID)
+	 * @param key - cipher key
+	 */
+	CacheCipherKey(sender, receiver ID, key SymmetricKey)
 }

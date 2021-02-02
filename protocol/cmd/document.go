@@ -52,8 +52,8 @@ type DocumentCommand struct {
 	_profile map[string]interface{}
 }
 
-func (cmd *DocumentCommand) Init(dictionary map[string]interface{}) *DocumentCommand {
-	if cmd.MetaCommand.Init(dictionary) != nil {
+func (cmd *DocumentCommand) Init(dict map[string]interface{}) *DocumentCommand {
+	if cmd.MetaCommand.Init(dict) != nil {
 		// lazy load
 		cmd._profile = nil
 	}
