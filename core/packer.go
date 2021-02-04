@@ -28,7 +28,7 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package dimp
+package core
 
 import (
 	. "github.com/dimchat/dkd-go/protocol"
