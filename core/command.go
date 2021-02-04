@@ -28,7 +28,7 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package dkd
+package core
 
 import (
 	. "github.com/dimchat/core-go/protocol"

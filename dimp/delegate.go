@@ -28,7 +28,7 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package mkm
+package dimp
 
 import (
 	. "github.com/dimchat/mkm-go/crypto"
