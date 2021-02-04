@@ -65,7 +65,7 @@ type BaseCommand struct {
 	Command
 }
 
-func NewCommand(dict map[string]interface{}) *BaseCommand {
+func NewBaseCommand(dict map[string]interface{}) *BaseCommand {
 	return new(BaseCommand).Init(dict)
 }
 

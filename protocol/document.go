@@ -104,10 +104,10 @@ func (cmd *DocumentCommand) GetDocument() map[string]interface{} {
 
 //-------- factories
 
-func QueryProfileCommand(id ID) *DocumentCommand {
+func DocumentCommandQuery(id ID) *DocumentCommand {
 	return new(DocumentCommand).InitWithID(id)
 }
 
-func RespondProfileCommand(id ID, meta Meta, doc Document) *DocumentCommand {
+func DocumentCommandRespond(id ID, meta Meta, doc Document) *DocumentCommand {
 	return new(DocumentCommand).InitWithMeta(id, meta, doc)
 }

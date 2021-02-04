@@ -113,10 +113,10 @@ func (cmd *MetaCommand) GetMeta() map[string]interface{} {
 
 //-------- factories
 
-func QueryMetaCommand(id ID) *MetaCommand {
+func MetaCommandQuery(id ID) *MetaCommand {
 	return new(MetaCommand).InitWithID(id)
 }
 
-func RespondMetaCommand(id ID, meta Meta) *MetaCommand {
+func MetaCommandRespond(id ID, meta Meta) *MetaCommand {
 	return new(MetaCommand).InitWithMeta(id, meta)
 }

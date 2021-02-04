@@ -31,7 +31,7 @@
 package dkd
 
 import (
-	. "github.com/dimchat/core-go/protocol/cmd"
+	. "github.com/dimchat/core-go/protocol"
 	. "github.com/dimchat/dkd-go/protocol"
 )
 
@@ -47,7 +47,7 @@ type GeneralCommandFactory struct {
 	_parser CommandParser
 }
 
-func NewCommandFactory(parser CommandParser) *GeneralCommandFactory {
+func NewGeneralCommandFactory(parser CommandParser) *GeneralCommandFactory {
 	return new(GeneralCommandFactory).Init(parser)
 }
 
@@ -73,64 +73,44 @@ func (factory *GeneralCommandFactory) ParseContent(content map[string]interface{
 }
 
 func (factory *GeneralCommandFactory) ParseCommand(cmd map[string]interface{}) Command {
-	if factory._parser == nil {
-		return NewCommand(cmd)
-	}
 	return factory._parser(cmd)
 }
 
 /**
- *  History Command Factory
+ *  Register core command parsers
  */
-type HistoryCommandFactory struct {
-	GeneralCommandFactory
-}
+func BuildCommandFactories() {
+	// Meta Command
+	CommandRegister(META, NewGeneralCommandFactory(func(dict map[string]interface{}) Command {
+		return new(MetaCommand).Init(dict)
+	}))
+	// Document Command
+	docParser := NewGeneralCommandFactory(func(dict map[string]interface{}) Command {
+		return new(DocumentCommand).Init(dict)
+	})
+	CommandRegister(DOCUMENT, docParser)
+	CommandRegister("profile", docParser)
 
-func NewHistoryCommandFactory(parser CommandParser) *HistoryCommandFactory {
-	return new(HistoryCommandFactory).Init(parser)
-}
-
-func (factory *HistoryCommandFactory) Init(parser CommandParser) *HistoryCommandFactory {
-	factory.GeneralCommandFactory.Init(parser)
-	return factory
-}
-
-func (factory *HistoryCommandFactory) ParseCommand(cmd map[string]interface{}) Command {
-	if factory._parser == nil {
-		return NewHistoryCommand(cmd)
-	}
-	return factory._parser(cmd)
-}
-
-/**
- *  Group Command Factory
- */
-type GroupCommandFactory struct {
-	HistoryCommandFactory
-}
-
-func NewGroupCommandFactory(parser CommandParser) *GroupCommandFactory {
-	return new(GroupCommandFactory).Init(parser)
-}
-
-func (factory *GroupCommandFactory) Init(parser CommandParser) *GroupCommandFactory {
-	factory.HistoryCommandFactory.Init(parser)
-	return factory
-}
-
-func (factory *GroupCommandFactory) ParseContent(content map[string]interface{}) Content {
-	command := CommandGetName(content)
-	// get factory by command name
-	cmdFactory := CommandGetFactory(command)
-	if cmdFactory == nil {
-		cmdFactory = factory
-	}
-	return cmdFactory.ParseCommand(content)
-}
-
-func (factory *GroupCommandFactory) ParseCommand(cmd map[string]interface{}) Command {
-	if factory._parser == nil {
-		return NewGroupCommand(cmd)
-	}
-	return factory._parser(cmd)
+	// Group Commands
+	CommandRegister("group", NewGroupCommandFactory(func(dict map[string]interface{}) Command {
+		return NewGroupCommand(dict)
+	}))
+	CommandRegister(INVITE, NewGroupCommandFactory(func(dict map[string]interface{}) Command {
+		return new(InviteCommand).Init(dict)
+	}))
+	CommandRegister(EXPEL, NewGroupCommandFactory(func(dict map[string]interface{}) Command {
+		return new(ExpelCommand).Init(dict)
+	}))
+	CommandRegister(JOIN, NewGroupCommandFactory(func(dict map[string]interface{}) Command {
+		return new(JoinCommand).Init(dict)
+	}))
+	CommandRegister(QUIT, NewGroupCommandFactory(func(dict map[string]interface{}) Command {
+		return new(QuitCommand).Init(dict)
+	}))
+	CommandRegister(QUERY, NewGroupCommandFactory(func(dict map[string]interface{}) Command {
+		return new(QueryCommand).Init(dict)
+	}))
+	CommandRegister(RESET, NewGroupCommandFactory(func(dict map[string]interface{}) Command {
+		return new(ResetCommand).Init(dict)
+	}))
 }

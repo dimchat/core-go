@@ -31,6 +31,8 @@
 package dkd
 
 import (
+	. "github.com/dimchat/core-go/protocol"
+	. "github.com/dimchat/dkd-go/dkd"
 	. "github.com/dimchat/dkd-go/protocol"
 )
 
@@ -53,4 +55,54 @@ func (factory *GeneralContentFactory) Init(parser ContentParser) *GeneralContent
 
 func (factory *GeneralContentFactory) ParseContent(content map[string]interface{}) Content {
 	return factory._parser(content)
+}
+
+/**
+ *  Register core content parsers
+ */
+func BuildContentFactories() {
+	// Top-Secret
+	ContentRegister(FORWARD, NewGeneralContentFactory(func(dict map[string]interface{}) Content {
+		return new(ForwardContent).Init(dict)
+	}))
+	// Text
+	ContentRegister(TEXT, NewGeneralContentFactory(func(dict map[string]interface{}) Content {
+		return new(TextContent).Init(dict)
+	}))
+
+	// File
+	ContentRegister(FILE, NewGeneralContentFactory(func(dict map[string]interface{}) Content {
+		return new(FileContent).Init(dict)
+	}))
+	// Image
+	ContentRegister(IMAGE, NewGeneralContentFactory(func(dict map[string]interface{}) Content {
+		return new(ImageContent).Init(dict)
+	}))
+	// Audio
+	ContentRegister(AUDIO, NewGeneralContentFactory(func(dict map[string]interface{}) Content {
+		return new(AudioContent).Init(dict)
+	}))
+	// Video
+	ContentRegister(VIDEO, NewGeneralContentFactory(func(dict map[string]interface{}) Content {
+		return new(VideoContent).Init(dict)
+	}))
+
+	// Web Page
+	ContentRegister(PAGE, NewGeneralContentFactory(func(dict map[string]interface{}) Content {
+		return new(PageContent).Init(dict)
+	}))
+
+	// Command
+	ContentRegister(COMMAND, NewGeneralCommandFactory(func(dict map[string]interface{}) Command {
+		return NewBaseCommand(dict)
+	}))
+	// History Command
+	ContentRegister(HISTORY, NewHistoryCommandFactory(func(dict map[string]interface{}) Command {
+		return NewHistoryCommand(dict)
+	}))
+
+	// unknown content type
+	ContentRegister(0, NewGeneralContentFactory(func(dict map[string]interface{}) Content {
+		return NewBaseContent(dict)
+	}))
 }
