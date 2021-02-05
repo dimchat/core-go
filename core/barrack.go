@@ -246,21 +246,59 @@ func (barrack *Barrack) GetPublicKeysForVerification(user ID) []VerifyKey {
 
 //-------- GroupDataSource
 
+func getIDName(group ID) string {
+	name := group.Name()
+	length := len(name)
+	if length == 0 || (length == 8 && name == Everyone) {
+		return ""
+	}
+	return name
+}
+
+func (barrack *Barrack) GetBroadcastFounder(group ID) ID {
+	name := getIDName(group)
+	if name == "" {
+		// Consensus: the founder of group 'everyone@everywhere'
+		//            'Albert Moky'
+		return FOUNDER
+	} else {
+		// DISCUSS: who should be the founder of group 'xxx@everywhere'?
+		//          'anyone@anywhere', or 'xxx.founder@anywhere'
+		return IDParse(name + ".founder@anywhere")
+	}
+}
+func (barrack *Barrack) GetBroadcastOwner(group ID) ID {
+	name := getIDName(group)
+	if name == "" {
+		// Consensus: the owner of group 'everyone@everywhere'
+		//            'anyone@anywhere'
+		return ANYONE
+	} else {
+		// DISCUSS: who should be the owner of group 'xxx@everywhere'?
+		//          'anyone@anywhere', or 'xxx.owner@anywhere'
+		return IDParse(name + ".owner@anywhere")
+	}
+}
+func (barrack *Barrack) GetBroadcastMembers(group ID) []ID {
+	name := getIDName(group)
+	if name == "" {
+		// Consensus: the member of group 'everyone@everywhere'
+		//            'anyone@anywhere'
+		return []ID{ANYONE}
+	} else {
+		// DISCUSS: who should be the member of group 'xxx@everywhere'?
+		//          'anyone@anywhere', or 'xxx.member@anywhere'
+		owner := IDParse(name + ".owner@anywhere")
+		member := IDParse(name + ".member@anywhere")
+		return []ID{owner, member}
+	}
+}
+
 func (barrack *Barrack) GetFounder(group ID) ID {
 	// check broadcast group
 	if group.IsBroadcast() {
 		// founder of broadcast group
-		name := group.Name()
-		length := len(name)
-		if length == 0 || (length == 8 && name == Everyone) {
-			// Consensus: the founder of group 'everyone@everywhere'
-			//            'Albert Moky'
-			return FOUNDER
-		} else {
-			// DISCUSS: who should be the founder of group 'xxx@everywhere'?
-			//          'anyone@anywhere', or 'xxx.founder@anywhere'
-			return IDParse(name + ".founder@anywhere")
-		}
+		return barrack.GetBroadcastFounder(group)
 	}
 	// check group meta
 	gMeta := barrack.GetMeta(group)
@@ -294,17 +332,7 @@ func (barrack *Barrack) GetOwner(group ID) ID {
 	// check broadcast group
 	if group.IsBroadcast() {
 		// owner of broadcast group
-		name := group.Name()
-		length := len(name)
-		if length == 0 || (length == 8 && name == Everyone) {
-			// Consensus: the owner of group 'everyone@everywhere'
-			//            'anyone@anywhere'
-			return ANYONE
-		} else {
-			// DISCUSS: who should be the owner of group 'xxx@everywhere'?
-			//          'anyone@anywhere', or 'xxx.owner@anywhere'
-			return IDParse(name + ".owner@anywhere")
-		}
+		return barrack.GetBroadcastOwner(group)
 	}
 	// check group type
 	if group.Type() == POLYLOGUE {
@@ -319,27 +347,7 @@ func (barrack *Barrack) GetMembers(group ID) []ID {
 	// check broadcast group
 	if group.IsBroadcast() {
 		// members of broadcast group
-		var member ID
-		var owner ID
-		name := group.Name()
-		length := len(name)
-		if length == 0 || (length == 8 && name == Everyone) {
-			// Consensus: the member of group 'everyone@everywhere'
-			//            'anyone@anywhere'
-			member = ANYONE
-			owner = ANYONE
-		} else {
-			// DISCUSS: who should be the member of group 'xxx@everywhere'?
-			//          'anyone@anywhere', or 'xxx.member@anywhere'
-			member = IDParse(name + ".member@anywhere")
-			owner = IDParse(name + ".owner@anywhere")
-		}
-		members := make([]ID, 0, 2)
-		members = append(members, owner)
-		if !owner.Equal(member) {
-			members = append(members, member)
-		}
-		return members
+		return barrack.GetBroadcastMembers(group)
 	}
 	// TODO: load members from database
 	return nil

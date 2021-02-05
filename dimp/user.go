@@ -51,6 +51,10 @@ type User struct {
 	Entity
 }
 
+func NewUser(identifier ID) *User {
+	return new(User).Init(identifier)
+}
+
 func (user *User) Init(identifier ID) *User {
 	if user.Entity.Init(identifier) != nil {
 		// ...

@@ -40,6 +40,10 @@ type Group struct {
 	_founder ID
 }
 
+func NewGroup(identifier ID) *Group {
+	return new(Group).Init(identifier)
+}
+
 func (group *Group) Init(identifier ID) *Group {
 	if group.Entity.Init(identifier) != nil {
 		// lazy load
