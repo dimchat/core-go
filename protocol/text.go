@@ -49,7 +49,6 @@ type TextContent struct {
 
 func (content *TextContent) Init(dict map[string]interface{}) *TextContent {
 	if content.BaseContent.Init(dict) != nil {
-		// init
 	}
 	return content
 }

@@ -47,7 +47,8 @@ func NewHistoryCommandFactory(parser CommandParser) *HistoryCommandFactory {
 }
 
 func (factory *HistoryCommandFactory) Init(parser CommandParser) *HistoryCommandFactory {
-	factory.GeneralCommandFactory.Init(parser)
+	if factory.GeneralCommandFactory.Init(parser) != nil {
+	}
 	return factory
 }
 
@@ -67,7 +68,8 @@ func NewGroupCommandFactory(parser CommandParser) *GroupCommandFactory {
 }
 
 func (factory *GroupCommandFactory) Init(parser CommandParser) *GroupCommandFactory {
-	factory.GeneralCommandFactory.Init(parser)
+	if factory.GeneralCommandFactory.Init(parser) != nil {
+	}
 	return factory
 }
 

@@ -204,7 +204,6 @@ type AudioContent struct {
 
 func (content *AudioContent) Init(dict map[string]interface{}) *AudioContent {
 	if content.FileContent.Init(dict) != nil {
-		// init
 	}
 	return content
 }

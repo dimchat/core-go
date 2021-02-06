@@ -48,7 +48,7 @@ type MetaCommand struct {
 	BaseCommand
 
 	_identifier ID
-	_meta map[string]interface{}
+	_meta Meta
 }
 
 func (cmd *MetaCommand) Init(dict map[string]interface{}) *MetaCommand {
@@ -66,12 +66,10 @@ func (cmd *MetaCommand) InitWithCommand(command string, id ID, meta Meta) *MetaC
 		cmd._identifier = id
 		cmd.Set("ID", id.String())
 		// meta
-		if meta == nil {
-			cmd._meta = nil
-		} else {
-			cmd._meta = meta.GetMap(false)
+		cmd._meta = meta
+		if meta != nil {
+			cmd.Set("meta", meta.GetMap(false))
 		}
-		cmd.Set("meta", cmd._meta)
 	}
 	return cmd
 }
@@ -100,13 +98,10 @@ func (cmd *MetaCommand) InitWithID(id ID) *MetaCommand {
 /*
  *  Entity Meta
  */
-func (cmd *MetaCommand) GetMeta() map[string]interface{} {
+func (cmd *MetaCommand) GetMeta() Meta {
 	if cmd._meta == nil {
 		meta := cmd.Get("meta")
-		if meta == nil {
-			return nil
-		}
-		cmd._meta = meta.(map[string]interface{})
+		cmd._meta = MetaParse(meta)
 	}
 	return cmd._meta
 }

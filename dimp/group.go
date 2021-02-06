@@ -35,7 +35,7 @@ import (
 )
 
 type Group struct {
-	Entity
+	BaseEntity
 
 	_founder ID
 }
@@ -45,18 +45,18 @@ func NewGroup(identifier ID) *Group {
 }
 
 func (group *Group) Init(identifier ID) *Group {
-	if group.Entity.Init(identifier) != nil {
+	if group.BaseEntity.Init(identifier) != nil {
 		// lazy load
 		group._founder = nil
 	}
 	return group
 }
 
-func (group Group) DataSource() GroupDataSource {
+func (group *Group) DataSource() GroupDataSource {
 	return group._delegate.(GroupDataSource)
 }
 
-func (group Group) GetBulletin() Bulletin {
+func (group *Group) GetBulletin() Bulletin {
 	doc := group.GetDocument(BULLETIN)
 	if doc != nil {
 		bulletin, ok := doc.(Bulletin)
@@ -74,16 +74,16 @@ func (group *Group) GetFounder() ID {
 	return group._founder
 }
 
-func (group Group) GetOwner() ID {
+func (group *Group) GetOwner() ID {
 	return group.DataSource().GetOwner(group.ID())
 }
 
 // NOTICE: the owner must be a member
 //         (usually the first one)
-func (group Group) GetMembers() []ID {
+func (group *Group) GetMembers() []ID {
 	return group.DataSource().GetMembers(group.ID())
 }
 
-func (group Group) GetAssistants() []ID {
+func (group *Group) GetAssistants() []ID {
 	return group.DataSource().GetAssistants(group.ID())
 }

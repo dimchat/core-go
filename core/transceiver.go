@@ -64,7 +64,7 @@ func (transceiver *Transceiver) Init() *Transceiver {
 func (transceiver *Transceiver) SetEntityDelegate(barrack EntityDelegate) {
 	transceiver._entityDelegate = barrack
 }
-func (transceiver Transceiver) EntityDelegate() EntityDelegate {
+func (transceiver *Transceiver) EntityDelegate() EntityDelegate {
 	return transceiver._entityDelegate
 }
 
@@ -76,7 +76,7 @@ func (transceiver Transceiver) EntityDelegate() EntityDelegate {
 func (transceiver *Transceiver) SetCipherKeyDelegate(keyCache CipherKeyDelegate) {
 	transceiver._keyDelegate = keyCache
 }
-func (transceiver Transceiver) CipherKeyDelegate() CipherKeyDelegate {
+func (transceiver *Transceiver) CipherKeyDelegate() CipherKeyDelegate {
 	return transceiver._keyDelegate
 }
 

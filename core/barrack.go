@@ -131,7 +131,7 @@ func (barrack *Barrack) ReduceMemory() int {
 	return finger >> 1
 }
 
-//func thanos(dict map[ID]interface{}, finger int) int {
+//func thanos(dict map[ID]Entity, finger int) int {
 //	keys := keys(dict)
 //	for _, key := range keys {
 //		finger++
@@ -144,7 +144,7 @@ func (barrack *Barrack) ReduceMemory() int {
 //	return finger
 //}
 //
-//func keys(dict map[ID]interface{}) []ID {
+//func keys(dict map[ID]Entity) []ID {
 //	index := 0
 //	keys := make([]ID, len(dict))
 //	for key := range dict {

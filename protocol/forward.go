@@ -51,7 +51,8 @@ type ForwardContent struct {
 
 func (content *ForwardContent) Init(dict map[string]interface{}) *ForwardContent {
 	if content.BaseContent.Init(dict) != nil {
-		// init
+		// lazy load
+		content._secret = nil
 	}
 	return content
 }
@@ -59,6 +60,7 @@ func (content *ForwardContent) Init(dict map[string]interface{}) *ForwardContent
 func (content *ForwardContent) InitWithMessage(msg ReliableMessage) *ForwardContent {
 	if content.InitWithType(FORWARD) != nil {
 		content.Set("forward", msg.GetMap(false))
+		content._secret = msg
 	}
 	return content
 }

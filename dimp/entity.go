@@ -46,26 +46,39 @@ import (
  *      meta       - meta for generate ID
  *      document   - entity document
  */
-type Entity struct {
+type Entity interface {
 	Object
+
+	ID() ID
+	Type() uint8
+
+	GetMeta() Meta
+	GetDocument(docType string) Document
+
+	DataSource() EntityDataSource
+	SetDataSource(delegate EntityDataSource)
+}
+
+type BaseEntity struct {
+	Entity
 
 	_identifier ID
 
 	_delegate EntityDataSource
 }
 
-func (entity *Entity) Init(identifier ID) *Entity {
+func (entity *BaseEntity) Init(identifier ID) *BaseEntity {
 	entity._identifier = identifier
 	entity._delegate = nil
 	return entity
 }
 
-func (entity Entity) Equal(other interface{}) bool {
+func (entity *BaseEntity) Equal(other interface{}) bool {
 	var identifier ID
 	value := ObjectValue(other)
 	switch value.(type) {
-	case Entity:
-		identifier = value.(Entity).ID()
+	case BaseEntity:
+		identifier = other.(*BaseEntity).ID()
 	case ID:
 		identifier = value.(ID)
 	default:
@@ -75,11 +88,11 @@ func (entity Entity) Equal(other interface{}) bool {
 	return entity.ID().Equal(identifier)
 }
 
-func (entity Entity) DataSource() EntityDataSource {
+func (entity *BaseEntity) DataSource() EntityDataSource {
 	return entity._delegate
 }
 
-func (entity *Entity) SetDataSource(delegate interface{}) {
+func (entity *BaseEntity) SetDataSource(delegate EntityDataSource) {
 	ds, ok := delegate.(EntityDataSource)
 	if ok {
 		entity._delegate = ds
@@ -88,7 +101,7 @@ func (entity *Entity) SetDataSource(delegate interface{}) {
 	}
 }
 
-func (entity Entity) ID() ID {
+func (entity *BaseEntity) ID() ID {
 	return entity._identifier
 }
 
@@ -97,11 +110,11 @@ func (entity Entity) ID() ID {
  *
  * @return ID(address) type as entity type
  */
-func (entity Entity) Type() uint8 {
+func (entity *BaseEntity) Type() uint8 {
 	return entity.ID().Type()
 }
 
-func (entity Entity) GetMeta() Meta {
+func (entity *BaseEntity) GetMeta() Meta {
 	delegate := entity.DataSource()
 	if delegate == nil {
 		return nil
@@ -109,7 +122,7 @@ func (entity Entity) GetMeta() Meta {
 	return delegate.GetMeta(entity.ID())
 }
 
-func (entity Entity) GetDocument(docType string) Document {
+func (entity *BaseEntity) GetDocument(docType string) Document {
 	delegate := entity.DataSource()
 	if delegate == nil {
 		return nil

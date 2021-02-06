@@ -49,25 +49,24 @@ import (
 type DocumentCommand struct {
 	MetaCommand
 
-	_profile map[string]interface{}
+	_doc Document
 }
 
 func (cmd *DocumentCommand) Init(dict map[string]interface{}) *DocumentCommand {
 	if cmd.MetaCommand.Init(dict) != nil {
 		// lazy load
-		cmd._profile = nil
+		cmd._doc = nil
 	}
 	return cmd
 }
+
 func (cmd *DocumentCommand) InitWithMeta(id ID, meta Meta, doc Document) *DocumentCommand {
-	if cmd.MetaCommand.InitWithCommand(PROFILE, id, meta) != nil {
+	if cmd.MetaCommand.InitWithCommand(DOCUMENT, id, meta) != nil {
 		// document
-		if doc == nil {
-			cmd._profile = nil
-		} else {
-			cmd._profile = doc.GetMap(false)
+		cmd._doc = doc
+		if doc != nil {
+			cmd.Set("document", doc.GetMap(false))
 		}
-		cmd.Set("profile", cmd._profile)
 	}
 	return cmd
 }
@@ -85,27 +84,50 @@ func (cmd *DocumentCommand) InitWithID(id ID) *DocumentCommand {
 	return cmd.InitWithMeta(id, nil, nil)
 }
 
+/**
+ *  Query Entity Document for updating with current signature
+ *
+ * @param identifier - entity ID
+ * @param signature - document signature
+ */
+func (cmd *DocumentCommand) InitWithSignature(id ID, signature string) *DocumentCommand {
+	if cmd.InitWithID(id) != nil {
+		if signature != "" {
+			cmd.Set("signature", signature)
+		}
+	}
+	return cmd
+}
+
 //-------- setter/getter --------
 
 /*
  *  Entity Document
  */
-func (cmd *DocumentCommand) GetDocument() map[string]interface{} {
-	doc := cmd.Get("document")
-	if doc == nil {
-		// compatible with v1.0
-		doc = cmd.Get("profile")
-		if doc == nil {
-			return nil
+func (cmd *DocumentCommand) GetDocument() Document {
+	if cmd._doc == nil {
+		document := cmd.Get("document")
+		if document == nil {
+			// compatible with v1.0
+			document = cmd.Get("profile")
 		}
+		cmd._doc = DocumentParse(document)
 	}
-	return doc.(map[string]interface{})
+	return cmd._doc
+}
+
+func (cmd *DocumentCommand) GetSignature() string {
+	signature := cmd.Get("signature")
+	if signature == nil {
+		return ""
+	}
+	return signature.(string)
 }
 
 //-------- factories
 
-func DocumentCommandQuery(id ID) *DocumentCommand {
-	return new(DocumentCommand).InitWithID(id)
+func DocumentCommandQuery(id ID, signature string) *DocumentCommand {
+	return new(DocumentCommand).InitWithSignature(id, signature)
 }
 
 func DocumentCommandRespond(id ID, meta Meta, doc Document) *DocumentCommand {
