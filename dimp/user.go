@@ -172,8 +172,12 @@ func (user User) Decrypt(ciphertext []byte) []byte {
 }
 
 func (user User) SignVisa(visa Visa) Visa {
+	doc, ok := visa.(Document)
+	if !ok {
+		return nil
+	}
 	// NOTICE: only sign visa with the private key paired with your meta.key
-	if user.ID().Equal(visa.ID()) == false {
+	if user.ID().Equal(doc.ID()) == false {
 		// visa ID not match
 		return nil
 	}
@@ -182,13 +186,17 @@ func (user User) SignVisa(visa Visa) Visa {
 		panic("failed to get sign key for visa: : " + user.ID().String())
 		return nil
 	}
-	visa.Sign(key)
+	doc.Sign(key)
 	return visa
 }
 
 func (user User) VerifyVisa(visa Visa) bool {
+	doc, ok := visa.(Document)
+	if !ok {
+		return false
+	}
 	// NOTICE: only verify visa with meta.key
-	if user.ID().Equal(visa.ID()) == false {
+	if user.ID().Equal(doc.ID()) == false {
 		// visa ID not match
 		return false
 	}
@@ -197,5 +205,5 @@ func (user User) VerifyVisa(visa Visa) bool {
 		panic("failed to get verify key for visa: : " + user.ID().String())
 		return false
 	}
-	return visa.Verify(key)
+	return doc.Verify(key)
 }

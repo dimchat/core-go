@@ -50,6 +50,24 @@ type IBarrack interface {
 	GetLocalUsers() []*User
 }
 
+/**
+ *  Delegate for entity
+ *  ~~~~~~~~~~~~~~~~~~~
+ *
+ *  Abstract methods:
+ *      // IBarrack
+ *      CreateUser(identifier ID) *User
+ *      CreateGroup(identifier ID) *Group
+ *      GetLocalUsers() []*User
+ *      // EntityDataSource
+ *      GetMeta(identifier ID) Meta
+ *      GetDocument(identifier ID, docType string) Document
+ *      // UserDataSource
+ *      GetContacts(user ID) []ID
+ *      GetPrivateKeysForDecryption(user ID) []DecryptKey
+ *      GetPrivateKeyForSignature(user ID) SignKey
+ *      GetPrivateKeyForVisaSignature(user ID) SignKey
+ */
 type Barrack struct {
 	IBarrack
 	UserDataSource
@@ -75,32 +93,66 @@ func (barrack *Barrack) Init() *Barrack {
 func (barrack *Barrack) ReduceMemory() int {
 	finger := 0
 	//finger = thanos(barrack._users, finger)
+	dict1 := barrack._users
+	if len(dict1) > 0 {
+		index := 0
+		keys := make([]ID, len(dict1))
+		for key := range dict1 {
+			keys[index] = key
+			index++
+		}
+		for _, key := range keys {
+			finger++
+			if (finger & 1) == 1 {
+				// kill it
+				delete(dict1, key)
+			}
+			// let it go
+		}
+	}
 	//finger = thanos(barrack._groups, finger)
+	dict2 := barrack._groups
+	if len(dict2) > 0 {
+		index := 0
+		keys := make([]ID, len(dict2))
+		for key := range dict2 {
+			keys[index] = key
+			index++
+		}
+		for _, key := range keys {
+			finger++
+			if (finger & 1) == 1 {
+				// kill it
+				delete(dict2, key)
+			}
+			// let it go
+		}
+	}
 	return finger >> 1
 }
 
-func thanos(dict map[ID]interface{}, finger int) int {
-	keys := keys(dict)
-	for _, key := range keys {
-		finger++
-		if (finger & 1) == 1 {
-			// kill it
-			delete(dict, key)
-		}
-		// let it go
-	}
-	return finger
-}
-
-func keys(dict map[ID]interface{}) []ID {
-	index := 0
-	keys := make([]ID, len(dict))
-	for key := range dict {
-		keys[index] = key
-		index++
-	}
-	return keys
-}
+//func thanos(dict map[ID]interface{}, finger int) int {
+//	keys := keys(dict)
+//	for _, key := range keys {
+//		finger++
+//		if (finger & 1) == 1 {
+//			// kill it
+//			delete(dict, key)
+//		}
+//		// let it go
+//	}
+//	return finger
+//}
+//
+//func keys(dict map[ID]interface{}) []ID {
+//	index := 0
+//	keys := make([]ID, len(dict))
+//	for key := range dict {
+//		keys[index] = key
+//		index++
+//	}
+//	return keys
+//}
 
 func (barrack *Barrack) cacheUser(user *User) {
 	if user.DataSource() == nil {
@@ -191,8 +243,11 @@ func (barrack *Barrack) GetGroup(identifier ID) *Group {
 
 func (barrack *Barrack) getVisaKey(user ID) EncryptKey {
 	doc := barrack.GetDocument(user, VISA)
+	if doc == nil || !doc.IsValid() {
+		return nil
+	}
 	visa, ok := doc.(Visa)
-	if ok && visa.IsValid() {
+	if ok {
 		return visa.Key()
 	}
 	return nil
@@ -355,8 +410,11 @@ func (barrack *Barrack) GetMembers(group ID) []ID {
 
 func (barrack *Barrack) GetAssistants(group ID) []ID {
 	doc := barrack.GetDocument(group, BULLETIN)
+	if doc == nil || !doc.IsValid() {
+		return nil
+	}
 	bulletin, ok := doc.(Bulletin)
-	if ok && bulletin.IsValid() {
+	if ok {
 		return bulletin.Assistants()
 	}
 	// TODO: get group bots from SP configuration

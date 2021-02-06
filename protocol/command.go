@@ -33,6 +33,8 @@ package protocol
 import (
 	. "github.com/dimchat/dkd-go/dkd"
 	. "github.com/dimchat/dkd-go/protocol"
+	. "github.com/dimchat/mkm-go/protocol"
+	"time"
 )
 
 const (
@@ -57,7 +59,12 @@ const (
 type Command interface {
 	Content
 
-	Name() string
+	/**
+	 *  Get command name
+	 *
+	 * @return command name string
+	 */
+	GetCommand() string
 }
 
 type BaseCommand struct {
@@ -71,7 +78,6 @@ func NewBaseCommand(dict map[string]interface{}) *BaseCommand {
 
 func (cmd *BaseCommand) Init(dict map[string]interface{}) *BaseCommand {
 	if cmd.BaseContent.Init(dict) != nil {
-		// init
 	}
 	return cmd
 }
@@ -87,13 +93,52 @@ func (cmd *BaseCommand) InitWithCommand(command string) *BaseCommand {
 	return cmd.InitWithType(COMMAND, command)
 }
 
-//-------- setter/getter --------
+func (cmd *BaseCommand) Equal(other interface{}) bool {
+	return cmd.BaseContent.Equal(other)
+}
 
-/**
- *  Get command name
- *
- * @return command name string
- */
+//-------- Map
+
+func (cmd *BaseCommand) Get(name string) interface{} {
+	return cmd.BaseContent.Get(name)
+}
+
+func (cmd *BaseCommand) Set(name string, value interface{}) {
+	cmd.BaseContent.Set(name, value)
+}
+
+func (cmd *BaseCommand) Keys() []string {
+	return cmd.BaseContent.Keys()
+}
+
+func (cmd *BaseCommand) GetMap(clone bool) map[string]interface{} {
+	return cmd.BaseContent.GetMap(clone)
+}
+
+//-------- Content
+
+func (cmd *BaseCommand) Type() uint8 {
+	return cmd.BaseContent.Type()
+}
+
+func (cmd *BaseCommand) SN() uint32 {
+	return cmd.BaseContent.SN()
+}
+
+func (cmd *BaseCommand) Time() time.Time {
+	return cmd.BaseContent.Time()
+}
+
+func (cmd *BaseCommand) Group() ID {
+	return cmd.BaseContent.Group()
+}
+
+func (cmd *BaseCommand) SetGroup(group ID)  {
+	cmd.BaseContent.SetGroup(group)
+}
+
+//-------- Command
+
 func (cmd *BaseCommand) GetCommand() string {
 	return CommandGetName(cmd.GetMap(false))
 }

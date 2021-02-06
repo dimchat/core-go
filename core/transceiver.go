@@ -194,14 +194,14 @@ func isBroadcast(msg Message) bool {
 	return receiver.IsBroadcast()
 }
 
-func (transceiver *Transceiver) SerializeContent(content Content, password SymmetricKey, iMsg InstantMessage) []byte {
+func (transceiver *Transceiver) SerializeContent(content Content, _ SymmetricKey, _ InstantMessage) []byte {
 	// NOTICE: check attachment for File/Image/Audio/Video message content
 	//         before serialize content, this job should be do in subclass
 	dict := content.GetMap(false)
 	return JSONEncode(dict)
 }
 
-func (transceiver *Transceiver) EncryptContent(data []byte, password SymmetricKey, iMsg InstantMessage) []byte {
+func (transceiver *Transceiver) EncryptContent(data []byte, password SymmetricKey, _ InstantMessage) []byte {
 	return password.Encrypt(data)
 }
 
@@ -223,31 +223,31 @@ func (transceiver *Transceiver) SerializeKey(password SymmetricKey, iMsg Instant
 	return JSONEncode(dict)
 }
 
-func (transceiver *Transceiver) EncryptKey(data []byte, receiver ID, iMsg InstantMessage) []byte {
+func (transceiver *Transceiver) EncryptKey(data []byte, receiver ID, _ InstantMessage) []byte {
 	// TODO: make sure the receiver's public key exists
 	contact := transceiver.GetUser(receiver)
 	// encrypt with receiver's public key
 	return contact.Encrypt(data)
 }
 
-func (transceiver *Transceiver) EncodeKey(key []byte, iMsg InstantMessage) string {
+func (transceiver *Transceiver) EncodeKey(key []byte, _ InstantMessage) string {
 	return Base64Encode(key)
 }
 
 //-------- SecureMessageDelegate
 
-func (transceiver *Transceiver) DecodeKey(key string, sMsg SecureMessage) []byte {
+func (transceiver *Transceiver) DecodeKey(key string, _ SecureMessage) []byte {
 	return Base64Decode(key)
 }
 
-func (transceiver *Transceiver) DecryptKey(key []byte, sender ID, receiver ID, sMsg SecureMessage) []byte {
+func (transceiver *Transceiver) DecryptKey(key []byte, _ ID, _ ID, sMsg SecureMessage) []byte {
 	// NOTICE: the receiver will be group ID in a group message here
 	user := transceiver.GetUser(sMsg.Receiver())
 	// decrypt key data with the receiver/group member's private key
 	return user.Decrypt(key)
 }
 
-func (transceiver *Transceiver) DeserializeKey(key []byte, sender ID, receiver ID, sMsg SecureMessage) SymmetricKey {
+func (transceiver *Transceiver) DeserializeKey(key []byte, sender ID, receiver ID, _ SecureMessage) SymmetricKey {
 	// NOTICE: the receiver will be group ID in a group message here
 	if key == nil {
 		// get key from cache
@@ -273,7 +273,7 @@ func (transceiver *Transceiver) DecodeData(data string, sMsg SecureMessage) []by
 	return Base64Decode(data)
 }
 
-func (transceiver *Transceiver) DecryptContent(data []byte, password SymmetricKey, sMsg SecureMessage) []byte {
+func (transceiver *Transceiver) DecryptContent(data []byte, password SymmetricKey, _ SecureMessage) []byte {
 	return password.Decrypt(data)
 }
 
@@ -305,22 +305,22 @@ func (transceiver *Transceiver) DeserializeContent(data []byte, password Symmetr
 	return content
 }
 
-func (transceiver *Transceiver) SignData(data []byte, sender ID, sMsg SecureMessage) []byte {
+func (transceiver *Transceiver) SignData(data []byte, sender ID, _ SecureMessage) []byte {
 	user := transceiver.GetUser(sender)
 	return user.Sign(data)
 }
 
-func (transceiver *Transceiver) EncodeSignature(signature []byte, sMsg SecureMessage) string {
+func (transceiver *Transceiver) EncodeSignature(signature []byte, _ SecureMessage) string {
 	return Base64Encode(signature)
 }
 
 //-------- ReliableMessageDelegate
 
-func (transceiver *Transceiver) DecodeSignature(signature string, rMsg ReliableMessage) []byte {
+func (transceiver *Transceiver) DecodeSignature(signature string, _ ReliableMessage) []byte {
 	return Base64Decode(signature)
 }
 
-func (transceiver *Transceiver) VerifyDataSignature(data []byte, signature []byte, sender ID, rMsg ReliableMessage) bool {
+func (transceiver *Transceiver) VerifyDataSignature(data []byte, signature []byte, sender ID, _ ReliableMessage) bool {
 	contact := transceiver.GetUser(sender)
 	return contact.Verify(data, signature)
 }

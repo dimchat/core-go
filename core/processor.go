@@ -85,10 +85,13 @@ type Processor interface {
 	ProcessContent(content Content, rMsg ReliableMessage) Content
 }
 
-//
-//   Implementations
-//
-
+/**
+ *  Message Processor Implementations
+ *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ *
+ *  Abstract method:
+ *      ProcessContent(content Content, rMsg ReliableMessage) Content
+ */
 type TransceiverProcessor struct {
 	Processor
 

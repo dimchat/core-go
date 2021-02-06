@@ -108,10 +108,10 @@ type Packer interface {
 	DecryptMessage(sMsg SecureMessage) InstantMessage
 }
 
-//
-//   Implementations
-//
-
+/**
+ *  Message Packer Implementations
+ *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ */
 type TransceiverPacker struct {
 	Packer
 
