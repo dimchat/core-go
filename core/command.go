@@ -85,11 +85,9 @@ func BuildCommandFactories() {
 		return new(MetaCommand).Init(dict)
 	}))
 	// Document Command
-	docParser := NewGeneralCommandFactory(func(dict map[string]interface{}) Command {
+	CommandRegister(DOCUMENT, NewGeneralCommandFactory(func(dict map[string]interface{}) Command {
 		return new(DocumentCommand).Init(dict)
-	})
-	CommandRegister(DOCUMENT, docParser)
-	CommandRegister("profile", docParser)
+	}))
 
 	// Group Commands
 	CommandRegister("group", NewGroupCommandFactory(func(dict map[string]interface{}) Command {

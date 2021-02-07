@@ -70,8 +70,7 @@ type IBarrack interface {
  */
 type Barrack struct {
 	IBarrack
-	UserDataSource
-	GroupDataSource
+	EntityDataSource
 
 	// memory caches
 	_users map[ID]User
@@ -391,7 +390,7 @@ func (barrack *Barrack) GetOwner(group ID) ID {
 	}
 	// check group type
 	if group.Type() == POLYLOGUE {
-		// Polylogue's owner is its founder
+		// Polylogue owner is its founder
 		return barrack.GetFounder(group)
 	}
 	// TODO: load owner from database

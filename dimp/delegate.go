@@ -40,6 +40,8 @@ import (
  *  ~~~~~~~~~~~~~~~~~~
  */
 type EntityDataSource interface {
+	UserDataSource
+	GroupDataSource
 
 	/**
 	 *  Get meta for entity ID
@@ -82,7 +84,6 @@ type EntityDataSource interface {
  *     meta.key only
  */
 type UserDataSource interface {
-	EntityDataSource
 
 	/**
 	 *  Get contacts list
@@ -142,7 +143,6 @@ type UserDataSource interface {
  *  ~~~~~~~~~~~~~~~~~
  */
 type GroupDataSource interface {
-	EntityDataSource
 
 	/**
 	 *  Get group founder

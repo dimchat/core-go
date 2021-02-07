@@ -106,10 +106,6 @@ type BaseUser struct {
 	User
 }
 
-func NewUser(identifier ID) *BaseUser {
-	return new(BaseUser).Init(identifier)
-}
-
 func (user *BaseUser) Init(identifier ID) *BaseUser {
 	if user.BaseEntity.Init(identifier) != nil {
 	}
@@ -122,11 +118,11 @@ func (user *BaseUser) Equal(other interface{}) bool {
 
 //-------- Entity
 
-func (user *BaseUser) DataSource() UserDataSource {
-	return user.BaseEntity.DataSource().(UserDataSource)
+func (user *BaseUser) DataSource() EntityDataSource {
+	return user.BaseEntity.DataSource()
 }
 
-func (user *BaseUser) SetDataSource(delegate UserDataSource) {
+func (user *BaseUser) SetDataSource(delegate EntityDataSource) {
 	user.BaseEntity.SetDataSource(delegate)
 }
 

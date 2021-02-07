@@ -57,10 +57,6 @@ type BaseGroup struct {
 	_founder ID
 }
 
-func NewGroup(identifier ID) *BaseGroup {
-	return new(BaseGroup).Init(identifier)
-}
-
 func (group *BaseGroup) Init(identifier ID) *BaseGroup {
 	if group.BaseEntity.Init(identifier) != nil {
 		// lazy load
@@ -75,11 +71,11 @@ func (group *BaseGroup) Equal(other interface{}) bool {
 
 //-------- Entity
 
-func (group *BaseGroup) DataSource() GroupDataSource {
-	return group._delegate.(GroupDataSource)
+func (group *BaseGroup) DataSource() EntityDataSource {
+	return group.BaseEntity.DataSource()
 }
 
-func (group *BaseGroup) SetDataSource(delegate GroupDataSource) {
+func (group *BaseGroup) SetDataSource(delegate EntityDataSource) {
 	group.BaseEntity.SetDataSource(delegate)
 }
 
