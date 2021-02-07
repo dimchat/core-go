@@ -93,12 +93,7 @@ func (entity *BaseEntity) DataSource() EntityDataSource {
 }
 
 func (entity *BaseEntity) SetDataSource(delegate EntityDataSource) {
-	ds, ok := delegate.(EntityDataSource)
-	if ok {
-		entity._delegate = ds
-	} else {
-		panic("entity data source error")
-	}
+	entity._delegate = delegate
 }
 
 func (entity *BaseEntity) ID() ID {

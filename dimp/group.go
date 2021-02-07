@@ -34,17 +34,34 @@ import (
 	. "github.com/dimchat/mkm-go/protocol"
 )
 
-type Group struct {
+type Group interface {
+	Entity
+
+	/**
+	 *  Get document for group name, assistants
+	 *
+	 * @return visa document
+	 */
+	Bulletin() Bulletin
+
+	Founder() ID
+	Owner() ID
+	Members() []ID
+	Assistants() []ID
+}
+
+type BaseGroup struct {
 	BaseEntity
+	Group
 
 	_founder ID
 }
 
-func NewGroup(identifier ID) *Group {
-	return new(Group).Init(identifier)
+func NewGroup(identifier ID) *BaseGroup {
+	return new(BaseGroup).Init(identifier)
 }
 
-func (group *Group) Init(identifier ID) *Group {
+func (group *BaseGroup) Init(identifier ID) *BaseGroup {
 	if group.BaseEntity.Init(identifier) != nil {
 		// lazy load
 		group._founder = nil
@@ -52,11 +69,39 @@ func (group *Group) Init(identifier ID) *Group {
 	return group
 }
 
-func (group *Group) DataSource() GroupDataSource {
+func (group *BaseGroup) Equal(other interface{}) bool {
+	return group.BaseEntity.Equal(other)
+}
+
+//-------- Entity
+
+func (group *BaseGroup) DataSource() GroupDataSource {
 	return group._delegate.(GroupDataSource)
 }
 
-func (group *Group) Bulletin() Bulletin {
+func (group *BaseGroup) SetDataSource(delegate GroupDataSource) {
+	group.BaseEntity.SetDataSource(delegate)
+}
+
+func (group *BaseGroup) ID() ID {
+	return group.BaseEntity.ID()
+}
+
+func (group *BaseGroup) Type() uint8 {
+	return group.BaseEntity.Type()
+}
+
+func (group *BaseGroup) Meta() Meta {
+	return group.BaseEntity.Meta()
+}
+
+func (group *BaseGroup) GetDocument(docType string) Document {
+	return group.BaseEntity.GetDocument(docType)
+}
+
+//-------- Group
+
+func (group *BaseGroup) Bulletin() Bulletin {
 	doc := group.GetDocument(BULLETIN)
 	if doc != nil {
 		bulletin, ok := doc.(Bulletin)
@@ -67,23 +112,23 @@ func (group *Group) Bulletin() Bulletin {
 	return nil
 }
 
-func (group *Group) Founder() ID {
+func (group *BaseGroup) Founder() ID {
 	if group._founder == nil {
 		group._founder = group.DataSource().GetFounder(group.ID())
 	}
 	return group._founder
 }
 
-func (group *Group) Owner() ID {
+func (group *BaseGroup) Owner() ID {
 	return group.DataSource().GetOwner(group.ID())
 }
 
 // NOTICE: the owner must be a member
 //         (usually the first one)
-func (group *Group) Members() []ID {
+func (group *BaseGroup) Members() []ID {
 	return group.DataSource().GetMembers(group.ID())
 }
 
-func (group *Group) Assistants() []ID {
+func (group *BaseGroup) Assistants() []ID {
 	return group.DataSource().GetAssistants(group.ID())
 }

@@ -44,7 +44,7 @@ type EntityDelegate interface {
 	 * @param receiver - user/group ID
 	 * @return local user
 	 */
-	SelectLocalUser(receiver ID) *User
+	SelectLocalUser(receiver ID) User
 
 	/**
 	 *  Create user with ID
@@ -52,7 +52,7 @@ type EntityDelegate interface {
 	 * @param identifier - user ID
 	 * @return user
 	 */
-	GetUser(identifier ID) *User
+	GetUser(identifier ID) User
 
 	/**
 	 *  Create group with ID
@@ -60,7 +60,7 @@ type EntityDelegate interface {
 	 * @param identifier - group ID
 	 * @return group
 	 */
-	GetGroup(identifier ID) *Group
+	GetGroup(identifier ID) Group
 }
 
 type CipherKeyDelegate interface {

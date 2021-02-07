@@ -47,25 +47,108 @@ import (
  *      3. sign(data)    - calculate signature of (encrypted content) data
  *      4. decrypt(data) - decrypt (symmetric key) data
  */
-type User struct {
+type User interface {
+	Entity
+
+	/**
+	 *  Get visa document for nickname, avatar, public key
+	 *
+	 * @return visa document
+	 */
+	Visa() Visa
+
+	/**
+	 *  Get all contacts of the user
+	 *
+	 * @return contact list
+	 */
+	Contacts() []ID
+
+	/**
+	 *  Verify data and signature with user's public keys
+	 *
+	 * @param data - message data
+	 * @param signature - message signature
+	 * @return true on correct
+	 */
+	Verify(data []byte, signature []byte) bool
+
+	/**
+	 *  Encrypt data, try visa.key first, if not found, use meta.key
+	 *
+	 * @param plaintext - message data
+	 * @return encrypted data
+	 */
+	Encrypt(plaintext []byte) []byte
+
+	/**
+	 *  Sign data with user's private key
+	 *
+	 * @param data - message data
+	 * @return signature
+	 */
+	Sign(data []byte) []byte
+
+	/**
+	 *  Decrypt data with user's private key(s)
+	 *
+	 * @param ciphertext - encrypted data
+	 * @return plain text
+	 */
+	Decrypt(ciphertext []byte) []byte
+
+	SignVisa(visa Visa) Visa
+	VerifyVisa(visa Visa) bool
+}
+
+type BaseUser struct {
 	BaseEntity
+	User
 }
 
-func NewUser(identifier ID) *User {
-	return new(User).Init(identifier)
+func NewUser(identifier ID) *BaseUser {
+	return new(BaseUser).Init(identifier)
 }
 
-func (user *User) Init(identifier ID) *User {
+func (user *BaseUser) Init(identifier ID) *BaseUser {
 	if user.BaseEntity.Init(identifier) != nil {
 	}
 	return user
 }
 
-func (user *User) DataSource() UserDataSource {
-	return user._delegate.(UserDataSource)
+func (user *BaseUser) Equal(other interface{}) bool {
+	return user.BaseEntity.Equal(other)
 }
 
-func (user *User) Visa() Visa {
+//-------- Entity
+
+func (user *BaseUser) DataSource() UserDataSource {
+	return user.BaseEntity.DataSource().(UserDataSource)
+}
+
+func (user *BaseUser) SetDataSource(delegate UserDataSource) {
+	user.BaseEntity.SetDataSource(delegate)
+}
+
+func (user *BaseUser) ID() ID {
+	return user.BaseEntity.ID()
+}
+
+func (user *BaseUser) Type() uint8 {
+	return user.BaseEntity.Type()
+}
+
+func (user *BaseUser) Meta() Meta {
+	return user.BaseEntity.Meta()
+}
+
+func (user *BaseUser) GetDocument(docType string) Document {
+	return user.BaseEntity.GetDocument(docType)
+}
+
+//-------- User
+
+func (user *BaseUser) Visa() Visa {
 	doc := user.GetDocument(VISA)
 	if doc != nil {
 		visa, ok := doc.(Visa)
@@ -76,23 +159,11 @@ func (user *User) Visa() Visa {
 	return nil
 }
 
-/**
- *  Get all contacts of the user
- *
- * @return contact list
- */
-func (user *User) Contacts() []ID {
+func (user *BaseUser) Contacts() []ID {
 	return user.DataSource().GetContacts(user.ID())
 }
 
-/**
- *  Verify data and signature with user's public keys
- *
- * @param data - message data
- * @param signature - message signature
- * @return true on correct
- */
-func (user *User) Verify(data []byte, signature []byte) bool {
+func (user *BaseUser) Verify(data []byte, signature []byte) bool {
 	// NOTICE: I suggest using the private key paired with meta.key to sign message
 	//         so here should return the meta.key
 	keys := user.DataSource().GetPublicKeysForVerification(user.ID())
@@ -107,13 +178,7 @@ func (user *User) Verify(data []byte, signature []byte) bool {
 	return false
 }
 
-/**
- *  Encrypt data, try visa.key first, if not found, use meta.key
- *
- * @param plaintext - message data
- * @return encrypted data
- */
-func (user *User) Encrypt(plaintext []byte) []byte {
+func (user *BaseUser) Encrypt(plaintext []byte) []byte {
 	// NOTICE: meta.key will never changed, so use visa.key to encrypt message
 	//         is a better way
 	key := user.DataSource().GetPublicKeyForEncryption(user.ID())
@@ -127,13 +192,7 @@ func (user *User) Encrypt(plaintext []byte) []byte {
 //  Interfaces for Local User
 //
 
-/**
- *  Sign data with user's private key
- *
- * @param data - message data
- * @return signature
- */
-func (user *User) Sign(data []byte) []byte {
+func (user *BaseUser) Sign(data []byte) []byte {
 	// NOTICE: I suggest use the private key which paired to visa.key
 	//         to sign message
 	key := user.DataSource().GetPrivateKeyForSignature(user.ID())
@@ -144,13 +203,7 @@ func (user *User) Sign(data []byte) []byte {
 	return key.Sign(data)
 }
 
-/**
- *  Decrypt data with user's private key(s)
- *
- * @param ciphertext - encrypted data
- * @return plain text
- */
-func (user *User) Decrypt(ciphertext []byte) []byte {
+func (user *BaseUser) Decrypt(ciphertext []byte) []byte {
 	// NOTICE: if you provide a public key in visa for encryption,
 	//         here you should return the private key paired with visa.key
 	keys := user.DataSource().GetPrivateKeysForDecryption(user.ID())
@@ -170,7 +223,7 @@ func (user *User) Decrypt(ciphertext []byte) []byte {
 	return nil
 }
 
-func (user *User) SignVisa(visa Visa) Visa {
+func (user *BaseUser) SignVisa(visa Visa) Visa {
 	doc, ok := visa.(Document)
 	if !ok {
 		return nil
@@ -189,7 +242,7 @@ func (user *User) SignVisa(visa Visa) Visa {
 	return visa
 }
 
-func (user *User) VerifyVisa(visa Visa) bool {
+func (user *BaseUser) VerifyVisa(visa Visa) bool {
 	doc, ok := visa.(Document)
 	if !ok {
 		return false

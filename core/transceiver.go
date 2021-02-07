@@ -107,15 +107,15 @@ func (transceiver *Transceiver) Packer() Packer {
 //
 //  Interfaces for User/Group
 //
-func (transceiver *Transceiver) SelectLocalUser(receiver ID) *User {
+func (transceiver *Transceiver) SelectLocalUser(receiver ID) User {
 	return transceiver.EntityDelegate().SelectLocalUser(receiver)
 }
 
-func (transceiver *Transceiver) GetUser(identifier ID) *User {
+func (transceiver *Transceiver) GetUser(identifier ID) User {
 	return transceiver.EntityDelegate().GetUser(identifier)
 }
 
-func (transceiver *Transceiver) GetGroup(identifier ID) *Group {
+func (transceiver *Transceiver) GetGroup(identifier ID) Group {
 	return transceiver.EntityDelegate().GetGroup(identifier)
 }
 
