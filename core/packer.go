@@ -188,7 +188,7 @@ func (packer *TransceiverPacker) EncryptMessage(iMsg InstantMessage) SecureMessa
 			// TODO: suspend this message for waiting group's meta
 			return nil
 		}
-		members := grp.GetMembers()
+		members := grp.Members()
 		if members == nil || len(members) == 0 {
 			// group members not found
 			// TODO: suspend this message for waiting group's membership

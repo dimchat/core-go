@@ -77,7 +77,7 @@ func (content *FileContent) InitWithType(msgType uint8, filename string, data []
 
 //-------- setter/getter --------
 
-func (content *FileContent) GetURL() string {
+func (content *FileContent) URL() string {
 	url := content.Get("URL")
 	if url == nil {
 		return ""
@@ -88,7 +88,7 @@ func (content *FileContent) SetURL(url string) {
 	content.Set("URL", url)
 }
 
-func (content *FileContent) GetData() []byte {
+func (content *FileContent) Data() []byte {
 	if content._data == nil {
 		b64 := content.Get("data")
 		if b64 != nil {
@@ -107,7 +107,7 @@ func (content *FileContent) SetData(data []byte) {
 	content._data = data
 }
 
-func (content *FileContent) GetFilename() string {
+func (content *FileContent) Filename() string {
 	filename := content.Get("filename")
 	if filename == nil {
 		return ""
@@ -118,7 +118,7 @@ func (content *FileContent) SetFilename(filename string) {
 	content.Set("filename", filename)
 }
 
-func (content *FileContent) GetPassword() SymmetricKey {
+func (content *FileContent) Password() SymmetricKey {
 	if content._key == nil {
 		dict := content.Get("password")
 		content._key = SymmetricKeyParse(dict)
@@ -167,7 +167,7 @@ func (content *ImageContent) InitWithFilename(filename string, data []byte) *Ima
 	return content
 }
 
-func (content *ImageContent) GetThumbnail() []byte {
+func (content *ImageContent) Thumbnail() []byte {
 	if content._thumbnail == nil {
 		b64 := content.Get("thumbnail")
 		if b64 != nil {
@@ -210,7 +210,6 @@ func (content *AudioContent) Init(dict map[string]interface{}) *AudioContent {
 
 func (content *AudioContent) InitWithFilename(filename string, data []byte) *AudioContent {
 	if content.FileContent.InitWithType(AUDIO, filename, data) != nil {
-		// init
 	}
 	return content
 }
@@ -247,7 +246,7 @@ func (content *VideoContent) InitWithFilename(filename string, data []byte) *Vid
 	return content
 }
 
-func (content *VideoContent) GetSnapshot() []byte {
+func (content *VideoContent) Snapshot() []byte {
 	if content._snapshot == nil {
 		b64 := content.Get("snapshot")
 		if b64 != nil {

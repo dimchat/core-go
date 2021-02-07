@@ -67,10 +67,6 @@ type GroupCommand struct {
 	HistoryCommand
 }
 
-func NewGroupCommand(dict map[string]interface{}) *GroupCommand {
-	return new(GroupCommand).Init(dict)
-}
-
 func (cmd *GroupCommand) Init(dict map[string]interface{}) *GroupCommand {
 	if cmd.HistoryCommand.Init(dict) != nil {
 	}
@@ -106,7 +102,7 @@ func (cmd *GroupCommand) InitWithMembers(command string, group ID, members []ID)
 /*
  *  Member ID
  */
-func (cmd *GroupCommand) GetMember() ID {
+func (cmd *GroupCommand) Member() ID {
 	member := cmd.Get("member")
 	if member == nil {
 		return nil
@@ -121,7 +117,7 @@ func (cmd *GroupCommand) SetMember(member ID)  {
 /*
  *  Member ID list
  */
-func (cmd *GroupCommand) GetMembers() []ID {
+func (cmd *GroupCommand) Members() []ID {
 	members := cmd.Get("members")
 	if members == nil {
 		return nil

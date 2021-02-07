@@ -56,7 +56,7 @@ func (group *Group) DataSource() GroupDataSource {
 	return group._delegate.(GroupDataSource)
 }
 
-func (group *Group) GetBulletin() Bulletin {
+func (group *Group) Bulletin() Bulletin {
 	doc := group.GetDocument(BULLETIN)
 	if doc != nil {
 		bulletin, ok := doc.(Bulletin)
@@ -67,23 +67,23 @@ func (group *Group) GetBulletin() Bulletin {
 	return nil
 }
 
-func (group *Group) GetFounder() ID {
+func (group *Group) Founder() ID {
 	if group._founder == nil {
 		group._founder = group.DataSource().GetFounder(group.ID())
 	}
 	return group._founder
 }
 
-func (group *Group) GetOwner() ID {
+func (group *Group) Owner() ID {
 	return group.DataSource().GetOwner(group.ID())
 }
 
 // NOTICE: the owner must be a member
 //         (usually the first one)
-func (group *Group) GetMembers() []ID {
+func (group *Group) Members() []ID {
 	return group.DataSource().GetMembers(group.ID())
 }
 
-func (group *Group) GetAssistants() []ID {
+func (group *Group) Assistants() []ID {
 	return group.DataSource().GetAssistants(group.ID())
 }

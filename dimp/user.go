@@ -65,7 +65,7 @@ func (user *User) DataSource() UserDataSource {
 	return user._delegate.(UserDataSource)
 }
 
-func (user *User) GetVisa() Visa {
+func (user *User) Visa() Visa {
 	doc := user.GetDocument(VISA)
 	if doc != nil {
 		visa, ok := doc.(Visa)
@@ -81,7 +81,7 @@ func (user *User) GetVisa() Visa {
  *
  * @return contact list
  */
-func (user *User) GetContacts() []ID {
+func (user *User) Contacts() []ID {
 	return user.DataSource().GetContacts(user.ID())
 }
 
@@ -199,7 +199,7 @@ func (user *User) VerifyVisa(visa Visa) bool {
 		// visa ID not match
 		return false
 	}
-	key := user.GetMeta().Key()
+	key := user.Meta().Key()
 	if key == nil {
 		panic("failed to get verify key for visa: : " + user.ID().String())
 		return false

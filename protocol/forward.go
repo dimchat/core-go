@@ -49,6 +49,10 @@ type ForwardContent struct {
 	_secret ReliableMessage
 }
 
+func NewForwardContent(msg ReliableMessage) *ForwardContent {
+	return new(ForwardContent).InitWithMessage(msg)
+}
+
 func (content *ForwardContent) Init(dict map[string]interface{}) *ForwardContent {
 	if content.BaseContent.Init(dict) != nil {
 		// lazy load
@@ -65,7 +69,7 @@ func (content *ForwardContent) InitWithMessage(msg ReliableMessage) *ForwardCont
 	return content
 }
 
-func (content *ForwardContent) GetMessage() ReliableMessage {
+func (content *ForwardContent) Message() ReliableMessage {
 	if content._secret == nil {
 		forward := content.Get("forward")
 		content._secret = ReliableMessageParse(forward)

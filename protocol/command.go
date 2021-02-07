@@ -64,16 +64,12 @@ type Command interface {
 	 *
 	 * @return command name string
 	 */
-	GetCommand() string
+	CommandName() string
 }
 
 type BaseCommand struct {
 	BaseContent
 	Command
-}
-
-func NewBaseCommand(dict map[string]interface{}) *BaseCommand {
-	return new(BaseCommand).Init(dict)
 }
 
 func (cmd *BaseCommand) Init(dict map[string]interface{}) *BaseCommand {
@@ -139,7 +135,7 @@ func (cmd *BaseCommand) SetGroup(group ID)  {
 
 //-------- Command
 
-func (cmd *BaseCommand) GetCommand() string {
+func (cmd *BaseCommand) CommandName() string {
 	return CommandGetName(cmd.GetMap(false))
 }
 

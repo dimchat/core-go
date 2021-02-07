@@ -53,6 +53,10 @@ type PageContent struct {
 	_icon []byte
 }
 
+func NewPageContent(url string, title string, desc string, icon []byte) *PageContent {
+	return new(PageContent).InitWithURL(url, title, desc, icon)
+}
+
 func (content *PageContent) Init(dict map[string]interface{}) *PageContent {
 	if content.BaseContent.Init(dict) != nil {
 		// lazy load
@@ -73,7 +77,7 @@ func (content *PageContent) InitWithURL(url string, title string, desc string, i
 
 //-------- setter/getter --------
 
-func (content *PageContent) GetURL() string {
+func (content *PageContent) URL() string {
 	url := content.Get("URL")
 	return url.(string)
 }
@@ -81,7 +85,7 @@ func (content *PageContent) SetURL(url string) {
 	content.Set("URL", url)
 }
 
-func (content *PageContent) GetTitle() string {
+func (content *PageContent) Title() string {
 	title := content.Get("title")
 	if title == nil {
 		return ""
@@ -92,7 +96,7 @@ func (content *PageContent) SetTitle(title string) {
 	content.Set("title", title)
 }
 
-func (content *PageContent) GetDescription() string {
+func (content *PageContent) Description() string {
 	desc := content.Get("desc")
 	if desc == nil {
 		return ""
@@ -103,7 +107,7 @@ func (content *PageContent) SetDescription(desc string) {
 	content.Set("desc", desc)
 }
 
-func (content *PageContent) GetIcon() []byte {
+func (content *PageContent) Icon() []byte {
 	if content._icon == nil {
 		b64 := content.Get("icon")
 		if b64 != nil {

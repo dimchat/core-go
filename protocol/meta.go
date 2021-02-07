@@ -95,10 +95,17 @@ func (cmd *MetaCommand) InitWithID(id ID) *MetaCommand {
 
 //-------- setter/getter --------
 
-/*
+/**
+ *  Entity ID
+ */
+func (cmd *MetaCommand) ID() ID {
+	return IDParse(cmd.Get("ID"))
+}
+
+/**
  *  Entity Meta
  */
-func (cmd *MetaCommand) GetMeta() Meta {
+func (cmd *MetaCommand) Meta() Meta {
 	if cmd._meta == nil {
 		meta := cmd.Get("meta")
 		cmd._meta = MetaParse(meta)

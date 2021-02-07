@@ -52,7 +52,7 @@ type Entity interface {
 	ID() ID
 	Type() uint8
 
-	GetMeta() Meta
+	Meta() Meta
 	GetDocument(docType string) Document
 
 	DataSource() EntityDataSource
@@ -114,7 +114,7 @@ func (entity *BaseEntity) Type() uint8 {
 	return entity.ID().Type()
 }
 
-func (entity *BaseEntity) GetMeta() Meta {
+func (entity *BaseEntity) Meta() Meta {
 	delegate := entity.DataSource()
 	if delegate == nil {
 		return nil

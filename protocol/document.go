@@ -104,7 +104,7 @@ func (cmd *DocumentCommand) InitWithSignature(id ID, signature string) *Document
 /*
  *  Entity Document
  */
-func (cmd *DocumentCommand) GetDocument() Document {
+func (cmd *DocumentCommand) Document() Document {
 	if cmd._doc == nil {
 		document := cmd.Get("document")
 		if document == nil {
@@ -116,7 +116,7 @@ func (cmd *DocumentCommand) GetDocument() Document {
 	return cmd._doc
 }
 
-func (cmd *DocumentCommand) GetSignature() string {
+func (cmd *DocumentCommand) Signature() string {
 	signature := cmd.Get("signature")
 	if signature == nil {
 		return ""

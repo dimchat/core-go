@@ -93,7 +93,7 @@ func BuildCommandFactories() {
 
 	// Group Commands
 	CommandRegister("group", NewGroupCommandFactory(func(dict map[string]interface{}) Command {
-		return NewGroupCommand(dict)
+		return new(GroupCommand).Init(dict)
 	}))
 	CommandRegister(INVITE, NewGroupCommandFactory(func(dict map[string]interface{}) Command {
 		return new(InviteCommand).Init(dict)

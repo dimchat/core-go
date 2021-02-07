@@ -94,15 +94,15 @@ func BuildContentFactories() {
 
 	// Command
 	ContentRegister(COMMAND, NewGeneralCommandFactory(func(dict map[string]interface{}) Command {
-		return NewBaseCommand(dict)
+		return new(BaseCommand).Init(dict)
 	}))
 	// History Command
 	ContentRegister(HISTORY, NewHistoryCommandFactory(func(dict map[string]interface{}) Command {
-		return NewHistoryCommand(dict)
+		return new(HistoryCommand).Init(dict)
 	}))
 
 	// unknown content type
 	ContentRegister(0, NewGeneralContentFactory(func(dict map[string]interface{}) Content {
-		return NewBaseContent(dict)
+		return new(BaseContent).Init(dict)
 	}))
 }

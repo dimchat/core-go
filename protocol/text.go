@@ -47,6 +47,10 @@ type TextContent struct {
 	BaseContent
 }
 
+func NewTextContent(text string) *TextContent {
+	return new(TextContent).InitWithText(text)
+}
+
 func (content *TextContent) Init(dict map[string]interface{}) *TextContent {
 	if content.BaseContent.Init(dict) != nil {
 	}
@@ -62,7 +66,7 @@ func (content *TextContent) InitWithText(text string) *TextContent {
 
 //-------- setter/getter --------
 
-func (content *TextContent) GetText() string {
+func (content *TextContent) Text() string {
 	text := content.Get("text")
 	return text.(string)
 }
