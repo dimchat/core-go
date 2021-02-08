@@ -124,7 +124,7 @@ func (cmd *GroupCommand) Members() []ID {
 	}
 	switch members.(type) {
 	case []interface{}:
-		return IDConvert(members.([]interface{}))
+		return IDConvert(members)
 	default:
 		panic(members)
 		return nil

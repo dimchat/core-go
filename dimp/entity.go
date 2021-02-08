@@ -33,6 +33,7 @@ package dimp
 import (
 	. "github.com/dimchat/mkm-go/protocol"
 	. "github.com/dimchat/mkm-go/types"
+	"reflect"
 )
 
 /**
@@ -74,18 +75,25 @@ func (entity *BaseEntity) Init(identifier ID) *BaseEntity {
 }
 
 func (entity *BaseEntity) Equal(other interface{}) bool {
-	var identifier ID
-	value := ObjectValue(other)
-	switch value.(type) {
-	case BaseEntity:
-		identifier = other.(*BaseEntity).ID()
-	case ID:
-		identifier = value.(ID)
-	default:
-		return false
+	e, ok := other.(Entity)
+	if ok {
+		value := reflect.ValueOf(other)
+		if value.Kind() == reflect.Ptr {
+			// compare pointers
+			if entity == other {
+				return true
+			}
+			other = value.Elem().Interface()
+		}
+		// compare values
+		if *entity == other {
+			return true
+		}
+		// compare ids
+		return entity._identifier.Equal(e.ID())
+	} else {
+		return entity._identifier.Equal(other)
 	}
-	// check by ID
-	return entity.ID().Equal(identifier)
 }
 
 func (entity *BaseEntity) DataSource() EntityDataSource {

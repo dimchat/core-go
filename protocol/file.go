@@ -54,6 +54,10 @@ type FileContent struct {
 	_key SymmetricKey  // symmetric key to decrypt the encrypted data from URL
 }
 
+func NewFileContent(msgType uint8, filename string, data []byte) *FileContent {
+	return new(FileContent).InitWithType(msgType, filename, data)
+}
+
 func (content *FileContent) Init(dict map[string]interface{}) *FileContent {
 	if content.BaseContent.Init(dict) != nil {
 		// lazy load
@@ -152,6 +156,10 @@ type ImageContent struct {
 	_thumbnail []byte
 }
 
+func NewImageContent(filename string, data []byte) *ImageContent {
+	return new(ImageContent).InitWithFilename(filename, data)
+}
+
 func (content *ImageContent) Init(dict map[string]interface{}) *ImageContent {
 	if content.FileContent.Init(dict) != nil {
 		// lazy load
@@ -202,6 +210,10 @@ type AudioContent struct {
 	FileContent
 }
 
+func NewAudioContent(filename string, data []byte) *AudioContent {
+	return new(AudioContent).InitWithFilename(filename, data)
+}
+
 func (content *AudioContent) Init(dict map[string]interface{}) *AudioContent {
 	if content.FileContent.Init(dict) != nil {
 	}
@@ -229,6 +241,10 @@ type VideoContent struct {
 	FileContent
 
 	_snapshot []byte
+}
+
+func NewVideoContent(filename string, data []byte) *VideoContent {
+	return new(VideoContent).InitWithFilename(filename, data)
 }
 
 func (content *VideoContent) Init(dict map[string]interface{}) *VideoContent {
