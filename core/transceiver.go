@@ -31,26 +31,28 @@
 package core
 
 import (
-	. "github.com/dimchat/core-go/dimp"
+	"github.com/dimchat/core-go/dimp"
 	. "github.com/dimchat/dkd-go/protocol"
 	. "github.com/dimchat/mkm-go/crypto"
-	. "github.com/dimchat/mkm-go/format"
 	. "github.com/dimchat/mkm-go/protocol"
 )
 
 type Transceiver struct {
+	dimp.Transceiver
 	InstantMessageDelegate
 	ReliableMessageDelegate
 
-	_entityDelegate EntityDelegate
-	_keyDelegate CipherKeyDelegate
-	_processor Processor
-	_packer Packer
+	_entityDelegate dimp.EntityDelegate
+	_keyDelegate dimp.CipherKeyDelegate
+	_transformer dimp.Transformer
+	_processor dimp.Processor
+	_packer dimp.Packer
 }
 
 func (transceiver *Transceiver) Init() *Transceiver {
 	transceiver._entityDelegate = nil
 	transceiver._keyDelegate = nil
+	transceiver._transformer = nil
 	transceiver._processor = nil
 	transceiver._packer = nil
 	return transceiver
@@ -61,10 +63,10 @@ func (transceiver *Transceiver) Init() *Transceiver {
  *
  * @param barrack - entity delegate
  */
-func (transceiver *Transceiver) SetEntityDelegate(barrack EntityDelegate) {
+func (transceiver *Transceiver) SetEntityDelegate(barrack dimp.EntityDelegate) {
 	transceiver._entityDelegate = barrack
 }
-func (transceiver *Transceiver) EntityDelegate() EntityDelegate {
+func (transceiver *Transceiver) EntityDelegate() dimp.EntityDelegate {
 	return transceiver._entityDelegate
 }
 
@@ -73,11 +75,23 @@ func (transceiver *Transceiver) EntityDelegate() EntityDelegate {
  *
  * @param keyCache - key store
  */
-func (transceiver *Transceiver) SetCipherKeyDelegate(keyCache CipherKeyDelegate) {
+func (transceiver *Transceiver) SetCipherKeyDelegate(keyCache dimp.CipherKeyDelegate) {
 	transceiver._keyDelegate = keyCache
 }
-func (transceiver *Transceiver) CipherKeyDelegate() CipherKeyDelegate {
+func (transceiver *Transceiver) CipherKeyDelegate() dimp.CipherKeyDelegate {
 	return transceiver._keyDelegate
+}
+
+/**
+ *  Delegate for Transforming Message
+ *
+ * @param transformer - message transformer
+ */
+func (transceiver *Transceiver) SetTransformer(transformer dimp.Transformer) {
+	transceiver._transformer = transformer
+}
+func (transceiver *Transceiver) Transformer() dimp.Transformer {
+	return transceiver._transformer
 }
 
 /**
@@ -85,10 +99,10 @@ func (transceiver *Transceiver) CipherKeyDelegate() CipherKeyDelegate {
  *
  * @param processor - message processor
  */
-func (transceiver *Transceiver) SetProcessor(processor Processor) {
+func (transceiver *Transceiver) SetProcessor(processor dimp.Processor) {
 	transceiver._processor = processor
 }
-func (transceiver *Transceiver) Processor() Processor {
+func (transceiver *Transceiver) Processor() dimp.Processor {
 	return transceiver._processor
 }
 
@@ -97,25 +111,25 @@ func (transceiver *Transceiver) Processor() Processor {
  *
  * @param packer - message packer
  */
-func (transceiver *Transceiver) SetPacker(packer Packer) {
+func (transceiver *Transceiver) SetPacker(packer dimp.Packer) {
 	transceiver._packer = packer
 }
-func (transceiver *Transceiver) Packer() Packer {
+func (transceiver *Transceiver) Packer() dimp.Packer {
 	return transceiver._packer
 }
 
 //
 //  Interfaces for User/Group
 //
-func (transceiver *Transceiver) SelectLocalUser(receiver ID) User {
+func (transceiver *Transceiver) SelectLocalUser(receiver ID) dimp.User {
 	return transceiver.EntityDelegate().SelectLocalUser(receiver)
 }
 
-func (transceiver *Transceiver) GetUser(identifier ID) User {
+func (transceiver *Transceiver) GetUser(identifier ID) dimp.User {
 	return transceiver.EntityDelegate().GetUser(identifier)
 }
 
-func (transceiver *Transceiver) GetGroup(identifier ID) Group {
+func (transceiver *Transceiver) GetGroup(identifier ID) dimp.Group {
 	return transceiver.EntityDelegate().GetGroup(identifier)
 }
 
@@ -186,141 +200,70 @@ func (transceiver *Transceiver) ProcessContent(content Content, rMsg ReliableMes
 
 //-------- InstantMessageDelegate
 
-func isBroadcast(msg Message) bool {
-	receiver := msg.Group()
-	if receiver == nil {
-		receiver = msg.Receiver()
-	}
-	return receiver.IsBroadcast()
+func (transceiver *Transceiver) SerializeContent(content Content, password SymmetricKey, iMsg InstantMessage) []byte {
+	return transceiver.Transformer().SerializeContent(content, password, iMsg)
 }
 
-func (transceiver *Transceiver) SerializeContent(content Content, _ SymmetricKey, _ InstantMessage) []byte {
-	// NOTICE: check attachment for File/Image/Audio/Video message content
-	//         before serialize content, this job should be do in subclass
-	dict := content.GetMap(false)
-	return JSONEncode(dict)
-}
-
-func (transceiver *Transceiver) EncryptContent(data []byte, password SymmetricKey, _ InstantMessage) []byte {
-	return password.Encrypt(data)
+func (transceiver *Transceiver) EncryptContent(data []byte, password SymmetricKey, iMsg InstantMessage) []byte {
+	return transceiver.Transformer().EncryptContent(data, password, iMsg)
 }
 
 func (transceiver *Transceiver) EncodeData(data []byte, iMsg InstantMessage) string {
-	if isBroadcast(iMsg) {
-		// broadcast message content will not be encrypted (just encoded to JsON),
-		// so no need to encode to Base64 here
-		return UTF8Decode(data)
-	}
-	return Base64Encode(data)
+	return transceiver.Transformer().EncodeData(data, iMsg)
 }
 
 func (transceiver *Transceiver) SerializeKey(password SymmetricKey, iMsg InstantMessage) []byte {
-	if isBroadcast(iMsg) {
-		// broadcast message has no key
-		return nil
-	}
-	dict := password.GetMap(false)
-	return JSONEncode(dict)
+	return transceiver.Transformer().SerializeKey(password, iMsg)
 }
 
-func (transceiver *Transceiver) EncryptKey(data []byte, receiver ID, _ InstantMessage) []byte {
-	// TODO: make sure the receiver's public key exists
-	contact := transceiver.GetUser(receiver)
-	// encrypt with receiver's public key
-	return contact.Encrypt(data)
+func (transceiver *Transceiver) EncryptKey(data []byte, receiver ID, iMsg InstantMessage) []byte {
+	return transceiver.Transformer().EncryptKey(data, receiver, iMsg)
 }
 
-func (transceiver *Transceiver) EncodeKey(key []byte, _ InstantMessage) string {
-	return Base64Encode(key)
+func (transceiver *Transceiver) EncodeKey(data []byte, iMsg InstantMessage) string {
+	return transceiver.Transformer().EncodeKey(data, iMsg)
 }
 
 //-------- SecureMessageDelegate
 
-func (transceiver *Transceiver) DecodeKey(key string, _ SecureMessage) []byte {
-	return Base64Decode(key)
+func (transceiver *Transceiver) DecodeKey(key string, sMsg SecureMessage) []byte {
+	return transceiver.Transformer().DecodeKey(key, sMsg)
 }
 
-func (transceiver *Transceiver) DecryptKey(key []byte, _ ID, _ ID, sMsg SecureMessage) []byte {
-	// NOTICE: the receiver will be group ID in a group message here
-	user := transceiver.GetUser(sMsg.Receiver())
-	// decrypt key data with the receiver/group member's private key
-	return user.Decrypt(key)
+func (transceiver *Transceiver) DecryptKey(key []byte, sender ID, receiver ID, sMsg SecureMessage) []byte {
+	return transceiver.Transformer().DecryptKey(key, sender, receiver, sMsg)
 }
 
-func (transceiver *Transceiver) DeserializeKey(key []byte, sender ID, receiver ID, _ SecureMessage) SymmetricKey {
-	// NOTICE: the receiver will be group ID in a group message here
-	if key == nil {
-		// get key from cache
-		return transceiver.GetCipherKey(sender, receiver, false)
-	} else {
-		dict := JSONDecode(key)
-		// TODO: translate short keys
-		//       'A' -> 'algorithm'
-		//       'D' -> 'data'
-		//       'V' -> 'iv'
-		//       'M' -> 'mode'
-		//       'P' -> 'padding'
-		return SymmetricKeyParse(dict)
-	}
+func (transceiver *Transceiver) DeserializeKey(key []byte, sender ID, receiver ID, sMsg SecureMessage) SymmetricKey {
+	return transceiver.Transformer().DeserializeKey(key, sender, receiver, sMsg)
 }
 
 func (transceiver *Transceiver) DecodeData(data string, sMsg SecureMessage) []byte {
-	if isBroadcast(sMsg) {
-		// broadcast message content will not be encrypted (just encoded to JsON),
-		// so return the string data directly
-		return UTF8Encode(data)
-	}
-	return Base64Decode(data)
+	return transceiver.Transformer().DecodeData(data, sMsg)
 }
 
-func (transceiver *Transceiver) DecryptContent(data []byte, password SymmetricKey, _ SecureMessage) []byte {
-	return password.Decrypt(data)
+func (transceiver *Transceiver) DecryptContent(data []byte, password SymmetricKey, sMsg SecureMessage) []byte {
+	return transceiver.Transformer().DecryptContent(data, password, sMsg)
 }
 
 func (transceiver *Transceiver) DeserializeContent(data []byte, password SymmetricKey, sMsg SecureMessage) Content {
-	dict := JSONDecode(data)
-	// TODO: translate short keys
-	//       'T' -> 'type'
-	//       'N' -> 'sn'
-	//       'G' -> 'group'
-	content := ContentParse(dict)
-
-	if !isBroadcast(sMsg) {
-		sender := sMsg.Sender()
-		group := transceiver.GetOvertGroup(content)
-		if group == nil {
-			// personal message or (group) command
-			// cache key with direction (sender -> receiver)
-			receiver := sMsg.Receiver()
-			transceiver.CacheCipherKey(sender, receiver, password)
-		} else {
-			// group message (excludes group command)
-			// cache the key with direction (sender -> group)
-			transceiver.CacheCipherKey(sender, group, password)
-		}
-	}
-
-	// NOTICE: check attachment for File/Image/Audio/Video message content
-	//         after deserialize content, this job should be do in subclass
-	return content
+	return transceiver.Transformer().DeserializeContent(data, password, sMsg)
 }
 
-func (transceiver *Transceiver) SignData(data []byte, sender ID, _ SecureMessage) []byte {
-	user := transceiver.GetUser(sender)
-	return user.Sign(data)
+func (transceiver *Transceiver) SignData(data []byte, sender ID, sMsg SecureMessage) []byte {
+	return transceiver.Transformer().SignData(data, sender, sMsg)
 }
 
-func (transceiver *Transceiver) EncodeSignature(signature []byte, _ SecureMessage) string {
-	return Base64Encode(signature)
+func (transceiver *Transceiver) EncodeSignature(signature []byte, sMsg SecureMessage) string {
+	return transceiver.Transformer().EncodeSignature(signature, sMsg)
 }
 
 //-------- ReliableMessageDelegate
 
-func (transceiver *Transceiver) DecodeSignature(signature string, _ ReliableMessage) []byte {
-	return Base64Decode(signature)
+func (transceiver *Transceiver) DecodeSignature(signature string, rMsg ReliableMessage) []byte {
+	return transceiver.Transformer().DecodeSignature(signature, rMsg)
 }
 
-func (transceiver *Transceiver) VerifyDataSignature(data []byte, signature []byte, sender ID, _ ReliableMessage) bool {
-	contact := transceiver.GetUser(sender)
-	return contact.Verify(data, signature)
+func (transceiver *Transceiver) VerifyDataSignature(data []byte, signature []byte, sender ID, rMsg ReliableMessage) bool {
+	return transceiver.Transformer().VerifyDataSignature(data, signature, sender, rMsg)
 }

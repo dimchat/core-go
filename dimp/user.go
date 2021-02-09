@@ -101,6 +101,10 @@ type User interface {
 	VerifyVisa(visa Visa) bool
 }
 
+/**
+ *  Base User
+ *  ~~~~~~~~~
+ */
 type BaseUser struct {
 	BaseEntity
 	User

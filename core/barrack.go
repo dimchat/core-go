@@ -31,34 +31,29 @@
 package core
 
 import (
-	. "github.com/dimchat/core-go/dimp"
+	"github.com/dimchat/core-go/dimp"
 	. "github.com/dimchat/mkm-go/crypto"
 	. "github.com/dimchat/mkm-go/protocol"
 )
 
-type IBarrack interface {
-	EntityDelegate
+/**
+ *  Functions for creating user/group
+ */
+type UserCreator func(identifier ID) dimp.User
+type GroupCreator func(identifier ID) dimp.Group
 
-	CreateUser(identifier ID) User
-	CreateGroup(identifier ID) Group
-
-	/**
-	 *  Get all local users (for decrypting received message)
-	 *
-	 * @return users with private key
-	 */
-	GetLocalUsers() []User
-}
+/**
+ *  Function for getting all local users
+ *
+ * @return users with private key
+ */
+type LocalUsersLoader func(barrack interface{}) []dimp.User
 
 /**
  *  Delegate for entity
  *  ~~~~~~~~~~~~~~~~~~~
  *
  *  Abstract methods:
- *      // IBarrack
- *      CreateUser(identifier ID) User
- *      CreateGroup(identifier ID) Group
- *      GetLocalUsers() []User
  *      // EntityDataSource
  *      GetMeta(identifier ID) Meta
  *      GetDocument(identifier ID, docType string) Document
@@ -69,17 +64,21 @@ type IBarrack interface {
  *      GetPrivateKeyForVisaSignature(user ID) SignKey
  */
 type Barrack struct {
-	IBarrack
-	EntityDataSource
+	dimp.EntityDataSource
+	dimp.EntityDelegate
+
+	CreateUser UserCreator
+	CreateGroup GroupCreator
+	GetLocalUsers LocalUsersLoader
 
 	// memory caches
-	_users map[ID]User
-	_groups map[ID]Group
+	_users map[ID]dimp.User
+	_groups map[ID]dimp.Group
 }
 
 func (barrack *Barrack) Init() *Barrack {
-	barrack._users = make(map[ID]User)
-	barrack._groups = make(map[ID]Group)
+	barrack._users = make(map[ID]dimp.User)
+	barrack._groups = make(map[ID]dimp.Group)
 	return barrack
 }
 
@@ -153,14 +152,14 @@ func (barrack *Barrack) ReduceMemory() int {
 //	return keys
 //}
 
-func (barrack *Barrack) cacheUser(user User) {
+func (barrack *Barrack) cacheUser(user dimp.User) {
 	if user.DataSource() == nil {
 		user.SetDataSource(barrack)
 	}
 	barrack._users[user.ID()] = user
 }
 
-func (barrack *Barrack) cacheGroup(group Group) {
+func (barrack *Barrack) cacheGroup(group dimp.Group) {
 	if group.DataSource() == nil {
 		group.SetDataSource(barrack)
 	}
@@ -169,8 +168,8 @@ func (barrack *Barrack) cacheGroup(group Group) {
 
 //-------- EntityDelegate
 
-func (barrack *Barrack) SelectLocalUser(receiver ID) User {
-	users := barrack.GetLocalUsers()
+func (barrack *Barrack) SelectLocalUser(receiver ID) dimp.User {
+	users := barrack.GetLocalUsers(barrack)
 	if users == nil || len(users) == 0 {
 		panic("local users should not be empty")
 	} else if receiver.IsBroadcast() {
@@ -211,7 +210,7 @@ func (barrack *Barrack) SelectLocalUser(receiver ID) User {
 	return nil
 }
 
-func (barrack *Barrack) GetUser(identifier ID) User {
+func (barrack *Barrack) GetUser(identifier ID) dimp.User {
 	// 1. get from user cache
 	user := barrack._users[identifier]
 	if user == nil {
@@ -224,7 +223,7 @@ func (barrack *Barrack) GetUser(identifier ID) User {
 	return user
 }
 
-func (barrack *Barrack) GetGroup(identifier ID) Group {
+func (barrack *Barrack) GetGroup(identifier ID) dimp.Group {
 	// 1. get from group cache
 	// 1. get from user cache
 	group := barrack._groups[identifier]

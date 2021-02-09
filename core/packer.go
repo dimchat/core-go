@@ -31,6 +31,7 @@
 package core
 
 import (
+	"github.com/dimchat/core-go/dimp"
 	. "github.com/dimchat/dkd-go/protocol"
 	. "github.com/dimchat/mkm-go/crypto"
 	. "github.com/dimchat/mkm-go/format"
@@ -38,96 +39,25 @@ import (
 )
 
 /**
- *  Message Packer
- *  ~~~~~~~~~~~~~~
- */
-type Packer interface {
-
-	/**
-	 *  Get group ID which should be exposed to public network
-	 *
-	 * @param content - message content
-	 * @return exposed group ID
-	 */
-	GetOvertGroup(content Content) ID
-
-	//
-	//  InstantMessage -> SecureMessage -> ReliableMessage -> Data
-	//
-
-	/**
-	 *  Encrypt message content
-	 *
-	 * @param iMsg - plain message
-	 * @return encrypted message
-	 */
-	EncryptMessage(iMsg InstantMessage) SecureMessage
-
-	/**
-	 *  Sign content data
-	 *
-	 * @param sMsg - encrypted message
-	 * @return network message
-	 */
-	SignMessage(sMsg SecureMessage) ReliableMessage
-
-	/**
-	 *  Serialize network message
-	 *
-	 * @param rMsg - network message
-	 * @return data package
-	 */
-	SerializeMessage(rMsg ReliableMessage) []byte
-
-	//
-	//  Data -> ReliableMessage -> SecureMessage -> InstantMessage
-	//
-
-	/**
-	 *  Deserialize network message
-	 *
-	 * @param data - data package
-	 * @return network message
-	 */
-	DeserializeMessage(data []byte) ReliableMessage
-
-	/**
-	 *  Verify encrypted content data
-	 *
-	 * @param rMsg - network message
-	 * @return encrypted message
-	 */
-	VerifyMessage(rMsg ReliableMessage) SecureMessage
-
-	/**
-	 *  Decrypt message content
-	 *
-	 * @param sMsg - encrypted message
-	 * @return plain message
-	 */
-	DecryptMessage(sMsg SecureMessage) InstantMessage
-}
-
-/**
  *  Message Packer Implementations
  *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  */
-type TransceiverPacker struct {
-	Packer
+type Packer struct {
+	dimp.Packer
 
-	_transceiver *Transceiver
+	_transceiver dimp.Transceiver
 }
 
-func (packer *TransceiverPacker) Init(transceiver *Transceiver) *TransceiverPacker {
+func (packer *Packer) Init(transceiver dimp.Transceiver) *Packer {
 	packer._transceiver = transceiver
 	return packer
 }
 
-func (packer *TransceiverPacker) Transceiver() *Transceiver {
+func (packer *Packer) Transceiver() dimp.Transceiver {
 	return packer._transceiver
 }
 
-func (packer *TransceiverPacker) GetOvertGroup(content Content) ID {
+func (packer *Packer) GetOvertGroup(content Content) ID {
 	group := content.Group()
 	if group == nil {
 		return nil
@@ -145,7 +75,7 @@ func (packer *TransceiverPacker) GetOvertGroup(content Content) ID {
 	return group
 }
 
-func (packer *TransceiverPacker) EncryptMessage(iMsg InstantMessage) SecureMessage {
+func (packer *Packer) EncryptMessage(iMsg InstantMessage) SecureMessage {
 	// check message delegate
 	if iMsg.Delegate() == nil {
 		iMsg.SetDelegate(packer.Transceiver())
@@ -222,7 +152,7 @@ func (packer *TransceiverPacker) EncryptMessage(iMsg InstantMessage) SecureMessa
 	return sMsg
 }
 
-func (packer *TransceiverPacker) SignMessage(sMsg SecureMessage) ReliableMessage {
+func (packer *Packer) SignMessage(sMsg SecureMessage) ReliableMessage {
 	// check message delegate
 	if sMsg.Delegate() == nil {
 		sMsg.SetDelegate(packer.Transceiver())
@@ -231,12 +161,12 @@ func (packer *TransceiverPacker) SignMessage(sMsg SecureMessage) ReliableMessage
 	return sMsg.Sign()
 }
 
-func (packer *TransceiverPacker) SerializeMessage(rMsg ReliableMessage) []byte {
+func (packer *Packer) SerializeMessage(rMsg ReliableMessage) []byte {
 	dict := rMsg.GetMap(false)
 	return JSONEncode(dict)
 }
 
-func (packer *TransceiverPacker) DeserializeMessage(data []byte) ReliableMessage {
+func (packer *Packer) DeserializeMessage(data []byte) ReliableMessage {
 	dict := JSONDecode(data)
 	// TODO: translate short keys
 	//       'S' -> 'sender'
@@ -253,7 +183,7 @@ func (packer *TransceiverPacker) DeserializeMessage(data []byte) ReliableMessage
 	return ReliableMessageParse(dict)
 }
 
-func (packer *TransceiverPacker) VerifyMessage(rMsg ReliableMessage) SecureMessage {
+func (packer *Packer) VerifyMessage(rMsg ReliableMessage) SecureMessage {
 	// check message delegate
 	if rMsg.Delegate() == nil {
 		rMsg.SetDelegate(packer.Transceiver())
@@ -268,7 +198,7 @@ func (packer *TransceiverPacker) VerifyMessage(rMsg ReliableMessage) SecureMessa
 	return rMsg.Verify()
 }
 
-func (packer *TransceiverPacker) DecryptMessage(sMsg SecureMessage) InstantMessage {
+func (packer *Packer) DecryptMessage(sMsg SecureMessage) InstantMessage {
 	// check message delegate
 	if sMsg.Delegate() == nil {
 		sMsg.SetDelegate(packer.Transceiver())

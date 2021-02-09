@@ -2,12 +2,12 @@
  *
  *  DIMP : Decentralized Instant Messaging Protocol
  *
- *                                Written in 2020 by Moky <albert.moky@gmail.com>
+ *                                Written in 2021 by Moky <albert.moky@gmail.com>
  *
  * ==============================================================================
  * The MIT License (MIT)
  *
- * Copyright (c) 2020 Albert Moky
+ * Copyright (c) 2021 Albert Moky
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,59 +28,58 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package core
+package dimp
 
 import (
-	. "github.com/dimchat/core-go/dimp"
-	. "github.com/dimchat/mkm-go/crypto"
-	. "github.com/dimchat/mkm-go/protocol"
+	. "github.com/dimchat/dkd-go/protocol"
 )
 
-type EntityDelegate interface {
+/**
+ *  Message Processor
+ *  ~~~~~~~~~~~~~~~~~
+ */
+type Processor interface {
 
 	/**
-	 *  Select local user for receiver
+	 *  Process data package
 	 *
-	 * @param receiver - user/group ID
-	 * @return local user
+	 * @param data - data to be processed
+	 * @return response data
 	 */
-	SelectLocalUser(receiver ID) User
+	ProcessData(data []byte) []byte
 
 	/**
-	 *  Create user with ID
+	 *  Process network message
 	 *
-	 * @param identifier - user ID
-	 * @return user
+	 * @param rMsg - message to be processed
+	 * @return response message
 	 */
-	GetUser(identifier ID) User
+	ProcessReliableMessage(rMsg ReliableMessage) ReliableMessage
 
 	/**
-	 *  Create group with ID
+	 *  Process encrypted message
 	 *
-	 * @param identifier - group ID
-	 * @return group
+	 * @param sMsg - message to be processed
+	 * @param rMsg - message received
+	 * @return response message
 	 */
-	GetGroup(identifier ID) Group
-}
-
-type CipherKeyDelegate interface {
+	ProcessSecureMessage(sMsg SecureMessage, rMsg ReliableMessage) SecureMessage
 
 	/**
-	 *  Get cipher key for encrypt message from 'sender' to 'receiver'
+	 *  Process plain message
 	 *
-	 * @param sender - from where (user or contact ID)
-	 * @param receiver - to where (contact or user/group ID)
-	 * @param generate - generate when key not exists
-	 * @return cipher key
+	 * @param iMsg - message to be processed
+	 * @param rMsg - message received
+	 * @return response message
 	 */
-	GetCipherKey(sender, receiver ID, generate bool) SymmetricKey
+	ProcessInstantMessage(iMsg InstantMessage, rMsg ReliableMessage) InstantMessage
 
 	/**
-	 *  Cache cipher key for reusing, with the direction (from 'sender' to 'receiver')
+	 *  Process message content
 	 *
-	 * @param sender - from where (user or contact ID)
-	 * @param receiver - to where (contact or user/group ID)
-	 * @param key - cipher key
+	 * @param content - content to be processed
+	 * @param rMsg - message received
+	 * @return response content
 	 */
-	CacheCipherKey(sender, receiver ID, key SymmetricKey)
+	ProcessContent(content Content, rMsg ReliableMessage) Content
 }

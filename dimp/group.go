@@ -50,6 +50,10 @@ type Group interface {
 	Assistants() []ID
 }
 
+/**
+ *  Base Group
+ *  ~~~~~~~~~~
+ */
 type BaseGroup struct {
 	BaseEntity
 	Group

@@ -28,61 +28,30 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package core
+package dimp
 
-import (
-	. "github.com/dimchat/core-go/protocol"
-	. "github.com/dimchat/dkd-go/protocol"
-)
+import . "github.com/dimchat/dkd-go/protocol"
 
 /**
- *  History Command Factory
+ *  Message Transceiver
+ *  ~~~~~~~~~~~~~~~~~~~
  */
-type HistoryCommandFactory struct {
-	GeneralCommandFactory
-}
+type Transceiver interface {
+	EntityDelegate
+	CipherKeyDelegate
 
-func NewHistoryCommandFactory(parser CommandParser) *HistoryCommandFactory {
-	return new(HistoryCommandFactory).Init(parser)
-}
+	MessageDelegate
 
-func (factory *HistoryCommandFactory) Init(parser CommandParser) *HistoryCommandFactory {
-	if factory.GeneralCommandFactory.Init(parser) != nil {
-	}
-	return factory
-}
-
-func (factory *HistoryCommandFactory) ParseCommand(cmd map[string]interface{}) Command {
-	return factory._parser(cmd)
+	Packer
+	Processor
 }
 
 /**
- *  Group Command Factory
+ *  Message Transformer
+ *  ~~~~~~~~~~~~~~~~~~~
+ *  Message Delegates
  */
-type GroupCommandFactory struct {
-	GeneralCommandFactory
-}
-
-func NewGroupCommandFactory(parser CommandParser) *GroupCommandFactory {
-	return new(GroupCommandFactory).Init(parser)
-}
-
-func (factory *GroupCommandFactory) Init(parser CommandParser) *GroupCommandFactory {
-	if factory.GeneralCommandFactory.Init(parser) != nil {
-	}
-	return factory
-}
-
-func (factory *GroupCommandFactory) ParseContent(content map[string]interface{}) Content {
-	command := CommandGetName(content)
-	// get factory by command name
-	cmdFactory := CommandGetFactory(command)
-	if cmdFactory == nil {
-		cmdFactory = factory
-	}
-	return cmdFactory.ParseCommand(content)
-}
-
-func (factory *GroupCommandFactory) ParseCommand(cmd map[string]interface{}) Command {
-	return factory._parser(cmd)
+type Transformer interface {
+	InstantMessageDelegate
+	ReliableMessageDelegate
 }

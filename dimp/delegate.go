@@ -36,32 +36,6 @@ import (
 )
 
 /**
- *  Entity Data Source
- *  ~~~~~~~~~~~~~~~~~~
- */
-type EntityDataSource interface {
-	UserDataSource
-	GroupDataSource
-
-	/**
-	 *  Get meta for entity ID
-	 *
-	 * @param identifier - entity ID
-	 * @return meta object
-	 */
-	GetMeta(identifier ID) Meta
-
-	/**
-	 *  Get document for entity ID
-	 *
-	 * @param identifier - entity ID
-	 * @param docType - document type
-	 * @return document object
-	 */
-	GetDocument(identifier ID, docType string) Document
-}
-
-/**
  *  User Data Source
  *  ~~~~~~~~~~~~~~~~
  *
@@ -175,4 +149,92 @@ type GroupDataSource interface {
 	 * @return robot ID list
 	 */
 	GetAssistants(group ID) []ID
+}
+
+/**
+ *  Entity Data Source
+ *  ~~~~~~~~~~~~~~~~~~
+ */
+type EntityDataSource interface {
+	UserDataSource
+	GroupDataSource
+
+	/**
+	 *  Get meta for entity ID
+	 *
+	 * @param identifier - entity ID
+	 * @return meta object
+	 */
+	GetMeta(identifier ID) Meta
+
+	/**
+	 *  Get document for entity ID
+	 *
+	 * @param identifier - entity ID
+	 * @param docType - document type
+	 * @return document object
+	 */
+	GetDocument(identifier ID, docType string) Document
+}
+
+/**
+ *  Entity Delegate
+ *  ~~~~~~~~~~~~~~~
+ *
+ *  1. Create User/Group
+ *  2. Select a local user as receiver
+ */
+type EntityDelegate interface {
+
+	/**
+	 *  Select local user for receiver
+	 *
+	 * @param receiver - user/group ID
+	 * @return local user
+	 */
+	SelectLocalUser(receiver ID) User
+
+	/**
+	 *  Create user with ID
+	 *
+	 * @param identifier - user ID
+	 * @return user
+	 */
+	GetUser(identifier ID) User
+
+	/**
+	 *  Create group with ID
+	 *
+	 * @param identifier - group ID
+	 * @return group
+	 */
+	GetGroup(identifier ID) Group
+}
+
+/**
+ *  Cipher Key Delegate
+ *
+ *  1. get symmetric key for sending message;
+ *  2. cache symmetric key for reusing.
+ */
+type CipherKeyDelegate interface {
+
+	/**
+	 *  Get cipher key for encrypt message from 'sender' to 'receiver'
+	 *
+	 * @param sender - from where (user or contact ID)
+	 * @param receiver - to where (contact or user/group ID)
+	 * @param generate - generate when key not exists
+	 * @return cipher key
+	 */
+	GetCipherKey(sender, receiver ID, generate bool) SymmetricKey
+
+	/**
+	 *  Cache cipher key for reusing, with the direction (from 'sender' to 'receiver')
+	 *
+	 * @param sender - from where (user or contact ID)
+	 * @param receiver - to where (contact or user/group ID)
+	 * @param key - cipher key
+	 */
+	CacheCipherKey(sender, receiver ID, key SymmetricKey)
 }

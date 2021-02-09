@@ -77,6 +77,50 @@ func (factory *GeneralCommandFactory) ParseCommand(cmd map[string]interface{}) C
 }
 
 /**
+ *  History Command Factory
+ */
+type HistoryCommandFactory struct {
+	GeneralCommandFactory
+}
+
+func NewHistoryCommandFactory(parser CommandParser) *HistoryCommandFactory {
+	return new(HistoryCommandFactory).Init(parser)
+}
+
+func (factory *HistoryCommandFactory) Init(parser CommandParser) *HistoryCommandFactory {
+	if factory.GeneralCommandFactory.Init(parser) != nil {
+	}
+	return factory
+}
+
+/**
+ *  Group Command Factory
+ */
+type GroupCommandFactory struct {
+	GeneralCommandFactory
+}
+
+func NewGroupCommandFactory(parser CommandParser) *GroupCommandFactory {
+	return new(GroupCommandFactory).Init(parser)
+}
+
+func (factory *GroupCommandFactory) Init(parser CommandParser) *GroupCommandFactory {
+	if factory.GeneralCommandFactory.Init(parser) != nil {
+	}
+	return factory
+}
+
+func (factory *GroupCommandFactory) ParseContent(content map[string]interface{}) Content {
+	command := CommandGetName(content)
+	// get factory by command name
+	cmdFactory := CommandGetFactory(command)
+	if cmdFactory == nil {
+		cmdFactory = factory
+	}
+	return cmdFactory.ParseCommand(content)
+}
+
+/**
  *  Register core command parsers
  */
 func BuildCommandFactories() {
@@ -111,4 +155,8 @@ func BuildCommandFactories() {
 	CommandRegister(RESET, NewGroupCommandFactory(func(dict map[string]interface{}) Command {
 		return new(ResetCommand).Init(dict)
 	}))
+}
+
+func init() {
+	BuildCommandFactories()
 }

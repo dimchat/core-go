@@ -60,6 +60,10 @@ type Entity interface {
 	SetDataSource(delegate EntityDataSource)
 }
 
+/**
+ *  Base Entity
+ *  ~~~~~~~~~~~
+ */
 type BaseEntity struct {
 	Entity
 

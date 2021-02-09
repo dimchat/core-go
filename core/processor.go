@@ -31,59 +31,10 @@
 package core
 
 import (
+	"github.com/dimchat/core-go/dimp"
 	. "github.com/dimchat/dkd-go/protocol"
 	"time"
 )
-
-/**
- *  Message Processor
- *  ~~~~~~~~~~~~~~~~~
- */
-type Processor interface {
-
-	/**
-	 *  Process data package
-	 *
-	 * @param data - data to be processed
-	 * @return response data
-	 */
-	ProcessData(data []byte) []byte
-
-	/**
-	 *  Process network message
-	 *
-	 * @param rMsg - message to be processed
-	 * @return response message
-	 */
-	ProcessReliableMessage(rMsg ReliableMessage) ReliableMessage
-
-	/**
-	 *  Process encrypted message
-	 *
-	 * @param sMsg - message to be processed
-	 * @param rMsg - message received
-	 * @return response message
-	 */
-	ProcessSecureMessage(sMsg SecureMessage, rMsg ReliableMessage) SecureMessage
-
-	/**
-	 *  Process plain message
-	 *
-	 * @param iMsg - message to be processed
-	 * @param rMsg - message received
-	 * @return response message
-	 */
-	ProcessInstantMessage(iMsg InstantMessage, rMsg ReliableMessage) InstantMessage
-
-	/**
-	 *  Process message content
-	 *
-	 * @param content - content to be processed
-	 * @param rMsg - message received
-	 * @return response content
-	 */
-	ProcessContent(content Content, rMsg ReliableMessage) Content
-}
 
 /**
  *  Message Processor Implementations
@@ -92,22 +43,22 @@ type Processor interface {
  *  Abstract method:
  *      ProcessContent(content Content, rMsg ReliableMessage) Content
  */
-type TransceiverProcessor struct {
-	Processor
+type Processor struct {
+	dimp.Processor
 
-	_transceiver *Transceiver
+	_transceiver dimp.Transceiver
 }
 
-func (processor *TransceiverProcessor) Init(transceiver *Transceiver) *TransceiverProcessor {
+func (processor *Processor) Init(transceiver dimp.Transceiver) *Processor {
 	processor._transceiver = transceiver
 	return processor
 }
 
-func (processor *TransceiverProcessor) Transceiver() *Transceiver {
+func (processor *Processor) Transceiver() dimp.Transceiver {
 	return processor._transceiver
 }
 
-func (processor *TransceiverProcessor) ProcessData(data []byte) []byte {
+func (processor *Processor) ProcessData(data []byte) []byte {
 	// 1. deserialize message
 	rMsg := processor.Transceiver().DeserializeMessage(data)
 	if rMsg == nil {
@@ -124,7 +75,7 @@ func (processor *TransceiverProcessor) ProcessData(data []byte) []byte {
 	return processor.Transceiver().SerializeMessage(rMsg)
 }
 
-func (processor *TransceiverProcessor) ProcessReliableMessage(rMsg ReliableMessage) ReliableMessage {
+func (processor *Processor) ProcessReliableMessage(rMsg ReliableMessage) ReliableMessage {
 	// NOTICE: override to check broadcast message before calling it
 
 	// 1. verify message
@@ -144,7 +95,7 @@ func (processor *TransceiverProcessor) ProcessReliableMessage(rMsg ReliableMessa
 	// NOTICE: override to deliver to the receiver when catch exception "receiver error ..."
 }
 
-func (processor *TransceiverProcessor) ProcessSecureMessage(sMsg SecureMessage, rMsg ReliableMessage) SecureMessage {
+func (processor *Processor) ProcessSecureMessage(sMsg SecureMessage, rMsg ReliableMessage) SecureMessage {
 	// 1. decrypt message
 	iMsg := processor.Transceiver().DecryptMessage(sMsg)
 	if iMsg == nil {
@@ -162,7 +113,7 @@ func (processor *TransceiverProcessor) ProcessSecureMessage(sMsg SecureMessage, 
 	return processor.Transceiver().EncryptMessage(iMsg)
 }
 
-func (processor *TransceiverProcessor) ProcessInstantMessage(iMsg InstantMessage, rMsg ReliableMessage) InstantMessage {
+func (processor *Processor) ProcessInstantMessage(iMsg InstantMessage, rMsg ReliableMessage) InstantMessage {
 	// 1. process content
 	response := processor.Transceiver().ProcessContent(iMsg.Content(), rMsg)
 	if response == nil {

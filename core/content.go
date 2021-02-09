@@ -106,3 +106,7 @@ func BuildContentFactories() {
 		return new(BaseContent).Init(dict)
 	}))
 }
+
+func init() {
+	BuildContentFactories()
+}
