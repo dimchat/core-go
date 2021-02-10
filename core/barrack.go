@@ -31,24 +31,24 @@
 package core
 
 import (
-	"github.com/dimchat/core-go/dimp"
+	. "github.com/dimchat/core-go/dimp"
 	. "github.com/dimchat/mkm-go/crypto"
 	. "github.com/dimchat/mkm-go/protocol"
 )
 
 type IBarrack interface {
-	dimp.EntityDataSource
-	dimp.EntityDelegate
+	EntityDataSource
+	EntityDelegate
 
-	CreateUser(identifier ID) dimp.User
-	CreateGroup(identifier ID) dimp.Group
+	CreateUser(identifier ID) User
+	CreateGroup(identifier ID) Group
 
 	/**
 	 *  Get all local users (for decrypting received message)
 	 *
 	 * @return users with private key
 	 */
-	GetLocalUsers() []dimp.User
+	GetLocalUsers() []User
 }
 
 /**
@@ -56,15 +56,15 @@ type IBarrack interface {
  *  ~~~~~~~~~~~~~~~~~~~
  *
  *  Abstract methods:
- *      CreateUser(identifier ID) dimp.User
- *      CreateGroup(identifier ID) dimp.Group
- *      GetLocalUsers() []dimp.User
+ *      CreateUser(identifier ID) User
+ *      CreateGroup(identifier ID) Group
+ *      GetLocalUsers() []User
  */
 type Barrack struct {
 	IBarrack
 
-	_delegate dimp.EntityDelegate
-	_source dimp.EntityDataSource
+	_delegate EntityDelegate
+	_source EntityDataSource
 }
 
 func (barrack *Barrack) Init() *Barrack {
@@ -73,31 +73,31 @@ func (barrack *Barrack) Init() *Barrack {
 	return barrack
 }
 
-func (barrack *Barrack) SetDelegate(delegate dimp.EntityDelegate) {
+func (barrack *Barrack) SetDelegate(delegate EntityDelegate) {
 	barrack._delegate = delegate
 }
-func (barrack *Barrack) Delegate() dimp.EntityDelegate {
+func (barrack *Barrack) Delegate() EntityDelegate {
 	return barrack._delegate
 }
 
-func (barrack *Barrack) SetDataSource(source dimp.EntityDataSource) {
+func (barrack *Barrack) SetDataSource(source EntityDataSource) {
 	barrack._source = source
 }
-func (barrack *Barrack) DataSource() dimp.EntityDataSource {
+func (barrack *Barrack) DataSource() EntityDataSource {
 	return barrack._source
 }
 
 //-------- EntityDelegate
 
-func (barrack *Barrack) SelectLocalUser(receiver ID) dimp.User {
+func (barrack *Barrack) SelectLocalUser(receiver ID) User {
 	return barrack.Delegate().SelectLocalUser(receiver)
 }
 
-func (barrack *Barrack) GetUser(identifier ID) dimp.User {
+func (barrack *Barrack) GetUser(identifier ID) User {
 	return barrack.Delegate().GetUser(identifier)
 }
 
-func (barrack *Barrack) GetGroup(identifier ID) dimp.Group {
+func (barrack *Barrack) GetGroup(identifier ID) Group {
 	return barrack.Delegate().GetGroup(identifier)
 }
 

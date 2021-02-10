@@ -31,7 +31,7 @@
 package core
 
 import (
-	"github.com/dimchat/core-go/dimp"
+	. "github.com/dimchat/core-go/dimp"
 	. "github.com/dimchat/dkd-go/protocol"
 	. "github.com/dimchat/mkm-go/crypto"
 	. "github.com/dimchat/mkm-go/format"
@@ -42,22 +42,22 @@ import (
  *  Message Packer Implementations
  *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  */
-type Packer struct {
-	dimp.Packer
+type MessagePacker struct {
+	Packer
 
-	_transceiver dimp.Transceiver
+	_transceiver Transceiver
 }
 
-func (packer *Packer) Init(transceiver dimp.Transceiver) *Packer {
+func (packer *MessagePacker) Init(transceiver Transceiver) *MessagePacker {
 	packer._transceiver = transceiver
 	return packer
 }
 
-func (packer *Packer) Transceiver() dimp.Transceiver {
+func (packer *MessagePacker) Transceiver() Transceiver {
 	return packer._transceiver
 }
 
-func (packer *Packer) GetOvertGroup(content Content) ID {
+func (packer *MessagePacker) GetOvertGroup(content Content) ID {
 	group := content.Group()
 	if group == nil {
 		return nil
@@ -75,10 +75,11 @@ func (packer *Packer) GetOvertGroup(content Content) ID {
 	return group
 }
 
-func (packer *Packer) EncryptMessage(iMsg InstantMessage) SecureMessage {
+func (packer *MessagePacker) EncryptMessage(iMsg InstantMessage) SecureMessage {
+	transceiver := packer.Transceiver()
 	// check message delegate
 	if iMsg.Delegate() == nil {
-		iMsg.SetDelegate(packer.Transceiver())
+		iMsg.SetDelegate(transceiver)
 	}
 	sender := iMsg.Sender()
 	receiver := iMsg.Receiver()
@@ -99,20 +100,20 @@ func (packer *Packer) EncryptMessage(iMsg InstantMessage) SecureMessage {
 	//         share the symmetric key (group msg key) with other members.
 
 	// 1. get symmetric key
-	group := packer.Transceiver().GetOvertGroup(iMsg.Content())
+	group := transceiver.GetOvertGroup(iMsg.Content())
 	var password SymmetricKey
 	if group == nil {
 		// personal message or (group) command
-		password = packer.Transceiver().GetCipherKey(sender, receiver, true)
+		password = transceiver.GetCipherKey(sender, receiver, true)
 	} else {
-		password = packer.Transceiver().GetCipherKey(sender, group, true)
+		password = transceiver.GetCipherKey(sender, group, true)
 	}
 
 	// 2. encrypt 'content' to 'data' for receiver/group members
 	var sMsg SecureMessage
 	if receiver.IsGroup() {
 		// group message
-		grp := packer.Transceiver().GetGroup(receiver)
+		grp := transceiver.GetGroup(receiver)
 		if grp == nil {
 			// group not ready
 			// TODO: suspend this message for waiting group's meta
@@ -152,7 +153,7 @@ func (packer *Packer) EncryptMessage(iMsg InstantMessage) SecureMessage {
 	return sMsg
 }
 
-func (packer *Packer) SignMessage(sMsg SecureMessage) ReliableMessage {
+func (packer *MessagePacker) SignMessage(sMsg SecureMessage) ReliableMessage {
 	// check message delegate
 	if sMsg.Delegate() == nil {
 		sMsg.SetDelegate(packer.Transceiver())
@@ -161,12 +162,12 @@ func (packer *Packer) SignMessage(sMsg SecureMessage) ReliableMessage {
 	return sMsg.Sign()
 }
 
-func (packer *Packer) SerializeMessage(rMsg ReliableMessage) []byte {
+func (packer *MessagePacker) SerializeMessage(rMsg ReliableMessage) []byte {
 	dict := rMsg.GetMap(false)
 	return JSONEncode(dict)
 }
 
-func (packer *Packer) DeserializeMessage(data []byte) ReliableMessage {
+func (packer *MessagePacker) DeserializeMessage(data []byte) ReliableMessage {
 	dict := JSONDecode(data)
 	// TODO: translate short keys
 	//       'S' -> 'sender'
@@ -183,7 +184,7 @@ func (packer *Packer) DeserializeMessage(data []byte) ReliableMessage {
 	return ReliableMessageParse(dict)
 }
 
-func (packer *Packer) VerifyMessage(rMsg ReliableMessage) SecureMessage {
+func (packer *MessagePacker) VerifyMessage(rMsg ReliableMessage) SecureMessage {
 	// check message delegate
 	if rMsg.Delegate() == nil {
 		rMsg.SetDelegate(packer.Transceiver())
@@ -198,7 +199,7 @@ func (packer *Packer) VerifyMessage(rMsg ReliableMessage) SecureMessage {
 	return rMsg.Verify()
 }
 
-func (packer *Packer) DecryptMessage(sMsg SecureMessage) InstantMessage {
+func (packer *MessagePacker) DecryptMessage(sMsg SecureMessage) InstantMessage {
 	// check message delegate
 	if sMsg.Delegate() == nil {
 		sMsg.SetDelegate(packer.Transceiver())

@@ -31,7 +31,7 @@
 package core
 
 import (
-	"github.com/dimchat/core-go/dimp"
+	. "github.com/dimchat/core-go/dimp"
 	. "github.com/dimchat/dkd-go/protocol"
 	"time"
 )
@@ -43,79 +43,83 @@ import (
  *  Abstract method:
  *      ProcessContent(content Content, rMsg ReliableMessage) Content
  */
-type Processor struct {
-	dimp.Processor
+type MessageProcessor struct {
+	Processor
 
-	_transceiver dimp.Transceiver
+	_transceiver Transceiver
 }
 
-func (processor *Processor) Init(transceiver dimp.Transceiver) *Processor {
+func (processor *MessageProcessor) Init(transceiver Transceiver) *MessageProcessor {
 	processor._transceiver = transceiver
 	return processor
 }
 
-func (processor *Processor) Transceiver() dimp.Transceiver {
+func (processor *MessageProcessor) Transceiver() Transceiver {
 	return processor._transceiver
 }
 
-func (processor *Processor) ProcessData(data []byte) []byte {
+func (processor *MessageProcessor) ProcessData(data []byte) []byte {
+	transceiver := processor.Transceiver()
 	// 1. deserialize message
-	rMsg := processor.Transceiver().DeserializeMessage(data)
+	rMsg := transceiver.DeserializeMessage(data)
 	if rMsg == nil {
 		// no valid message received
 		return nil
 	}
 	// 2. process message
-	rMsg = processor.Transceiver().ProcessReliableMessage(rMsg)
+	rMsg = transceiver.ProcessReliableMessage(rMsg)
 	if rMsg == nil {
 		// nothing to respond
 		return nil
 	}
 	// 3. serialize message
-	return processor.Transceiver().SerializeMessage(rMsg)
+	return transceiver.SerializeMessage(rMsg)
 }
 
-func (processor *Processor) ProcessReliableMessage(rMsg ReliableMessage) ReliableMessage {
+func (processor *MessageProcessor) ProcessReliableMessage(rMsg ReliableMessage) ReliableMessage {
 	// NOTICE: override to check broadcast message before calling it
+	transceiver := processor.Transceiver()
 
 	// 1. verify message
-	sMsg := processor.Transceiver().VerifyMessage(rMsg)
+	sMsg := transceiver.VerifyMessage(rMsg)
 	if sMsg == nil {
 		// waiting for sender's meta if not exists
 		return nil
 	}
 	// 2. process message
-	sMsg = processor.Transceiver().ProcessSecureMessage(sMsg, rMsg)
+	sMsg = transceiver.ProcessSecureMessage(sMsg, rMsg)
 	if sMsg == nil {
 		// nothing to respond
 		return nil
 	}
-	return processor.Transceiver().SignMessage(sMsg)
+	return transceiver.SignMessage(sMsg)
 
 	// NOTICE: override to deliver to the receiver when catch exception "receiver error ..."
 }
 
-func (processor *Processor) ProcessSecureMessage(sMsg SecureMessage, rMsg ReliableMessage) SecureMessage {
+func (processor *MessageProcessor) ProcessSecureMessage(sMsg SecureMessage, rMsg ReliableMessage) SecureMessage {
+	transceiver := processor.Transceiver()
 	// 1. decrypt message
-	iMsg := processor.Transceiver().DecryptMessage(sMsg)
+	iMsg := transceiver.DecryptMessage(sMsg)
 	if iMsg == nil {
 		// cannot decrypt this message, not for you?
 		// delivering message to other receiver?
 		return nil
 	}
 	// 2. process message
-	iMsg = processor.Transceiver().ProcessInstantMessage(iMsg, rMsg)
+	iMsg = transceiver.ProcessInstantMessage(iMsg, rMsg)
 	if iMsg == nil {
 		// nothing to respond
 		return nil
 	}
 	// 3. encrypt message
-	return processor.Transceiver().EncryptMessage(iMsg)
+	return transceiver.EncryptMessage(iMsg)
 }
 
-func (processor *Processor) ProcessInstantMessage(iMsg InstantMessage, rMsg ReliableMessage) InstantMessage {
+func (processor *MessageProcessor) ProcessInstantMessage(iMsg InstantMessage, rMsg ReliableMessage) InstantMessage {
+	transceiver := processor.Transceiver()
 	// 1. process content
-	response := processor.Transceiver().ProcessContent(iMsg.Content(), rMsg)
+	response := transceiver.ProcessContent(iMsg.Content(), rMsg)
 	if response == nil {
 		// nothing to respond
 		return nil
@@ -124,7 +128,7 @@ func (processor *Processor) ProcessInstantMessage(iMsg InstantMessage, rMsg Reli
 	// 2. select a local user to build message
 	sender := iMsg.Sender()
 	receiver := iMsg.Receiver()
-	user := processor.Transceiver().SelectLocalUser(receiver)
+	user := transceiver.SelectLocalUser(receiver)
 
 	// 3. pack message
 	env := EnvelopeCreate(user.ID(), sender, time.Time{})

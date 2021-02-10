@@ -121,13 +121,8 @@ func (cmd *GroupCommand) Members() []ID {
 	members := cmd.Get("members")
 	if members == nil {
 		return nil
-	}
-	switch members.(type) {
-	case []interface{}:
+	} else {
 		return IDConvert(members)
-	default:
-		panic(members)
-		return nil
 	}
 }
 

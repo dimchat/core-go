@@ -31,7 +31,7 @@
 package core
 
 import (
-	"github.com/dimchat/core-go/dimp"
+	. "github.com/dimchat/core-go/dimp"
 	. "github.com/dimchat/dkd-go/protocol"
 	. "github.com/dimchat/mkm-go/crypto"
 	. "github.com/dimchat/mkm-go/format"
@@ -42,18 +42,18 @@ import (
  *  Message Transformer Implementations
  *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  */
-type Transformer struct {
-	dimp.Transformer
+type MessageTransformer struct {
+	Transformer
 
-	_transceiver dimp.Transceiver
+	_transceiver Transceiver
 }
 
-func (transformer *Transformer) Init(transceiver dimp.Transceiver) *Transformer {
+func (transformer *MessageTransformer) Init(transceiver Transceiver) *MessageTransformer {
 	transformer._transceiver = transceiver
 	return transformer
 }
 
-func (transformer *Transformer) Transceiver() dimp.Transceiver {
+func (transformer *MessageTransformer) Transceiver() Transceiver {
 	return transformer._transceiver
 }
 
@@ -67,18 +67,18 @@ func isBroadcast(msg Message) bool {
 	return receiver.IsBroadcast()
 }
 
-func (transformer *Transformer) SerializeContent(content Content, _ SymmetricKey, _ InstantMessage) []byte {
+func (transformer *MessageTransformer) SerializeContent(content Content, _ SymmetricKey, _ InstantMessage) []byte {
 	// NOTICE: check attachment for File/Image/Audio/Video message content
 	//         before serialize content, this job should be do in subclass
 	dict := content.GetMap(false)
 	return JSONEncode(dict)
 }
 
-func (transformer *Transformer) EncryptContent(data []byte, password SymmetricKey, _ InstantMessage) []byte {
+func (transformer *MessageTransformer) EncryptContent(data []byte, password SymmetricKey, _ InstantMessage) []byte {
 	return password.Encrypt(data)
 }
 
-func (transformer *Transformer) EncodeData(data []byte, iMsg InstantMessage) string {
+func (transformer *MessageTransformer) EncodeData(data []byte, iMsg InstantMessage) string {
 	if isBroadcast(iMsg) {
 		// broadcast message content will not be encrypted (just encoded to JsON),
 		// so no need to encode to Base64 here
@@ -87,7 +87,7 @@ func (transformer *Transformer) EncodeData(data []byte, iMsg InstantMessage) str
 	return Base64Encode(data)
 }
 
-func (transformer *Transformer) SerializeKey(password SymmetricKey, iMsg InstantMessage) []byte {
+func (transformer *MessageTransformer) SerializeKey(password SymmetricKey, iMsg InstantMessage) []byte {
 	if isBroadcast(iMsg) {
 		// broadcast message has no key
 		return nil
@@ -96,31 +96,31 @@ func (transformer *Transformer) SerializeKey(password SymmetricKey, iMsg Instant
 	return JSONEncode(dict)
 }
 
-func (transformer *Transformer) EncryptKey(data []byte, receiver ID, _ InstantMessage) []byte {
+func (transformer *MessageTransformer) EncryptKey(data []byte, receiver ID, _ InstantMessage) []byte {
 	// TODO: make sure the receiver's public key exists
 	contact := transformer.Transceiver().GetUser(receiver)
 	// encrypt with receiver's public key
 	return contact.Encrypt(data)
 }
 
-func (transformer *Transformer) EncodeKey(key []byte, _ InstantMessage) string {
+func (transformer *MessageTransformer) EncodeKey(key []byte, _ InstantMessage) string {
 	return Base64Encode(key)
 }
 
 //-------- SecureMessageDelegate
 
-func (transformer *Transformer) DecodeKey(key string, _ SecureMessage) []byte {
+func (transformer *MessageTransformer) DecodeKey(key string, _ SecureMessage) []byte {
 	return Base64Decode(key)
 }
 
-func (transformer *Transformer) DecryptKey(key []byte, _ ID, _ ID, sMsg SecureMessage) []byte {
+func (transformer *MessageTransformer) DecryptKey(key []byte, _ ID, _ ID, sMsg SecureMessage) []byte {
 	// NOTICE: the receiver will be group ID in a group message here
 	user := transformer.Transceiver().GetUser(sMsg.Receiver())
 	// decrypt key data with the receiver/group member's private key
 	return user.Decrypt(key)
 }
 
-func (transformer *Transformer) DeserializeKey(key []byte, sender ID, receiver ID, _ SecureMessage) SymmetricKey {
+func (transformer *MessageTransformer) DeserializeKey(key []byte, sender ID, receiver ID, _ SecureMessage) SymmetricKey {
 	// NOTICE: the receiver will be group ID in a group message here
 	if key == nil {
 		// get key from cache
@@ -137,7 +137,7 @@ func (transformer *Transformer) DeserializeKey(key []byte, sender ID, receiver I
 	}
 }
 
-func (transformer *Transformer) DecodeData(data string, sMsg SecureMessage) []byte {
+func (transformer *MessageTransformer) DecodeData(data string, sMsg SecureMessage) []byte {
 	if isBroadcast(sMsg) {
 		// broadcast message content will not be encrypted (just encoded to JsON),
 		// so return the string data directly
@@ -146,11 +146,11 @@ func (transformer *Transformer) DecodeData(data string, sMsg SecureMessage) []by
 	return Base64Decode(data)
 }
 
-func (transformer *Transformer) DecryptContent(data []byte, password SymmetricKey, _ SecureMessage) []byte {
+func (transformer *MessageTransformer) DecryptContent(data []byte, password SymmetricKey, _ SecureMessage) []byte {
 	return password.Decrypt(data)
 }
 
-func (transformer *Transformer) DeserializeContent(data []byte, password SymmetricKey, sMsg SecureMessage) Content {
+func (transformer *MessageTransformer) DeserializeContent(data []byte, password SymmetricKey, sMsg SecureMessage) Content {
 	dict := JSONDecode(data)
 	// TODO: translate short keys
 	//       'T' -> 'type'
@@ -158,18 +158,19 @@ func (transformer *Transformer) DeserializeContent(data []byte, password Symmetr
 	//       'G' -> 'group'
 	content := ContentParse(dict)
 
+	transceiver := transformer.Transceiver()
 	if !isBroadcast(sMsg) {
 		sender := sMsg.Sender()
-		group := transformer.Transceiver().GetOvertGroup(content)
+		group := transceiver.GetOvertGroup(content)
 		if group == nil {
 			// personal message or (group) command
 			// cache key with direction (sender -> receiver)
 			receiver := sMsg.Receiver()
-			transformer.Transceiver().CacheCipherKey(sender, receiver, password)
+			transceiver.CacheCipherKey(sender, receiver, password)
 		} else {
 			// group message (excludes group command)
 			// cache the key with direction (sender -> group)
-			transformer.Transceiver().CacheCipherKey(sender, group, password)
+			transceiver.CacheCipherKey(sender, group, password)
 		}
 	}
 
@@ -178,22 +179,22 @@ func (transformer *Transformer) DeserializeContent(data []byte, password Symmetr
 	return content
 }
 
-func (transformer *Transformer) SignData(data []byte, sender ID, _ SecureMessage) []byte {
+func (transformer *MessageTransformer) SignData(data []byte, sender ID, _ SecureMessage) []byte {
 	user := transformer.Transceiver().GetUser(sender)
 	return user.Sign(data)
 }
 
-func (transformer *Transformer) EncodeSignature(signature []byte, _ SecureMessage) string {
+func (transformer *MessageTransformer) EncodeSignature(signature []byte, _ SecureMessage) string {
 	return Base64Encode(signature)
 }
 
 //-------- ReliableMessageDelegate
 
-func (transformer *Transformer) DecodeSignature(signature string, _ ReliableMessage) []byte {
+func (transformer *MessageTransformer) DecodeSignature(signature string, _ ReliableMessage) []byte {
 	return Base64Decode(signature)
 }
 
-func (transformer *Transformer) VerifyDataSignature(data []byte, signature []byte, sender ID, _ ReliableMessage) bool {
+func (transformer *MessageTransformer) VerifyDataSignature(data []byte, signature []byte, sender ID, _ ReliableMessage) bool {
 	contact := transformer.Transceiver().GetUser(sender)
 	return contact.Verify(data, signature)
 }

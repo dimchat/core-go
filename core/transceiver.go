@@ -31,25 +31,27 @@
 package core
 
 import (
-	"github.com/dimchat/core-go/dimp"
+	. "github.com/dimchat/core-go/dimp"
 	. "github.com/dimchat/dkd-go/protocol"
 	. "github.com/dimchat/mkm-go/crypto"
 	. "github.com/dimchat/mkm-go/protocol"
 )
 
-type Transceiver struct {
-	dimp.Transceiver
-	InstantMessageDelegate
-	ReliableMessageDelegate
+/**
+ *  Message Transceiver Implementations
+ *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ */
+type MessageTransceiver struct {
+	Transceiver
 
-	_entityDelegate dimp.EntityDelegate
-	_keyDelegate dimp.CipherKeyDelegate
-	_transformer dimp.Transformer
-	_processor dimp.Processor
-	_packer dimp.Packer
+	_entityDelegate EntityDelegate
+	_keyDelegate CipherKeyDelegate
+	_transformer Transformer
+	_processor Processor
+	_packer Packer
 }
 
-func (transceiver *Transceiver) Init() *Transceiver {
+func (transceiver *MessageTransceiver) Init() *MessageTransceiver {
 	transceiver._entityDelegate = nil
 	transceiver._keyDelegate = nil
 	transceiver._transformer = nil
@@ -63,10 +65,10 @@ func (transceiver *Transceiver) Init() *Transceiver {
  *
  * @param barrack - entity delegate
  */
-func (transceiver *Transceiver) SetEntityDelegate(barrack dimp.EntityDelegate) {
+func (transceiver *MessageTransceiver) SetEntityDelegate(barrack EntityDelegate) {
 	transceiver._entityDelegate = barrack
 }
-func (transceiver *Transceiver) EntityDelegate() dimp.EntityDelegate {
+func (transceiver *MessageTransceiver) EntityDelegate() EntityDelegate {
 	return transceiver._entityDelegate
 }
 
@@ -75,10 +77,10 @@ func (transceiver *Transceiver) EntityDelegate() dimp.EntityDelegate {
  *
  * @param keyCache - key store
  */
-func (transceiver *Transceiver) SetCipherKeyDelegate(keyCache dimp.CipherKeyDelegate) {
+func (transceiver *MessageTransceiver) SetCipherKeyDelegate(keyCache CipherKeyDelegate) {
 	transceiver._keyDelegate = keyCache
 }
-func (transceiver *Transceiver) CipherKeyDelegate() dimp.CipherKeyDelegate {
+func (transceiver *MessageTransceiver) CipherKeyDelegate() CipherKeyDelegate {
 	return transceiver._keyDelegate
 }
 
@@ -87,10 +89,10 @@ func (transceiver *Transceiver) CipherKeyDelegate() dimp.CipherKeyDelegate {
  *
  * @param transformer - message transformer
  */
-func (transceiver *Transceiver) SetTransformer(transformer dimp.Transformer) {
+func (transceiver *MessageTransceiver) SetTransformer(transformer Transformer) {
 	transceiver._transformer = transformer
 }
-func (transceiver *Transceiver) Transformer() dimp.Transformer {
+func (transceiver *MessageTransceiver) Transformer() Transformer {
 	return transceiver._transformer
 }
 
@@ -99,10 +101,10 @@ func (transceiver *Transceiver) Transformer() dimp.Transformer {
  *
  * @param processor - message processor
  */
-func (transceiver *Transceiver) SetProcessor(processor dimp.Processor) {
+func (transceiver *MessageTransceiver) SetProcessor(processor Processor) {
 	transceiver._processor = processor
 }
-func (transceiver *Transceiver) Processor() dimp.Processor {
+func (transceiver *MessageTransceiver) Processor() Processor {
 	return transceiver._processor
 }
 
@@ -111,159 +113,159 @@ func (transceiver *Transceiver) Processor() dimp.Processor {
  *
  * @param packer - message packer
  */
-func (transceiver *Transceiver) SetPacker(packer dimp.Packer) {
+func (transceiver *MessageTransceiver) SetPacker(packer Packer) {
 	transceiver._packer = packer
 }
-func (transceiver *Transceiver) Packer() dimp.Packer {
+func (transceiver *MessageTransceiver) Packer() Packer {
 	return transceiver._packer
 }
 
 //
 //  Interfaces for User/Group
 //
-func (transceiver *Transceiver) SelectLocalUser(receiver ID) dimp.User {
+func (transceiver *MessageTransceiver) SelectLocalUser(receiver ID) User {
 	return transceiver.EntityDelegate().SelectLocalUser(receiver)
 }
 
-func (transceiver *Transceiver) GetUser(identifier ID) dimp.User {
+func (transceiver *MessageTransceiver) GetUser(identifier ID) User {
 	return transceiver.EntityDelegate().GetUser(identifier)
 }
 
-func (transceiver *Transceiver) GetGroup(identifier ID) dimp.Group {
+func (transceiver *MessageTransceiver) GetGroup(identifier ID) Group {
 	return transceiver.EntityDelegate().GetGroup(identifier)
 }
 
 //
 //  Interfaces for Cipher Key
 //
-func (transceiver *Transceiver) GetCipherKey(sender, receiver ID, generate bool) SymmetricKey {
+func (transceiver *MessageTransceiver) GetCipherKey(sender, receiver ID, generate bool) SymmetricKey {
 	return transceiver.CipherKeyDelegate().GetCipherKey(sender, receiver, generate)
 }
 
-func (transceiver *Transceiver) CacheCipherKey(sender, receiver ID, key SymmetricKey) {
+func (transceiver *MessageTransceiver) CacheCipherKey(sender, receiver ID, key SymmetricKey) {
 	transceiver.CipherKeyDelegate().CacheCipherKey(sender, receiver, key)
 }
 
 //
 //  Interfaces for Packing Message
 //
-func (transceiver *Transceiver) GetOvertGroup(content Content) ID {
+func (transceiver *MessageTransceiver) GetOvertGroup(content Content) ID {
 	return transceiver.Packer().GetOvertGroup(content)
 }
 
-func (transceiver *Transceiver) EncryptMessage(iMsg InstantMessage) SecureMessage {
+func (transceiver *MessageTransceiver) EncryptMessage(iMsg InstantMessage) SecureMessage {
 	return transceiver.Packer().EncryptMessage(iMsg)
 }
 
-func (transceiver *Transceiver) SignMessage(sMsg SecureMessage) ReliableMessage {
+func (transceiver *MessageTransceiver) SignMessage(sMsg SecureMessage) ReliableMessage {
 	return transceiver.Packer().SignMessage(sMsg)
 }
 
-func (transceiver *Transceiver) SerializeMessage(rMsg ReliableMessage) []byte {
+func (transceiver *MessageTransceiver) SerializeMessage(rMsg ReliableMessage) []byte {
 	return transceiver.Packer().SerializeMessage(rMsg)
 }
 
-func (transceiver *Transceiver) DeserializeMessage(data []byte) ReliableMessage {
+func (transceiver *MessageTransceiver) DeserializeMessage(data []byte) ReliableMessage {
 	return transceiver.Packer().DeserializeMessage(data)
 }
 
-func (transceiver *Transceiver) VerifyMessage(rMsg ReliableMessage) SecureMessage {
+func (transceiver *MessageTransceiver) VerifyMessage(rMsg ReliableMessage) SecureMessage {
 	return transceiver.Packer().VerifyMessage(rMsg)
 }
 
-func (transceiver *Transceiver) DecryptMessage(sMsg SecureMessage) InstantMessage {
+func (transceiver *MessageTransceiver) DecryptMessage(sMsg SecureMessage) InstantMessage {
 	return transceiver.Packer().DecryptMessage(sMsg)
 }
 
 //
 //  Interfaces for Processing Message
 //
-func (transceiver *Transceiver) ProcessData(data []byte) []byte {
+func (transceiver *MessageTransceiver) ProcessData(data []byte) []byte {
 	return transceiver.Processor().ProcessData(data)
 }
 
-func (transceiver *Transceiver) ProcessReliableMessage(rMsg ReliableMessage) ReliableMessage {
+func (transceiver *MessageTransceiver) ProcessReliableMessage(rMsg ReliableMessage) ReliableMessage {
 	return transceiver.Processor().ProcessReliableMessage(rMsg)
 }
 
-func (transceiver *Transceiver) ProcessSecureMessage(sMsg SecureMessage, rMsg ReliableMessage) SecureMessage {
+func (transceiver *MessageTransceiver) ProcessSecureMessage(sMsg SecureMessage, rMsg ReliableMessage) SecureMessage {
 	return transceiver.Processor().ProcessSecureMessage(sMsg, rMsg)
 }
 
-func (transceiver *Transceiver) ProcessInstantMessage(iMsg InstantMessage, rMsg ReliableMessage) InstantMessage {
+func (transceiver *MessageTransceiver) ProcessInstantMessage(iMsg InstantMessage, rMsg ReliableMessage) InstantMessage {
 	return transceiver.Processor().ProcessInstantMessage(iMsg, rMsg)
 }
 
-func (transceiver *Transceiver) ProcessContent(content Content, rMsg ReliableMessage) Content {
+func (transceiver *MessageTransceiver) ProcessContent(content Content, rMsg ReliableMessage) Content {
 	return transceiver.Processor().ProcessContent(content, rMsg)
 }
 
 //-------- InstantMessageDelegate
 
-func (transceiver *Transceiver) SerializeContent(content Content, password SymmetricKey, iMsg InstantMessage) []byte {
+func (transceiver *MessageTransceiver) SerializeContent(content Content, password SymmetricKey, iMsg InstantMessage) []byte {
 	return transceiver.Transformer().SerializeContent(content, password, iMsg)
 }
 
-func (transceiver *Transceiver) EncryptContent(data []byte, password SymmetricKey, iMsg InstantMessage) []byte {
+func (transceiver *MessageTransceiver) EncryptContent(data []byte, password SymmetricKey, iMsg InstantMessage) []byte {
 	return transceiver.Transformer().EncryptContent(data, password, iMsg)
 }
 
-func (transceiver *Transceiver) EncodeData(data []byte, iMsg InstantMessage) string {
+func (transceiver *MessageTransceiver) EncodeData(data []byte, iMsg InstantMessage) string {
 	return transceiver.Transformer().EncodeData(data, iMsg)
 }
 
-func (transceiver *Transceiver) SerializeKey(password SymmetricKey, iMsg InstantMessage) []byte {
+func (transceiver *MessageTransceiver) SerializeKey(password SymmetricKey, iMsg InstantMessage) []byte {
 	return transceiver.Transformer().SerializeKey(password, iMsg)
 }
 
-func (transceiver *Transceiver) EncryptKey(data []byte, receiver ID, iMsg InstantMessage) []byte {
+func (transceiver *MessageTransceiver) EncryptKey(data []byte, receiver ID, iMsg InstantMessage) []byte {
 	return transceiver.Transformer().EncryptKey(data, receiver, iMsg)
 }
 
-func (transceiver *Transceiver) EncodeKey(data []byte, iMsg InstantMessage) string {
+func (transceiver *MessageTransceiver) EncodeKey(data []byte, iMsg InstantMessage) string {
 	return transceiver.Transformer().EncodeKey(data, iMsg)
 }
 
 //-------- SecureMessageDelegate
 
-func (transceiver *Transceiver) DecodeKey(key string, sMsg SecureMessage) []byte {
+func (transceiver *MessageTransceiver) DecodeKey(key string, sMsg SecureMessage) []byte {
 	return transceiver.Transformer().DecodeKey(key, sMsg)
 }
 
-func (transceiver *Transceiver) DecryptKey(key []byte, sender ID, receiver ID, sMsg SecureMessage) []byte {
+func (transceiver *MessageTransceiver) DecryptKey(key []byte, sender ID, receiver ID, sMsg SecureMessage) []byte {
 	return transceiver.Transformer().DecryptKey(key, sender, receiver, sMsg)
 }
 
-func (transceiver *Transceiver) DeserializeKey(key []byte, sender ID, receiver ID, sMsg SecureMessage) SymmetricKey {
+func (transceiver *MessageTransceiver) DeserializeKey(key []byte, sender ID, receiver ID, sMsg SecureMessage) SymmetricKey {
 	return transceiver.Transformer().DeserializeKey(key, sender, receiver, sMsg)
 }
 
-func (transceiver *Transceiver) DecodeData(data string, sMsg SecureMessage) []byte {
+func (transceiver *MessageTransceiver) DecodeData(data string, sMsg SecureMessage) []byte {
 	return transceiver.Transformer().DecodeData(data, sMsg)
 }
 
-func (transceiver *Transceiver) DecryptContent(data []byte, password SymmetricKey, sMsg SecureMessage) []byte {
+func (transceiver *MessageTransceiver) DecryptContent(data []byte, password SymmetricKey, sMsg SecureMessage) []byte {
 	return transceiver.Transformer().DecryptContent(data, password, sMsg)
 }
 
-func (transceiver *Transceiver) DeserializeContent(data []byte, password SymmetricKey, sMsg SecureMessage) Content {
+func (transceiver *MessageTransceiver) DeserializeContent(data []byte, password SymmetricKey, sMsg SecureMessage) Content {
 	return transceiver.Transformer().DeserializeContent(data, password, sMsg)
 }
 
-func (transceiver *Transceiver) SignData(data []byte, sender ID, sMsg SecureMessage) []byte {
+func (transceiver *MessageTransceiver) SignData(data []byte, sender ID, sMsg SecureMessage) []byte {
 	return transceiver.Transformer().SignData(data, sender, sMsg)
 }
 
-func (transceiver *Transceiver) EncodeSignature(signature []byte, sMsg SecureMessage) string {
+func (transceiver *MessageTransceiver) EncodeSignature(signature []byte, sMsg SecureMessage) string {
 	return transceiver.Transformer().EncodeSignature(signature, sMsg)
 }
 
 //-------- ReliableMessageDelegate
 
-func (transceiver *Transceiver) DecodeSignature(signature string, rMsg ReliableMessage) []byte {
+func (transceiver *MessageTransceiver) DecodeSignature(signature string, rMsg ReliableMessage) []byte {
 	return transceiver.Transformer().DecodeSignature(signature, rMsg)
 }
 
-func (transceiver *Transceiver) VerifyDataSignature(data []byte, signature []byte, sender ID, rMsg ReliableMessage) bool {
+func (transceiver *MessageTransceiver) VerifyDataSignature(data []byte, signature []byte, sender ID, rMsg ReliableMessage) bool {
 	return transceiver.Transformer().VerifyDataSignature(data, signature, sender, rMsg)
 }

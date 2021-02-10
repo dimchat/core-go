@@ -30,7 +30,10 @@
  */
 package dimp
 
-import . "github.com/dimchat/dkd-go/protocol"
+import (
+	. "github.com/dimchat/dkd-go/protocol"
+	. "github.com/dimchat/mkm-go/protocol"
+)
 
 /**
  *  Message Transceiver
@@ -40,18 +43,136 @@ type Transceiver interface {
 	EntityDelegate
 	CipherKeyDelegate
 
-	MessageDelegate
-
 	Packer
 	Processor
+	Transformer
+}
+
+/**
+ *  Message Packer
+ *  ~~~~~~~~~~~~~~
+ */
+type Packer interface {
+
+	/**
+	 *  Get group ID which should be exposed to public network
+	 *
+	 * @param content - message content
+	 * @return exposed group ID
+	 */
+	GetOvertGroup(content Content) ID
+
+	//
+	//  InstantMessage -> SecureMessage -> ReliableMessage -> Data
+	//
+
+	/**
+	 *  Encrypt message content
+	 *
+	 * @param iMsg - plain message
+	 * @return encrypted message
+	 */
+	EncryptMessage(iMsg InstantMessage) SecureMessage
+
+	/**
+	 *  Sign content data
+	 *
+	 * @param sMsg - encrypted message
+	 * @return network message
+	 */
+	SignMessage(sMsg SecureMessage) ReliableMessage
+
+	/**
+	 *  Serialize network message
+	 *
+	 * @param rMsg - network message
+	 * @return data package
+	 */
+	SerializeMessage(rMsg ReliableMessage) []byte
+
+	//
+	//  Data -> ReliableMessage -> SecureMessage -> InstantMessage
+	//
+
+	/**
+	 *  Deserialize network message
+	 *
+	 * @param data - data package
+	 * @return network message
+	 */
+	DeserializeMessage(data []byte) ReliableMessage
+
+	/**
+	 *  Verify encrypted content data
+	 *
+	 * @param rMsg - network message
+	 * @return encrypted message
+	 */
+	VerifyMessage(rMsg ReliableMessage) SecureMessage
+
+	/**
+	 *  Decrypt message content
+	 *
+	 * @param sMsg - encrypted message
+	 * @return plain message
+	 */
+	DecryptMessage(sMsg SecureMessage) InstantMessage
+}
+
+/**
+ *  Message Processor
+ *  ~~~~~~~~~~~~~~~~~
+ */
+type Processor interface {
+
+	/**
+	 *  Process data package
+	 *
+	 * @param data - data to be processed
+	 * @return response data
+	 */
+	ProcessData(data []byte) []byte
+
+	/**
+	 *  Process network message
+	 *
+	 * @param rMsg - message to be processed
+	 * @return response message
+	 */
+	ProcessReliableMessage(rMsg ReliableMessage) ReliableMessage
+
+	/**
+	 *  Process encrypted message
+	 *
+	 * @param sMsg - message to be processed
+	 * @param rMsg - message received
+	 * @return response message
+	 */
+	ProcessSecureMessage(sMsg SecureMessage, rMsg ReliableMessage) SecureMessage
+
+	/**
+	 *  Process plain message
+	 *
+	 * @param iMsg - message to be processed
+	 * @param rMsg - message received
+	 * @return response message
+	 */
+	ProcessInstantMessage(iMsg InstantMessage, rMsg ReliableMessage) InstantMessage
+
+	/**
+	 *  Process message content
+	 *
+	 * @param content - content to be processed
+	 * @param rMsg - message received
+	 * @return response content
+	 */
+	ProcessContent(content Content, rMsg ReliableMessage) Content
 }
 
 /**
  *  Message Transformer
  *  ~~~~~~~~~~~~~~~~~~~
- *  Message Delegates
  */
 type Transformer interface {
-	InstantMessageDelegate
-	ReliableMessageDelegate
+	MessageDelegate
 }

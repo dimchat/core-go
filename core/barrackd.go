@@ -31,26 +31,27 @@
 package core
 
 import (
-	"github.com/dimchat/core-go/dimp"
+	. "github.com/dimchat/core-go/dimp"
 	. "github.com/dimchat/mkm-go/protocol"
+	"reflect"
 )
 
 /**
  *  Delegate for Barrack
  */
 type BarrackDelegate struct {
-	dimp.EntityDelegate
+	EntityDelegate
 
 	// memory caches
-	_users map[ID]dimp.User
-	_groups map[ID]dimp.Group
+	_users map[ID]User
+	_groups map[ID]Group
 
 	_barrack IBarrack
 }
 
 func (shadow *BarrackDelegate) Init(facebook IBarrack) *BarrackDelegate {
-	shadow._users = make(map[ID]dimp.User)
-	shadow._groups = make(map[ID]dimp.Group)
+	shadow._users = make(map[ID]User)
+	shadow._groups = make(map[ID]Group)
 	shadow._barrack = facebook
 	return shadow
 }
@@ -67,76 +68,37 @@ func (shadow *BarrackDelegate) Barrack() IBarrack {
  */
 func (shadow *BarrackDelegate) ReduceMemory() int {
 	finger := 0
-	//finger = thanos(barrack._users, finger)
-	dict1 := shadow._users
-	if len(dict1) > 0 {
-		index := 0
-		keys := make([]ID, len(dict1))
-		for key := range dict1 {
-			keys[index] = key
-			index++
-		}
-		for _, key := range keys {
-			finger++
-			if (finger & 1) == 1 {
-				// kill it
-				delete(dict1, key)
-			}
-			// let it go
-		}
-	}
-	//finger = thanos(barrack._groups, finger)
-	dict2 := shadow._groups
-	if len(dict2) > 0 {
-		index := 0
-		keys := make([]ID, len(dict2))
-		for key := range dict2 {
-			keys[index] = key
-			index++
-		}
-		for _, key := range keys {
-			finger++
-			if (finger & 1) == 1 {
-				// kill it
-				delete(dict2, key)
-			}
-			// let it go
-		}
-	}
+	finger = thanos(shadow._users, finger)
+	finger = thanos(shadow._groups, finger)
 	return finger >> 1
 }
 
-//func thanos(dict map[ID]Entity, finger int) int {
-//	keys := keys(dict)
-//	for _, key := range keys {
-//		finger++
-//		if (finger & 1) == 1 {
-//			// kill it
-//			delete(dict, key)
-//		}
-//		// let it go
-//	}
-//	return finger
-//}
-//
-//func keys(dict map[ID]Entity) []ID {
-//	index := 0
-//	keys := make([]ID, len(dict))
-//	for key := range dict {
-//		keys[index] = key
-//		index++
-//	}
-//	return keys
-//}
+func thanos(planet interface{}, finger int) int {
+	if reflect.TypeOf(planet).Kind() != reflect.Map {
+		panic(planet)
+		return finger
+	}
+	dict := reflect.ValueOf(planet)
+	keys := dict.MapKeys()
+	for _, key := range keys {
+		finger++
+		if (finger & 1) == 1 {
+			// kill it
+			dict.SetMapIndex(key, reflect.Value{})
+		}
+		// let it go
+	}
+	return finger
+}
 
-func (shadow *BarrackDelegate) cacheUser(user dimp.User) {
+func (shadow *BarrackDelegate) cacheUser(user User) {
 	if user.DataSource() == nil {
 		user.SetDataSource(shadow.Barrack())
 	}
 	shadow._users[user.ID()] = user
 }
 
-func (shadow *BarrackDelegate) cacheGroup(group dimp.Group) {
+func (shadow *BarrackDelegate) cacheGroup(group Group) {
 	if group.DataSource() == nil {
 		group.SetDataSource(shadow.Barrack())
 	}
@@ -145,7 +107,7 @@ func (shadow *BarrackDelegate) cacheGroup(group dimp.Group) {
 
 //-------- EntityDelegate
 
-func (shadow *BarrackDelegate) SelectLocalUser(receiver ID) dimp.User {
+func (shadow *BarrackDelegate) SelectLocalUser(receiver ID) User {
 	users := shadow.Barrack().GetLocalUsers()
 	if users == nil || len(users) == 0 {
 		panic("local users should not be empty")
@@ -187,7 +149,7 @@ func (shadow *BarrackDelegate) SelectLocalUser(receiver ID) dimp.User {
 	return nil
 }
 
-func (shadow *BarrackDelegate) GetUser(identifier ID) dimp.User {
+func (shadow *BarrackDelegate) GetUser(identifier ID) User {
 	// 1. get from user cache
 	user := shadow._users[identifier]
 	if user == nil {
@@ -200,7 +162,7 @@ func (shadow *BarrackDelegate) GetUser(identifier ID) dimp.User {
 	return user
 }
 
-func (shadow *BarrackDelegate) GetGroup(identifier ID) dimp.Group {
+func (shadow *BarrackDelegate) GetGroup(identifier ID) Group {
 	// 1. get from group cache
 	// 1. get from user cache
 	group := shadow._groups[identifier]
