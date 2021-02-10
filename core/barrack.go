@@ -36,385 +36,121 @@ import (
 	. "github.com/dimchat/mkm-go/protocol"
 )
 
-/**
- *  Functions for creating user/group
- */
-type UserCreator func(identifier ID) dimp.User
-type GroupCreator func(identifier ID) dimp.Group
+type IBarrack interface {
+	dimp.EntityDataSource
+	dimp.EntityDelegate
 
-/**
- *  Function for getting all local users
- *
- * @return users with private key
- */
-type LocalUsersLoader func(barrack interface{}) []dimp.User
+	CreateUser(identifier ID) dimp.User
+	CreateGroup(identifier ID) dimp.Group
+
+	/**
+	 *  Get all local users (for decrypting received message)
+	 *
+	 * @return users with private key
+	 */
+	GetLocalUsers() []dimp.User
+}
 
 /**
  *  Delegate for entity
  *  ~~~~~~~~~~~~~~~~~~~
  *
  *  Abstract methods:
- *      // EntityDataSource
- *      GetMeta(identifier ID) Meta
- *      GetDocument(identifier ID, docType string) Document
- *      // UserDataSource
- *      GetContacts(user ID) []ID
- *      GetPrivateKeysForDecryption(user ID) []DecryptKey
- *      GetPrivateKeyForSignature(user ID) SignKey
- *      GetPrivateKeyForVisaSignature(user ID) SignKey
+ *      CreateUser(identifier ID) dimp.User
+ *      CreateGroup(identifier ID) dimp.Group
+ *      GetLocalUsers() []dimp.User
  */
 type Barrack struct {
-	dimp.EntityDataSource
-	dimp.EntityDelegate
+	IBarrack
 
-	CreateUser UserCreator
-	CreateGroup GroupCreator
-	GetLocalUsers LocalUsersLoader
-
-	// memory caches
-	_users map[ID]dimp.User
-	_groups map[ID]dimp.Group
+	_delegate dimp.EntityDelegate
+	_source dimp.EntityDataSource
 }
 
 func (barrack *Barrack) Init() *Barrack {
-	barrack._users = make(map[ID]dimp.User)
-	barrack._groups = make(map[ID]dimp.Group)
+	barrack._delegate = nil
+	barrack._source = nil
 	return barrack
 }
 
-/**
- * Call it when received 'UIApplicationDidReceiveMemoryWarningNotification',
- * this will remove 50% of cached objects
- *
- * @return number of survivors
- */
-func (barrack *Barrack) ReduceMemory() int {
-	finger := 0
-	//finger = thanos(barrack._users, finger)
-	dict1 := barrack._users
-	if len(dict1) > 0 {
-		index := 0
-		keys := make([]ID, len(dict1))
-		for key := range dict1 {
-			keys[index] = key
-			index++
-		}
-		for _, key := range keys {
-			finger++
-			if (finger & 1) == 1 {
-				// kill it
-				delete(dict1, key)
-			}
-			// let it go
-		}
-	}
-	//finger = thanos(barrack._groups, finger)
-	dict2 := barrack._groups
-	if len(dict2) > 0 {
-		index := 0
-		keys := make([]ID, len(dict2))
-		for key := range dict2 {
-			keys[index] = key
-			index++
-		}
-		for _, key := range keys {
-			finger++
-			if (finger & 1) == 1 {
-				// kill it
-				delete(dict2, key)
-			}
-			// let it go
-		}
-	}
-	return finger >> 1
+func (barrack *Barrack) SetDelegate(delegate dimp.EntityDelegate) {
+	barrack._delegate = delegate
+}
+func (barrack *Barrack) Delegate() dimp.EntityDelegate {
+	return barrack._delegate
 }
 
-//func thanos(dict map[ID]Entity, finger int) int {
-//	keys := keys(dict)
-//	for _, key := range keys {
-//		finger++
-//		if (finger & 1) == 1 {
-//			// kill it
-//			delete(dict, key)
-//		}
-//		// let it go
-//	}
-//	return finger
-//}
-//
-//func keys(dict map[ID]Entity) []ID {
-//	index := 0
-//	keys := make([]ID, len(dict))
-//	for key := range dict {
-//		keys[index] = key
-//		index++
-//	}
-//	return keys
-//}
-
-func (barrack *Barrack) cacheUser(user dimp.User) {
-	if user.DataSource() == nil {
-		user.SetDataSource(barrack)
-	}
-	barrack._users[user.ID()] = user
+func (barrack *Barrack) SetDataSource(source dimp.EntityDataSource) {
+	barrack._source = source
 }
-
-func (barrack *Barrack) cacheGroup(group dimp.Group) {
-	if group.DataSource() == nil {
-		group.SetDataSource(barrack)
-	}
-	barrack._groups[group.ID()] = group
+func (barrack *Barrack) DataSource() dimp.EntityDataSource {
+	return barrack._source
 }
 
 //-------- EntityDelegate
 
 func (barrack *Barrack) SelectLocalUser(receiver ID) dimp.User {
-	users := barrack.GetLocalUsers(barrack)
-	if users == nil || len(users) == 0 {
-		panic("local users should not be empty")
-	} else if receiver.IsBroadcast() {
-		// broadcast message can decrypt by anyone, so just return current user
-		return users[0]
-	}
-	if receiver.IsGroup() {
-		// group message (recipient not designated)
-		members := barrack.GetMembers(receiver)
-		if members == nil || len(members) == 0 {
-			// TODO: group not ready, waiting for group info
-			return nil
-		}
-		for _, item := range users {
-			if item == nil {
-				continue
-			}
-			for _, member := range members {
-				if item.ID().Equal(member) {
-					// DISCUSS: set this item to be current user?
-					return item
-				}
-			}
-		}
-	} else {
-		// 1. personal message
-		// 2. split group message
-		for _, item := range users {
-			if item == nil {
-				continue
-			}
-			if item.ID().Equal(receiver) {
-				// DISCUSS: set this item to be current user?
-				return item
-			}
-		}
-	}
-	return nil
+	return barrack.Delegate().SelectLocalUser(receiver)
 }
 
 func (barrack *Barrack) GetUser(identifier ID) dimp.User {
-	// 1. get from user cache
-	user := barrack._users[identifier]
-	if user == nil {
-		// 2. create user and cache it
-		user = barrack.CreateUser(identifier)
-		if user != nil {
-			barrack.cacheUser(user)
-		}
-	}
-	return user
+	return barrack.Delegate().GetUser(identifier)
 }
 
 func (barrack *Barrack) GetGroup(identifier ID) dimp.Group {
-	// 1. get from group cache
-	// 1. get from user cache
-	group := barrack._groups[identifier]
-	if group == nil {
-		// 2. create group and cache it
-		group = barrack.CreateGroup(identifier)
-		if group != nil {
-			barrack.cacheGroup(group)
-		}
-	}
-	return group
+	return barrack.Delegate().GetGroup(identifier)
+}
+
+//-------- EntityDataSource
+
+func (barrack *Barrack) GetMeta(identifier ID) Meta {
+	return barrack.DataSource().GetMeta(identifier)
+}
+
+func (barrack *Barrack) GetDocument(identifier ID, docType string) Document {
+	return barrack.DataSource().GetDocument(identifier, docType)
 }
 
 //-------- UserDataSource
 
-func (barrack *Barrack) getVisaKey(user ID) EncryptKey {
-	doc := barrack.GetDocument(user, VISA)
-	if doc == nil || !doc.IsValid() {
-		return nil
-	}
-	visa, ok := doc.(Visa)
-	if ok {
-		return visa.Key()
-	}
-	return nil
-}
-func (barrack *Barrack) getMetaKey(user ID) VerifyKey {
-	meta := barrack.GetMeta(user)
-	if meta == nil {
-		return nil
-	}
-	return meta.Key()
+func (barrack *Barrack) GetContacts(user ID) []ID {
+	return barrack.DataSource().GetContacts(user)
 }
 
 func (barrack *Barrack) GetPublicKeyForEncryption(user ID) EncryptKey {
-	// 1. get key from visa
-	visaKey := barrack.getVisaKey(user)
-	if visaKey != nil {
-		// if visa.key exists, use it for encryption
-		return visaKey
-	}
-	// 2. get key from meta
-	metaKey := barrack.getMetaKey(user)
-	key, ok := metaKey.(EncryptKey)
-	if ok {
-		// if profile.key not exists and meta.key is encrypt key,
-		// use it for encryption
-		return key
-	}
-	//panic("failed to get encrypt key for user: " + user.String())
-	return nil
+	return barrack.DataSource().GetPublicKeyForEncryption(user)
 }
 
 func (barrack *Barrack) GetPublicKeysForVerification(user ID) []VerifyKey {
-	keys := make([]VerifyKey, 0, 2)
-	// 1. get key from visa
-	visaKey := barrack.getVisaKey(user)
-	key, ok := visaKey.(VerifyKey)
-	if ok {
-		// the sender may use communication key to sign message.data,
-		// so try to verify it with visa.key here
-		keys = append(keys, key)
-	}
-	// 2. get key from meta
-	metaKey := barrack.getMetaKey(user)
-	if metaKey != nil {
-		// the sender may use identity key to sign message.data,
-		// try to verify it with meta.key
-		keys = append(keys, key)
-	}
-	return keys
+	return barrack.DataSource().GetPublicKeysForVerification(user)
+}
+
+func (barrack *Barrack) GetPrivateKeysForDecryption(user ID) []DecryptKey {
+	return barrack.DataSource().GetPrivateKeysForDecryption(user)
+}
+
+func (barrack *Barrack) GetPrivateKeyForSignature(user ID) SignKey {
+	return barrack.DataSource().GetPrivateKeyForSignature(user)
+}
+
+func (barrack *Barrack) GetPrivateKeyForVisaSignature(user ID) SignKey {
+	return barrack.DataSource().GetPrivateKeyForVisaSignature(user)
 }
 
 //-------- GroupDataSource
 
-func getIDName(group ID) string {
-	name := group.Name()
-	length := len(name)
-	if length == 0 || (length == 8 && name == Everyone) {
-		return ""
-	}
-	return name
-}
-
-func (barrack *Barrack) GetBroadcastFounder(group ID) ID {
-	name := getIDName(group)
-	if name == "" {
-		// Consensus: the founder of group 'everyone@everywhere'
-		//            'Albert Moky'
-		return FOUNDER
-	} else {
-		// DISCUSS: who should be the founder of group 'xxx@everywhere'?
-		//          'anyone@anywhere', or 'xxx.founder@anywhere'
-		return IDParse(name + ".founder@anywhere")
-	}
-}
-func (barrack *Barrack) GetBroadcastOwner(group ID) ID {
-	name := getIDName(group)
-	if name == "" {
-		// Consensus: the owner of group 'everyone@everywhere'
-		//            'anyone@anywhere'
-		return ANYONE
-	} else {
-		// DISCUSS: who should be the owner of group 'xxx@everywhere'?
-		//          'anyone@anywhere', or 'xxx.owner@anywhere'
-		return IDParse(name + ".owner@anywhere")
-	}
-}
-func (barrack *Barrack) GetBroadcastMembers(group ID) []ID {
-	name := getIDName(group)
-	if name == "" {
-		// Consensus: the member of group 'everyone@everywhere'
-		//            'anyone@anywhere'
-		return []ID{ANYONE}
-	} else {
-		// DISCUSS: who should be the member of group 'xxx@everywhere'?
-		//          'anyone@anywhere', or 'xxx.member@anywhere'
-		owner := IDParse(name + ".owner@anywhere")
-		member := IDParse(name + ".member@anywhere")
-		return []ID{owner, member}
-	}
-}
-
 func (barrack *Barrack) GetFounder(group ID) ID {
-	// check broadcast group
-	if group.IsBroadcast() {
-		// founder of broadcast group
-		return barrack.GetBroadcastFounder(group)
-	}
-	// check group meta
-	gMeta := barrack.GetMeta(group)
-	if gMeta == nil {
-		// FIXME: when group profile was arrived but the meta still on the way,
-		//        here will cause founder not found
-		return nil
-	}
-	// check each member's public key with group meta
-	members := barrack.GetMembers(group)
-	if members != nil {
-		var mMeta Meta
-		for _, item := range members {
-			mMeta = barrack.GetMeta(item)
-			if mMeta == nil {
-				// failed to get member's meta
-				continue
-			}
-			if gMeta.MatchKey(mMeta.Key()) {
-				// if the member's public key matches with the group's meta,
-				// it means this meta was generated by the member's private key
-				return item
-			}
-		}
-	}
-	// TODO: load founder from database
-	return nil
+	return barrack.DataSource().GetFounder(group)
 }
 
 func (barrack *Barrack) GetOwner(group ID) ID {
-	// check broadcast group
-	if group.IsBroadcast() {
-		// owner of broadcast group
-		return barrack.GetBroadcastOwner(group)
-	}
-	// check group type
-	if group.Type() == POLYLOGUE {
-		// Polylogue owner is its founder
-		return barrack.GetFounder(group)
-	}
-	// TODO: load owner from database
-	return nil
+	return barrack.DataSource().GetOwner(group)
 }
 
 func (barrack *Barrack) GetMembers(group ID) []ID {
-	// check broadcast group
-	if group.IsBroadcast() {
-		// members of broadcast group
-		return barrack.GetBroadcastMembers(group)
-	}
-	// TODO: load members from database
-	return nil
+	return barrack.DataSource().GetMembers(group)
 }
 
 func (barrack *Barrack) GetAssistants(group ID) []ID {
-	doc := barrack.GetDocument(group, BULLETIN)
-	if doc == nil || !doc.IsValid() {
-		return nil
-	}
-	bulletin, ok := doc.(Bulletin)
-	if ok {
-		return bulletin.Assistants()
-	}
-	// TODO: get group bots from SP configuration
-	return nil
+	return barrack.DataSource().GetAssistants(group)
 }
