@@ -36,9 +36,27 @@ import (
 	. "github.com/dimchat/mkm-go/protocol"
 )
 
+/**
+ *  Entity Handler
+ *  ~~~~~~~~~~~~~~
+ */
+type EntityHandler interface {
+
+	CreateUser(identifier ID) User
+	CreateGroup(identifier ID) Group
+
+	/**
+	 *  Get all local users (for decrypting received message)
+	 *
+	 * @return users with private key
+	 */
+	GetLocalUsers() []User
+}
+
 type IBarrack interface {
-	EntityDataSource
 	EntityHandler
+	EntityDelegate
+	EntityDataSource
 }
 
 /**
@@ -49,20 +67,29 @@ type Barrack struct {
 	IBarrack
 
 	_handler EntityHandler
+	_delegate EntityDelegate
 	_source EntityDataSource
 }
 
 func (barrack *Barrack) Init() *Barrack {
 	barrack._handler = nil
+	barrack._delegate = nil
 	barrack._source = nil
 	return barrack
 }
 
-func (barrack *Barrack) SetHandler(delegate EntityHandler) {
-	barrack._handler = delegate
+func (barrack *Barrack) SetHandler(handler EntityHandler) {
+	barrack._handler = handler
 }
 func (barrack *Barrack) Handler() EntityHandler {
 	return barrack._handler
+}
+
+func (barrack *Barrack) SetDelegate(delegate EntityDelegate) {
+	barrack._delegate = delegate
+}
+func (barrack *Barrack) Delegate() EntityDelegate {
+	return barrack._delegate
 }
 
 func (barrack *Barrack) SetSource(source EntityDataSource) {
@@ -70,20 +97,6 @@ func (barrack *Barrack) SetSource(source EntityDataSource) {
 }
 func (barrack *Barrack) Source() EntityDataSource {
 	return barrack._source
-}
-
-//-------- EntityDelegate
-
-func (barrack *Barrack) SelectLocalUser(receiver ID) User {
-	return barrack.Handler().SelectLocalUser(receiver)
-}
-
-func (barrack *Barrack) GetUser(identifier ID) User {
-	return barrack.Handler().GetUser(identifier)
-}
-
-func (barrack *Barrack) GetGroup(identifier ID) Group {
-	return barrack.Handler().GetGroup(identifier)
 }
 
 //-------- EntityHandler
@@ -98,6 +111,20 @@ func (barrack *Barrack) CreateGroup(identifier ID) Group {
 
 func (barrack *Barrack) GetLocalUsers() []User {
 	return barrack.Handler().GetLocalUsers()
+}
+
+//-------- EntityDelegate
+
+func (barrack *Barrack) SelectLocalUser(receiver ID) User {
+	return barrack.Delegate().SelectLocalUser(receiver)
+}
+
+func (barrack *Barrack) GetUser(identifier ID) User {
+	return barrack.Delegate().GetUser(identifier)
+}
+
+func (barrack *Barrack) GetGroup(identifier ID) Group {
+	return barrack.Delegate().GetGroup(identifier)
 }
 
 //-------- EntityDataSource

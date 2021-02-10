@@ -37,34 +37,11 @@ import (
 )
 
 /**
- *  Extend Entity Delegate
- *  ~~~~~~~~~~~~~~~~~~~~~~
- */
-type EntityHandler interface {
-	EntityDelegate
-
-	CreateUser(identifier ID) User
-	CreateGroup(identifier ID) Group
-
-	/**
-	 *  Get all local users (for decrypting received message)
-	 *
-	 * @return users with private key
-	 */
-	GetLocalUsers() []User
-}
-
-/**
  *  Delegate for Barrack
  *  ~~~~~~~~~~~~~~~~~~~~
- *
- *  Abstract methods:
- *      CreateUser(identifier ID) User
- *      CreateGroup(identifier ID) Group
- *      GetLocalUsers() []User
  */
 type BarrackDelegate struct {
-	EntityHandler
+	EntityDelegate
 
 	// memory caches
 	_users map[ID]User
