@@ -38,119 +38,118 @@ import (
 
 type IBarrack interface {
 	EntityDataSource
-	EntityDelegate
-
-	CreateUser(identifier ID) User
-	CreateGroup(identifier ID) Group
-
-	/**
-	 *  Get all local users (for decrypting received message)
-	 *
-	 * @return users with private key
-	 */
-	GetLocalUsers() []User
+	EntityHandler
 }
 
 /**
- *  Delegate for entity
+ *  Delegate for Entity
  *  ~~~~~~~~~~~~~~~~~~~
- *
- *  Abstract methods:
- *      CreateUser(identifier ID) User
- *      CreateGroup(identifier ID) Group
- *      GetLocalUsers() []User
  */
 type Barrack struct {
 	IBarrack
 
-	_delegate EntityDelegate
+	_handler EntityHandler
 	_source EntityDataSource
 }
 
 func (barrack *Barrack) Init() *Barrack {
-	barrack._delegate = nil
+	barrack._handler = nil
 	barrack._source = nil
 	return barrack
 }
 
-func (barrack *Barrack) SetDelegate(delegate EntityDelegate) {
-	barrack._delegate = delegate
+func (barrack *Barrack) SetHandler(delegate EntityHandler) {
+	barrack._handler = delegate
 }
-func (barrack *Barrack) Delegate() EntityDelegate {
-	return barrack._delegate
+func (barrack *Barrack) Handler() EntityHandler {
+	return barrack._handler
 }
 
-func (barrack *Barrack) SetDataSource(source EntityDataSource) {
+func (barrack *Barrack) SetSource(source EntityDataSource) {
 	barrack._source = source
 }
-func (barrack *Barrack) DataSource() EntityDataSource {
+func (barrack *Barrack) Source() EntityDataSource {
 	return barrack._source
 }
 
 //-------- EntityDelegate
 
 func (barrack *Barrack) SelectLocalUser(receiver ID) User {
-	return barrack.Delegate().SelectLocalUser(receiver)
+	return barrack.Handler().SelectLocalUser(receiver)
 }
 
 func (barrack *Barrack) GetUser(identifier ID) User {
-	return barrack.Delegate().GetUser(identifier)
+	return barrack.Handler().GetUser(identifier)
 }
 
 func (barrack *Barrack) GetGroup(identifier ID) Group {
-	return barrack.Delegate().GetGroup(identifier)
+	return barrack.Handler().GetGroup(identifier)
+}
+
+//-------- EntityHandler
+
+func (barrack *Barrack) CreateUser(identifier ID) User {
+	return barrack.Handler().CreateUser(identifier)
+}
+
+func (barrack *Barrack) CreateGroup(identifier ID) Group {
+	return barrack.Handler().CreateGroup(identifier)
+}
+
+func (barrack *Barrack) GetLocalUsers() []User {
+	return barrack.Handler().GetLocalUsers()
 }
 
 //-------- EntityDataSource
 
 func (barrack *Barrack) GetMeta(identifier ID) Meta {
-	return barrack.DataSource().GetMeta(identifier)
+	return barrack.Source().GetMeta(identifier)
 }
 
 func (barrack *Barrack) GetDocument(identifier ID, docType string) Document {
-	return barrack.DataSource().GetDocument(identifier, docType)
+	return barrack.Source().GetDocument(identifier, docType)
 }
 
 //-------- UserDataSource
 
 func (barrack *Barrack) GetContacts(user ID) []ID {
-	return barrack.DataSource().GetContacts(user)
+	return barrack.Source().GetContacts(user)
 }
 
 func (barrack *Barrack) GetPublicKeyForEncryption(user ID) EncryptKey {
-	return barrack.DataSource().GetPublicKeyForEncryption(user)
+	return barrack.Source().GetPublicKeyForEncryption(user)
 }
 
 func (barrack *Barrack) GetPublicKeysForVerification(user ID) []VerifyKey {
-	return barrack.DataSource().GetPublicKeysForVerification(user)
+	return barrack.Source().GetPublicKeysForVerification(user)
 }
 
 func (barrack *Barrack) GetPrivateKeysForDecryption(user ID) []DecryptKey {
-	return barrack.DataSource().GetPrivateKeysForDecryption(user)
+	return barrack.Source().GetPrivateKeysForDecryption(user)
 }
 
 func (barrack *Barrack) GetPrivateKeyForSignature(user ID) SignKey {
-	return barrack.DataSource().GetPrivateKeyForSignature(user)
+	return barrack.Source().GetPrivateKeyForSignature(user)
 }
 
 func (barrack *Barrack) GetPrivateKeyForVisaSignature(user ID) SignKey {
-	return barrack.DataSource().GetPrivateKeyForVisaSignature(user)
+	return barrack.Source().GetPrivateKeyForVisaSignature(user)
 }
 
 //-------- GroupDataSource
 
 func (barrack *Barrack) GetFounder(group ID) ID {
-	return barrack.DataSource().GetFounder(group)
+	return barrack.Source().GetFounder(group)
 }
 
 func (barrack *Barrack) GetOwner(group ID) ID {
-	return barrack.DataSource().GetOwner(group)
+	return barrack.Source().GetOwner(group)
 }
 
 func (barrack *Barrack) GetMembers(group ID) []ID {
-	return barrack.DataSource().GetMembers(group)
+	return barrack.Source().GetMembers(group)
 }
 
 func (barrack *Barrack) GetAssistants(group ID) []ID {
-	return barrack.DataSource().GetAssistants(group)
+	return barrack.Source().GetAssistants(group)
 }
