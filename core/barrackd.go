@@ -39,9 +39,14 @@ import (
 /**
  *  Delegate for Barrack
  *  ~~~~~~~~~~~~~~~~~~~~
+ *
+ *  Abstract methods:
+ *      CreateUser(identifier ID) User
+ *      CreateGroup(identifier ID) Group
+ *      GetLocalUsers() []User
  */
-type BarrackDelegate struct {
-	EntityDelegate
+type BarrackHandler struct {
+	EntityHandler
 
 	// memory caches
 	_users map[ID]User
@@ -50,14 +55,14 @@ type BarrackDelegate struct {
 	_barrack IBarrack
 }
 
-func (shadow *BarrackDelegate) Init(facebook IBarrack) *BarrackDelegate {
+func (shadow *BarrackHandler) Init(facebook IBarrack) *BarrackHandler {
 	shadow._users = make(map[ID]User)
 	shadow._groups = make(map[ID]Group)
 	shadow._barrack = facebook
 	return shadow
 }
 
-func (shadow *BarrackDelegate) Barrack() IBarrack {
+func (shadow *BarrackHandler) Barrack() IBarrack {
 	return shadow._barrack
 }
 
@@ -67,7 +72,7 @@ func (shadow *BarrackDelegate) Barrack() IBarrack {
  *
  * @return number of survivors
  */
-func (shadow *BarrackDelegate) ReduceMemory() int {
+func (shadow *BarrackHandler) ReduceMemory() int {
 	finger := 0
 	finger = thanos(shadow._users, finger)
 	finger = thanos(shadow._groups, finger)
@@ -92,14 +97,14 @@ func thanos(planet interface{}, finger int) int {
 	return finger
 }
 
-func (shadow *BarrackDelegate) cacheUser(user User) {
+func (shadow *BarrackHandler) cacheUser(user User) {
 	if user.DataSource() == nil {
 		user.SetDataSource(shadow.Barrack())
 	}
 	shadow._users[user.ID()] = user
 }
 
-func (shadow *BarrackDelegate) cacheGroup(group Group) {
+func (shadow *BarrackHandler) cacheGroup(group Group) {
 	if group.DataSource() == nil {
 		group.SetDataSource(shadow.Barrack())
 	}
@@ -108,7 +113,7 @@ func (shadow *BarrackDelegate) cacheGroup(group Group) {
 
 //-------- EntityDelegate
 
-func (shadow *BarrackDelegate) SelectLocalUser(receiver ID) User {
+func (shadow *BarrackHandler) SelectLocalUser(receiver ID) User {
 	users := shadow.Barrack().GetLocalUsers()
 	if users == nil || len(users) == 0 {
 		panic("local users should not be empty")
@@ -150,7 +155,7 @@ func (shadow *BarrackDelegate) SelectLocalUser(receiver ID) User {
 	return nil
 }
 
-func (shadow *BarrackDelegate) GetUser(identifier ID) User {
+func (shadow *BarrackHandler) GetUser(identifier ID) User {
 	// 1. get from user cache
 	user := shadow._users[identifier]
 	if user == nil {
@@ -163,7 +168,7 @@ func (shadow *BarrackDelegate) GetUser(identifier ID) User {
 	return user
 }
 
-func (shadow *BarrackDelegate) GetGroup(identifier ID) Group {
+func (shadow *BarrackHandler) GetGroup(identifier ID) Group {
 	// 1. get from group cache
 	// 1. get from user cache
 	group := shadow._groups[identifier]

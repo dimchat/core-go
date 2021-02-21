@@ -41,6 +41,7 @@ import (
  *  ~~~~~~~~~~~~~~
  */
 type EntityHandler interface {
+	EntityDelegate
 
 	CreateUser(identifier ID) User
 	CreateGroup(identifier ID) Group
@@ -55,7 +56,6 @@ type EntityHandler interface {
 
 type IBarrack interface {
 	EntityHandler
-	EntityDelegate
 	EntityDataSource
 }
 
@@ -67,13 +67,11 @@ type Barrack struct {
 	IBarrack
 
 	_handler EntityHandler
-	_delegate EntityDelegate
 	_source EntityDataSource
 }
 
 func (barrack *Barrack) Init() *Barrack {
 	barrack._handler = nil
-	barrack._delegate = nil
 	barrack._source = nil
 	return barrack
 }
@@ -83,13 +81,6 @@ func (barrack *Barrack) SetHandler(handler EntityHandler) {
 }
 func (barrack *Barrack) Handler() EntityHandler {
 	return barrack._handler
-}
-
-func (barrack *Barrack) SetDelegate(delegate EntityDelegate) {
-	barrack._delegate = delegate
-}
-func (barrack *Barrack) Delegate() EntityDelegate {
-	return barrack._delegate
 }
 
 func (barrack *Barrack) SetSource(source EntityDataSource) {
@@ -116,15 +107,15 @@ func (barrack *Barrack) GetLocalUsers() []User {
 //-------- EntityDelegate
 
 func (barrack *Barrack) SelectLocalUser(receiver ID) User {
-	return barrack.Delegate().SelectLocalUser(receiver)
+	return barrack.Handler().SelectLocalUser(receiver)
 }
 
 func (barrack *Barrack) GetUser(identifier ID) User {
-	return barrack.Delegate().GetUser(identifier)
+	return barrack.Handler().GetUser(identifier)
 }
 
 func (barrack *Barrack) GetGroup(identifier ID) Group {
-	return barrack.Delegate().GetGroup(identifier)
+	return barrack.Handler().GetGroup(identifier)
 }
 
 //-------- EntityDataSource
