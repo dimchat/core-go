@@ -128,7 +128,7 @@ func (processor *MessageProcessor) ProcessInstantMessage(iMsg InstantMessage, rM
 	// 2. select a local user to build message
 	sender := iMsg.Sender()
 	receiver := iMsg.Receiver()
-	user := transceiver.SelectLocalUser(receiver)
+	user := transceiver.EntityDelegate().SelectLocalUser(receiver)
 
 	// 3. pack message
 	env := EnvelopeCreate(user.ID(), sender, time.Time{})

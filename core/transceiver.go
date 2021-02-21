@@ -121,32 +121,6 @@ func (transceiver *MessageTransceiver) Packer() Packer {
 }
 
 //
-//  Interfaces for User/Group
-//
-func (transceiver *MessageTransceiver) SelectLocalUser(receiver ID) User {
-	return transceiver.EntityDelegate().SelectLocalUser(receiver)
-}
-
-func (transceiver *MessageTransceiver) GetUser(identifier ID) User {
-	return transceiver.EntityDelegate().GetUser(identifier)
-}
-
-func (transceiver *MessageTransceiver) GetGroup(identifier ID) Group {
-	return transceiver.EntityDelegate().GetGroup(identifier)
-}
-
-//
-//  Interfaces for Cipher Key
-//
-func (transceiver *MessageTransceiver) GetCipherKey(sender, receiver ID, generate bool) SymmetricKey {
-	return transceiver.CipherKeyDelegate().GetCipherKey(sender, receiver, generate)
-}
-
-func (transceiver *MessageTransceiver) CacheCipherKey(sender, receiver ID, key SymmetricKey) {
-	transceiver.CipherKeyDelegate().CacheCipherKey(sender, receiver, key)
-}
-
-//
 //  Interfaces for Packing Message
 //
 func (transceiver *MessageTransceiver) GetOvertGroup(content Content) ID {

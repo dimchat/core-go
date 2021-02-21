@@ -98,7 +98,8 @@ func (transformer *MessageTransformer) SerializeKey(password SymmetricKey, iMsg 
 
 func (transformer *MessageTransformer) EncryptKey(data []byte, receiver ID, _ InstantMessage) []byte {
 	// TODO: make sure the receiver's public key exists
-	contact := transformer.Transceiver().GetUser(receiver)
+	barrack := transformer.Transceiver().EntityDelegate()
+	contact := barrack.GetUser(receiver)
 	// encrypt with receiver's public key
 	return contact.Encrypt(data)
 }
@@ -115,7 +116,8 @@ func (transformer *MessageTransformer) DecodeKey(key string, _ SecureMessage) []
 
 func (transformer *MessageTransformer) DecryptKey(key []byte, _ ID, _ ID, sMsg SecureMessage) []byte {
 	// NOTICE: the receiver will be group ID in a group message here
-	user := transformer.Transceiver().GetUser(sMsg.Receiver())
+	barrack := transformer.Transceiver().EntityDelegate()
+	user := barrack.GetUser(sMsg.Receiver())
 	// decrypt key data with the receiver/group member's private key
 	return user.Decrypt(key)
 }
@@ -124,7 +126,8 @@ func (transformer *MessageTransformer) DeserializeKey(key []byte, sender ID, rec
 	// NOTICE: the receiver will be group ID in a group message here
 	if key == nil {
 		// get key from cache
-		return transformer.Transceiver().GetCipherKey(sender, receiver, false)
+		keyCache := transformer.Transceiver().CipherKeyDelegate()
+		return keyCache.GetCipherKey(sender, receiver, false)
 	} else {
 		dict := JSONDecode(key)
 		// TODO: translate short keys
@@ -158,19 +161,20 @@ func (transformer *MessageTransformer) DeserializeContent(data []byte, password 
 	//       'G' -> 'group'
 	content := ContentParse(dict)
 
-	transceiver := transformer.Transceiver()
 	if !isBroadcast(sMsg) {
+		transceiver := transformer.Transceiver()
+		keyCache := transceiver.CipherKeyDelegate()
 		sender := sMsg.Sender()
 		group := transceiver.GetOvertGroup(content)
 		if group == nil {
 			// personal message or (group) command
 			// cache key with direction (sender -> receiver)
 			receiver := sMsg.Receiver()
-			transceiver.CacheCipherKey(sender, receiver, password)
+			keyCache.CacheCipherKey(sender, receiver, password)
 		} else {
 			// group message (excludes group command)
 			// cache the key with direction (sender -> group)
-			transceiver.CacheCipherKey(sender, group, password)
+			keyCache.CacheCipherKey(sender, group, password)
 		}
 	}
 
@@ -180,7 +184,8 @@ func (transformer *MessageTransformer) DeserializeContent(data []byte, password 
 }
 
 func (transformer *MessageTransformer) SignData(data []byte, sender ID, _ SecureMessage) []byte {
-	user := transformer.Transceiver().GetUser(sender)
+	barrack := transformer.Transceiver().EntityDelegate()
+	user := barrack.GetUser(sender)
 	return user.Sign(data)
 }
 
@@ -195,6 +200,7 @@ func (transformer *MessageTransformer) DecodeSignature(signature string, _ Relia
 }
 
 func (transformer *MessageTransformer) VerifyDataSignature(data []byte, signature []byte, sender ID, _ ReliableMessage) bool {
-	contact := transformer.Transceiver().GetUser(sender)
+	barrack := transformer.Transceiver().EntityDelegate()
+	contact := barrack.GetUser(sender)
 	return contact.Verify(data, signature)
 }

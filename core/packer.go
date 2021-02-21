@@ -98,22 +98,23 @@ func (packer *MessagePacker) EncryptMessage(iMsg InstantMessage) SecureMessage {
 	//         set contact ID to the "receiver") before encrypting, this usually
 	//         for sending group command to assistant robot, which should not
 	//         share the symmetric key (group msg key) with other members.
+	keyCache := transceiver.CipherKeyDelegate()
 
 	// 1. get symmetric key
 	group := transceiver.GetOvertGroup(iMsg.Content())
 	var password SymmetricKey
 	if group == nil {
 		// personal message or (group) command
-		password = transceiver.GetCipherKey(sender, receiver, true)
+		password = keyCache.GetCipherKey(sender, receiver, true)
 	} else {
-		password = transceiver.GetCipherKey(sender, group, true)
+		password = keyCache.GetCipherKey(sender, group, true)
 	}
 
 	// 2. encrypt 'content' to 'data' for receiver/group members
 	var sMsg SecureMessage
 	if receiver.IsGroup() {
 		// group message
-		grp := transceiver.GetGroup(receiver)
+		grp := transceiver.EntityDelegate().GetGroup(receiver)
 		if grp == nil {
 			// group not ready
 			// TODO: suspend this message for waiting group's meta

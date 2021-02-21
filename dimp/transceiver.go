@@ -40,12 +40,12 @@ import (
  *  ~~~~~~~~~~~~~~~~~~~
  */
 type Transceiver interface {
-	EntityDelegate
-	CipherKeyDelegate
-
-	Packer
-	Processor
 	Transformer
+	Processor
+	Packer
+
+	EntityDelegate() EntityDelegate
+	CipherKeyDelegate() CipherKeyDelegate
 }
 
 /**
