@@ -37,6 +37,24 @@ import (
 )
 
 /**
+ *  Shadow for inheritable Barrack
+ *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ */
+type BarrackShadow struct {
+
+	_barrack IBarrack
+}
+
+func (shadow *BarrackShadow) Init(barrack IBarrack) *BarrackShadow {
+	shadow._barrack = barrack
+	return shadow
+}
+
+func (shadow *BarrackShadow) Barrack() IBarrack {
+	return shadow._barrack
+}
+
+/**
  *  Data Source for Barrack
  *  ~~~~~~~~~~~~~~~~~~~~~~~
  *
@@ -51,18 +69,14 @@ import (
  *      GetPrivateKeyForVisaSignature(user ID) SignKey
  */
 type BarrackSource struct {
+	BarrackShadow
 	EntityDataSource
-
-	_barrack IBarrack
 }
 
 func (shadow *BarrackSource) Init(barrack IBarrack) *BarrackSource {
-	shadow._barrack = barrack
+	if shadow.BarrackShadow.Init(barrack) != nil {
+	}
 	return shadow
-}
-
-func (shadow *BarrackSource) Barrack() IBarrack {
-	return shadow._barrack
 }
 
 func (shadow *BarrackSource) getVisaKey(user ID) EncryptKey {

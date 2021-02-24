@@ -44,18 +44,14 @@ import (
  *      ProcessContent(content Content, rMsg ReliableMessage) Content
  */
 type MessageProcessor struct {
+	TransceiverShadow
 	Processor
-
-	_transceiver Transceiver
 }
 
 func (processor *MessageProcessor) Init(transceiver Transceiver) *MessageProcessor {
-	processor._transceiver = transceiver
+	if processor.TransceiverShadow.Init(transceiver) != nil {
+	}
 	return processor
-}
-
-func (processor *MessageProcessor) Transceiver() Transceiver {
-	return processor._transceiver
 }
 
 func (processor *MessageProcessor) ProcessData(data []byte) []byte {
@@ -128,7 +124,7 @@ func (processor *MessageProcessor) ProcessInstantMessage(iMsg InstantMessage, rM
 	// 2. select a local user to build message
 	sender := iMsg.Sender()
 	receiver := iMsg.Receiver()
-	user := transceiver.EntityDelegate().SelectLocalUser(receiver)
+	user := transceiver.EntityFactory().SelectLocalUser(receiver)
 
 	// 3. pack message
 	env := EnvelopeCreate(user.ID(), sender, time.Time{})

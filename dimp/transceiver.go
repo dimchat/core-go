@@ -44,7 +44,7 @@ type Transceiver interface {
 	Processor
 	Packer
 
-	EntityDelegate() EntityDelegate
+	EntityFactory() EntityFactory
 	CipherKeyDelegate() CipherKeyDelegate
 }
 

@@ -43,18 +43,16 @@ import (
  *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  */
 type MessagePacker struct {
+	TransceiverShadow
 	Packer
 
 	_transceiver Transceiver
 }
 
 func (packer *MessagePacker) Init(transceiver Transceiver) *MessagePacker {
-	packer._transceiver = transceiver
+	if packer.TransceiverShadow.Init(transceiver) != nil {
+	}
 	return packer
-}
-
-func (packer *MessagePacker) Transceiver() Transceiver {
-	return packer._transceiver
 }
 
 func (packer *MessagePacker) GetOvertGroup(content Content) ID {
@@ -114,7 +112,7 @@ func (packer *MessagePacker) EncryptMessage(iMsg InstantMessage) SecureMessage {
 	var sMsg SecureMessage
 	if receiver.IsGroup() {
 		// group message
-		grp := transceiver.EntityDelegate().GetGroup(receiver)
+		grp := transceiver.EntityFactory().GetGroup(receiver)
 		if grp == nil {
 			// group not ready
 			// TODO: suspend this message for waiting group's meta

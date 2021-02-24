@@ -39,22 +39,36 @@ import (
 )
 
 /**
- *  Message Transformer Implementations
- *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ *  Shadow for inheritable Transceiver
+ *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  */
-type MessageTransformer struct {
-	Transformer
+type TransceiverShadow struct {
 
 	_transceiver Transceiver
 }
 
-func (transformer *MessageTransformer) Init(transceiver Transceiver) *MessageTransformer {
-	transformer._transceiver = transceiver
-	return transformer
+func (shadow *TransceiverShadow) Init(transceiver Transceiver) *TransceiverShadow {
+	shadow._transceiver = transceiver
+	return shadow
 }
 
-func (transformer *MessageTransformer) Transceiver() Transceiver {
-	return transformer._transceiver
+func (shadow *TransceiverShadow) Transceiver() Transceiver {
+	return shadow._transceiver
+}
+
+/**
+ *  Message Transformer Implementations
+ *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ */
+type MessageTransformer struct {
+	TransceiverShadow
+	Transformer
+}
+
+func (transformer *MessageTransformer) Init(transceiver Transceiver) *MessageTransformer {
+	if transformer.TransceiverShadow.Init(transceiver) != nil {
+	}
+	return transformer
 }
 
 //-------- InstantMessageDelegate
@@ -98,7 +112,7 @@ func (transformer *MessageTransformer) SerializeKey(password SymmetricKey, iMsg 
 
 func (transformer *MessageTransformer) EncryptKey(data []byte, receiver ID, _ InstantMessage) []byte {
 	// TODO: make sure the receiver's public key exists
-	barrack := transformer.Transceiver().EntityDelegate()
+	barrack := transformer.Transceiver().EntityFactory()
 	contact := barrack.GetUser(receiver)
 	// encrypt with receiver's public key
 	return contact.Encrypt(data)
@@ -116,7 +130,7 @@ func (transformer *MessageTransformer) DecodeKey(key string, _ SecureMessage) []
 
 func (transformer *MessageTransformer) DecryptKey(key []byte, _ ID, _ ID, sMsg SecureMessage) []byte {
 	// NOTICE: the receiver will be group ID in a group message here
-	barrack := transformer.Transceiver().EntityDelegate()
+	barrack := transformer.Transceiver().EntityFactory()
 	user := barrack.GetUser(sMsg.Receiver())
 	// decrypt key data with the receiver/group member's private key
 	return user.Decrypt(key)
@@ -184,7 +198,7 @@ func (transformer *MessageTransformer) DeserializeContent(data []byte, password 
 }
 
 func (transformer *MessageTransformer) SignData(data []byte, sender ID, _ SecureMessage) []byte {
-	barrack := transformer.Transceiver().EntityDelegate()
+	barrack := transformer.Transceiver().EntityFactory()
 	user := barrack.GetUser(sender)
 	return user.Sign(data)
 }
@@ -200,7 +214,7 @@ func (transformer *MessageTransformer) DecodeSignature(signature string, _ Relia
 }
 
 func (transformer *MessageTransformer) VerifyDataSignature(data []byte, signature []byte, sender ID, _ ReliableMessage) bool {
-	barrack := transformer.Transceiver().EntityDelegate()
+	barrack := transformer.Transceiver().EntityFactory()
 	contact := barrack.GetUser(sender)
 	return contact.Verify(data, signature)
 }

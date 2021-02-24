@@ -184,7 +184,7 @@ type EntityDataSource interface {
  *  1. Create User/Group
  *  2. Select a local user as receiver
  */
-type EntityDelegate interface {
+type EntityFactory interface {
 
 	/**
 	 *  Select local user for receiver

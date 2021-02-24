@@ -44,19 +44,24 @@ import (
 type MessageTransceiver struct {
 	Transceiver
 
-	_entityDelegate EntityDelegate
-	_keyDelegate CipherKeyDelegate
+	// shadows
 	_transformer Transformer
 	_processor Processor
 	_packer Packer
+
+	// delegates
+	_entityFactory EntityFactory
+	_keyDelegate CipherKeyDelegate
 }
 
 func (transceiver *MessageTransceiver) Init() *MessageTransceiver {
-	transceiver._entityDelegate = nil
-	transceiver._keyDelegate = nil
+	// shadows
 	transceiver._transformer = nil
 	transceiver._processor = nil
 	transceiver._packer = nil
+	// delegates
+	transceiver._entityFactory = nil
+	transceiver._keyDelegate = nil
 	return transceiver
 }
 
@@ -65,11 +70,11 @@ func (transceiver *MessageTransceiver) Init() *MessageTransceiver {
  *
  * @param barrack - entity delegate
  */
-func (transceiver *MessageTransceiver) SetEntityDelegate(barrack EntityDelegate) {
-	transceiver._entityDelegate = barrack
+func (transceiver *MessageTransceiver) SetEntityFactory(barrack EntityFactory) {
+	transceiver._entityFactory = barrack
 }
-func (transceiver *MessageTransceiver) EntityDelegate() EntityDelegate {
-	return transceiver._entityDelegate
+func (transceiver *MessageTransceiver) EntityFactory() EntityFactory {
+	return transceiver._entityFactory
 }
 
 /**
