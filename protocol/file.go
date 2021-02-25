@@ -31,10 +31,8 @@
 package protocol
 
 import (
-	. "github.com/dimchat/dkd-go/dkd"
 	. "github.com/dimchat/dkd-go/protocol"
 	. "github.com/dimchat/mkm-go/crypto"
-	. "github.com/dimchat/mkm-go/format"
 )
 
 /**
@@ -47,96 +45,23 @@ import (
  *      filename : "..."
  *  }
  */
-type FileContent struct {
-	BaseContent
+type FileContent interface {
+	Content
+	IFileContent
+}
+type IFileContent interface {
 
-	_data []byte       // file data (plaintext)
-	_key SymmetricKey  // symmetric key to decrypt the encrypted data from URL
-}
+	URL() string
+	SetURL(url string)
 
-func NewFileContent(msgType uint8, filename string, data []byte) *FileContent {
-	return new(FileContent).InitWithType(msgType, filename, data)
-}
+	Data() []byte
+	SetData(data []byte)
 
-func (content *FileContent) Init(dict map[string]interface{}) *FileContent {
-	if content.BaseContent.Init(dict) != nil {
-		// lazy load
-		content._data = nil
-		content._key = nil
-	}
-	return content
-}
+	Filename() string
+	SetFilename(filename string)
 
-func (content *FileContent) InitWithType(msgType uint8, filename string, data []byte) *FileContent {
-	if msgType == 0 {
-		msgType = FILE
-	}
-	if content.BaseContent.InitWithType(msgType) != nil {
-		content.SetFilename(filename)
-		content.SetData(data)
-		content._key = nil
-	}
-	return content
-}
-
-//-------- setter/getter --------
-
-func (content *FileContent) URL() string {
-	url := content.Get("URL")
-	if url == nil {
-		return ""
-	}
-	return url.(string)
-}
-func (content *FileContent) SetURL(url string) {
-	content.Set("URL", url)
-}
-
-func (content *FileContent) Data() []byte {
-	if content._data == nil {
-		b64 := content.Get("data")
-		if b64 != nil {
-			content._data = Base64Decode(b64.(string))
-		}
-	}
-	return content._data
-}
-func (content *FileContent) SetData(data []byte) {
-	if data == nil {
-		content.Set("data", nil)
-	} else {
-		b64 := Base64Encode(data)
-		content.Set("data", b64)
-	}
-	content._data = data
-}
-
-func (content *FileContent) Filename() string {
-	filename := content.Get("filename")
-	if filename == nil {
-		return ""
-	}
-	return filename.(string)
-}
-func (content *FileContent) SetFilename(filename string) {
-	content.Set("filename", filename)
-}
-
-func (content *FileContent) Password() SymmetricKey {
-	if content._key == nil {
-		dict := content.Get("password")
-		content._key = SymmetricKeyParse(dict)
-	}
-	return content._key
-}
-
-func (content *FileContent) SetPassword(password SymmetricKey) {
-	if password == nil {
-		content.Set("password", nil)
-	} else {
-		content.Set("password", password.GetMap(false))
-	}
-	content._key = password
+	Password() SymmetricKey
+	SetPassword(password SymmetricKey)
 }
 
 /**
@@ -150,49 +75,14 @@ func (content *FileContent) SetPassword(password SymmetricKey) {
  *      filename  : "..."
  *  }
  */
-type ImageContent struct {
+type ImageContent interface {
 	FileContent
-
-	_thumbnail []byte
+	IImageContent
 }
+type IImageContent interface {
 
-func NewImageContent(filename string, data []byte) *ImageContent {
-	return new(ImageContent).InitWithFilename(filename, data)
-}
-
-func (content *ImageContent) Init(dict map[string]interface{}) *ImageContent {
-	if content.FileContent.Init(dict) != nil {
-		// lazy load
-		content._thumbnail = nil
-	}
-	return content
-}
-
-func (content *ImageContent) InitWithFilename(filename string, data []byte) *ImageContent {
-	if content.FileContent.InitWithType(IMAGE, filename, data) != nil {
-		content._thumbnail = nil
-	}
-	return content
-}
-
-func (content *ImageContent) Thumbnail() []byte {
-	if content._thumbnail == nil {
-		b64 := content.Get("thumbnail")
-		if b64 != nil {
-			content._thumbnail = Base64Decode(b64.(string))
-		}
-	}
-	return content._thumbnail
-}
-
-func (content *ImageContent) SetThumbnail(thumbnail []byte) {
-	if thumbnail == nil {
-		content.Set("thumbnail", nil)
-	} else {
-		b64 := Base64Encode(thumbnail)
-		content.Set("thumbnail", b64)
-	}
-	content._thumbnail = thumbnail
+	Thumbnail() []byte
+	SetThumbnail(thumbnail []byte)
 }
 
 /**
@@ -206,24 +96,14 @@ func (content *ImageContent) SetThumbnail(thumbnail []byte) {
  *      filename : "..."
  *  }
  */
-type AudioContent struct {
+type AudioContent interface {
 	FileContent
+	IAudioContent
 }
+type IAudioContent interface {
 
-func NewAudioContent(filename string, data []byte) *AudioContent {
-	return new(AudioContent).InitWithFilename(filename, data)
-}
-
-func (content *AudioContent) Init(dict map[string]interface{}) *AudioContent {
-	if content.FileContent.Init(dict) != nil {
-	}
-	return content
-}
-
-func (content *AudioContent) InitWithFilename(filename string, data []byte) *AudioContent {
-	if content.FileContent.InitWithType(AUDIO, filename, data) != nil {
-	}
-	return content
+	Duration() int
+	SetDuration(duration int)
 }
 
 /**
@@ -237,47 +117,12 @@ func (content *AudioContent) InitWithFilename(filename string, data []byte) *Aud
  *      filename : "..."
  *  }
  */
-type VideoContent struct {
+type VideoContent interface {
 	FileContent
-
-	_snapshot []byte
+	IVideoContent
 }
+type IVideoContent interface {
 
-func NewVideoContent(filename string, data []byte) *VideoContent {
-	return new(VideoContent).InitWithFilename(filename, data)
-}
-
-func (content *VideoContent) Init(dict map[string]interface{}) *VideoContent {
-	if content.FileContent.Init(dict) != nil {
-		// lazy load
-		content._snapshot = nil
-	}
-	return content
-}
-
-func (content *VideoContent) InitWithFilename(filename string, data []byte) *VideoContent {
-	if content.FileContent.InitWithType(VIDEO, filename, data) != nil {
-		content._snapshot = nil
-	}
-	return content
-}
-
-func (content *VideoContent) Snapshot() []byte {
-	if content._snapshot == nil {
-		b64 := content.Get("snapshot")
-		if b64 != nil {
-			content._snapshot = Base64Decode(b64.(string))
-		}
-	}
-	return content._snapshot
-}
-
-func (content *VideoContent) SetSnapshot(snapshot []byte) {
-	if snapshot == nil {
-		content.Set("snapshot", nil)
-	} else {
-		b64 := Base64Encode(snapshot)
-		content.Set("snapshot", b64)
-	}
-	content._snapshot = snapshot
+	Snapshot() []byte
+	SetSnapshot(snapshot []byte)
 }

@@ -2,12 +2,12 @@
  *
  *  DIMP : Decentralized Instant Messaging Protocol
  *
- *                                Written in 2020 by Moky <albert.moky@gmail.com>
+ *                                Written in 2021 by Moky <albert.moky@gmail.com>
  *
  * ==============================================================================
  * The MIT License (MIT)
  *
- * Copyright (c) 2020 Albert Moky
+ * Copyright (c) 2021 Albert Moky
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,40 +28,30 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package protocol
+package dkd
 
 import (
+	. "github.com/dimchat/core-go/protocol"
 	. "github.com/dimchat/mkm-go/protocol"
 )
 
-/**
- *  Document Command message: {
- *      type : 0x88,
- *      sn   : 123,
- *
- *      command   : "document",  // command name
- *      ID        : "{ID}",      // entity ID
- *      meta      : {...},       // only for handshaking with new friend
- *      profile   : {...},       // when profile is empty, means query for ID
- *      signature : "..."        // old profile's signature for querying
- *  }
- */
-type DocumentCommand struct {
-	MetaCommand
+type BaseDocumentCommand struct {
+	BaseMetaCommand
+	IDocumentCommand
 
 	_doc Document
 }
 
-func (cmd *DocumentCommand) Init(dict map[string]interface{}) *DocumentCommand {
-	if cmd.MetaCommand.Init(dict) != nil {
+func (cmd *BaseDocumentCommand) Init(dict map[string]interface{}) *BaseDocumentCommand {
+	if cmd.BaseMetaCommand.Init(dict) != nil {
 		// lazy load
 		cmd._doc = nil
 	}
 	return cmd
 }
 
-func (cmd *DocumentCommand) InitWithMeta(id ID, meta Meta, doc Document) *DocumentCommand {
-	if cmd.MetaCommand.InitWithCommand(DOCUMENT, id, meta) != nil {
+func (cmd *BaseDocumentCommand) InitWithMeta(id ID, meta Meta, doc Document) *BaseDocumentCommand {
+	if cmd.BaseMetaCommand.InitWithCommand(DOCUMENT, id, meta) != nil {
 		// document
 		cmd._doc = doc
 		if doc != nil {
@@ -71,7 +61,7 @@ func (cmd *DocumentCommand) InitWithMeta(id ID, meta Meta, doc Document) *Docume
 	return cmd
 }
 
-func (cmd *DocumentCommand) InitWithDocument(id ID, doc Document) *DocumentCommand {
+func (cmd *BaseDocumentCommand) InitWithDocument(id ID, doc Document) *BaseDocumentCommand {
 	return cmd.InitWithMeta(id, nil, doc)
 }
 
@@ -80,7 +70,7 @@ func (cmd *DocumentCommand) InitWithDocument(id ID, doc Document) *DocumentComma
  *
  * @param identifier - entity ID
  */
-func (cmd *DocumentCommand) InitWithID(id ID) *DocumentCommand {
+func (cmd *BaseDocumentCommand) InitWithID(id ID) *BaseDocumentCommand {
 	return cmd.InitWithMeta(id, nil, nil)
 }
 
@@ -90,7 +80,7 @@ func (cmd *DocumentCommand) InitWithID(id ID) *DocumentCommand {
  * @param identifier - entity ID
  * @param signature - document signature
  */
-func (cmd *DocumentCommand) InitWithSignature(id ID, signature string) *DocumentCommand {
+func (cmd *BaseDocumentCommand) InitWithSignature(id ID, signature string) *BaseDocumentCommand {
 	if cmd.InitWithID(id) != nil {
 		if signature != "" {
 			cmd.Set("signature", signature)
@@ -99,12 +89,12 @@ func (cmd *DocumentCommand) InitWithSignature(id ID, signature string) *Document
 	return cmd
 }
 
-//-------- setter/getter --------
+//-------- IDocumentCommand
 
 /*
  *  Entity Document
  */
-func (cmd *DocumentCommand) Document() Document {
+func (cmd *BaseDocumentCommand) Document() Document {
 	if cmd._doc == nil {
 		document := cmd.Get("document")
 		if document == nil {
@@ -116,7 +106,7 @@ func (cmd *DocumentCommand) Document() Document {
 	return cmd._doc
 }
 
-func (cmd *DocumentCommand) Signature() string {
+func (cmd *BaseDocumentCommand) Signature() string {
 	signature := cmd.Get("signature")
 	if signature == nil {
 		return ""
@@ -124,12 +114,14 @@ func (cmd *DocumentCommand) Signature() string {
 	return signature.(string)
 }
 
-//-------- factories
+//
+//  Factories
+//
 
-func DocumentCommandQuery(id ID, signature string) *DocumentCommand {
-	return new(DocumentCommand).InitWithSignature(id, signature)
+func DocumentCommandQuery(id ID, signature string) DocumentCommand {
+	return new(BaseDocumentCommand).InitWithSignature(id, signature)
 }
 
-func DocumentCommandRespond(id ID, meta Meta, doc Document) *DocumentCommand {
-	return new(DocumentCommand).InitWithMeta(id, meta, doc)
+func DocumentCommandRespond(id ID, meta Meta, doc Document) DocumentCommand {
+	return new(BaseDocumentCommand).InitWithMeta(id, meta, doc)
 }

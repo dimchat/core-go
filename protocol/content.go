@@ -31,7 +31,6 @@
 package protocol
 
 import (
-	. "github.com/dimchat/dkd-go/dkd"
 	. "github.com/dimchat/dkd-go/protocol"
 )
 
@@ -43,36 +42,59 @@ import (
  *      forward : {...}  // reliable (secure + certified) message
  *  }
  */
-type ForwardContent struct {
-	BaseContent
+type ForwardContent interface {
+	Content
+	IForwardContent
+}
+type IForwardContent interface {
 
-	_secret ReliableMessage
+	ForwardMessage() ReliableMessage
 }
 
-func NewForwardContent(msg ReliableMessage) *ForwardContent {
-	return new(ForwardContent).InitWithMessage(msg)
+/**
+ *  Text message: {
+ *      type : 0x01,
+ *      sn   : 123,
+ *
+ *      text : "..."
+ *  }
+ */
+type TextContent interface {
+	Content
+	ITextContent
+}
+type ITextContent interface {
+
+	Text() string
+	SetText(text string)
 }
 
-func (content *ForwardContent) Init(dict map[string]interface{}) *ForwardContent {
-	if content.BaseContent.Init(dict) != nil {
-		// lazy load
-		content._secret = nil
-	}
-	return content
+/**
+ *  Web Page message: {
+ *      type : 0x20,
+ *      sn   : 123,
+ *
+ *      URL   : "https://github.com/moky/dimp", // Page URL
+ *      icon  : "...",                          // base64_encode(icon)
+ *      title : "...",
+ *      desc  : "..."
+ *  }
+ */
+type PageContent interface {
+	Content
+	IPageContent
 }
+type IPageContent interface {
 
-func (content *ForwardContent) InitWithMessage(msg ReliableMessage) *ForwardContent {
-	if content.InitWithType(FORWARD) != nil {
-		content.Set("forward", msg.GetMap(false))
-		content._secret = msg
-	}
-	return content
-}
+	URL() string
+	SetURL(url string)
 
-func (content *ForwardContent) Message() ReliableMessage {
-	if content._secret == nil {
-		forward := content.Get("forward")
-		content._secret = ReliableMessageParse(forward)
-	}
-	return content._secret
+	Title() string
+	SetTitle(title string)
+
+	Description() string
+	SetDescription(desc string)
+
+	Icon() []byte
+	SetIcon(icon []byte)
 }

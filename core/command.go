@@ -31,6 +31,7 @@
 package core
 
 import (
+	. "github.com/dimchat/core-go/dkd"
 	. "github.com/dimchat/core-go/protocol"
 	. "github.com/dimchat/dkd-go/protocol"
 )
@@ -126,34 +127,34 @@ func (factory *GroupCommandFactory) ParseContent(content map[string]interface{})
 func BuildCommandFactories() {
 	// Meta Command
 	CommandRegister(META, NewGeneralCommandFactory(func(dict map[string]interface{}) Command {
-		return new(MetaCommand).Init(dict)
+		return new(BaseMetaCommand).Init(dict)
 	}))
 	// Document Command
 	CommandRegister(DOCUMENT, NewGeneralCommandFactory(func(dict map[string]interface{}) Command {
-		return new(DocumentCommand).Init(dict)
+		return new(BaseDocumentCommand).Init(dict)
 	}))
 
 	// Group Commands
 	CommandRegister("group", NewGroupCommandFactory(func(dict map[string]interface{}) Command {
-		return new(GroupCommand).Init(dict)
+		return new(BaseGroupCommand).Init(dict)
 	}))
 	CommandRegister(INVITE, NewGroupCommandFactory(func(dict map[string]interface{}) Command {
-		return new(InviteCommand).Init(dict)
+		return new(InviteGroupCommand).Init(dict)
 	}))
 	CommandRegister(EXPEL, NewGroupCommandFactory(func(dict map[string]interface{}) Command {
-		return new(ExpelCommand).Init(dict)
+		return new(ExpelGroupCommand).Init(dict)
 	}))
 	CommandRegister(JOIN, NewGroupCommandFactory(func(dict map[string]interface{}) Command {
-		return new(JoinCommand).Init(dict)
+		return new(JoinGroupCommand).Init(dict)
 	}))
 	CommandRegister(QUIT, NewGroupCommandFactory(func(dict map[string]interface{}) Command {
-		return new(QuitCommand).Init(dict)
+		return new(QuitGroupCommand).Init(dict)
 	}))
 	CommandRegister(QUERY, NewGroupCommandFactory(func(dict map[string]interface{}) Command {
-		return new(QueryCommand).Init(dict)
+		return new(QueryGroupCommand).Init(dict)
 	}))
 	CommandRegister(RESET, NewGroupCommandFactory(func(dict map[string]interface{}) Command {
-		return new(ResetCommand).Init(dict)
+		return new(ResetGroupCommand).Init(dict)
 	}))
 }
 

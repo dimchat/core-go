@@ -34,6 +34,32 @@ import (
 	. "github.com/dimchat/mkm-go/protocol"
 )
 
+const (
+	//-------- history command names begin --------
+	// account
+	REGISTER = "register"
+	SUICIDE  = "suicide"
+	//-------- history command names end --------
+)
+
+/**
+ *  History command: {
+ *      type : 0x89,
+ *      sn   : 123,
+ *
+ *      command : "...", // command name
+ *      time    : 0,     // command timestamp
+ *      // extra info
+ *  }
+ */
+type HistoryCommand interface {
+	Command
+	IHistoryCommand
+}
+type IHistoryCommand interface {
+
+}
+
 /**
  *  Meta command message: {
  *      type : 0x88,
@@ -44,81 +70,34 @@ import (
  *      meta    : {...}   // when meta is empty, means query meta for ID
  *  }
  */
-type MetaCommand struct {
-	BaseCommand
-
-	_identifier ID
-	_meta Meta
+type MetaCommand interface {
+	Command
+	IMetaCommand
 }
+type IMetaCommand interface {
 
-func (cmd *MetaCommand) Init(dict map[string]interface{}) *MetaCommand {
-	if cmd.BaseCommand.Init(dict) != nil {
-		// lazy load
-		cmd._identifier = nil
-		cmd._meta = nil
-	}
-	return cmd
-}
-
-func (cmd *MetaCommand) InitWithCommand(command string, id ID, meta Meta) *MetaCommand {
-	if cmd.BaseCommand.InitWithCommand(command) != nil {
-		// ID
-		cmd._identifier = id
-		cmd.Set("ID", id.String())
-		// meta
-		cmd._meta = meta
-		if meta != nil {
-			cmd.Set("meta", meta.GetMap(false))
-		}
-	}
-	return cmd
+	ID() ID
+	Meta() Meta
 }
 
 /**
- *  Response Meta
+ *  Document Command message: {
+ *      type : 0x88,
+ *      sn   : 123,
  *
- * @param identifier - entity ID
- * @param meta - entity Meta
+ *      command   : "document",  // command name
+ *      ID        : "{ID}",      // entity ID
+ *      meta      : {...},       // only for handshaking with new friend
+ *      profile   : {...},       // when profile is empty, means query for ID
+ *      signature : "..."        // old profile's signature for querying
+ *  }
  */
-func (cmd *MetaCommand) InitWithMeta(id ID, meta Meta) *MetaCommand {
-	return cmd.InitWithCommand(META, id, meta)
+type DocumentCommand interface {
+	MetaCommand
+	IDocumentCommand
 }
+type IDocumentCommand interface {
 
-/**
- *  Query Meta
- *
- * @param identifier - entity ID
- */
-func (cmd *MetaCommand) InitWithID(id ID) *MetaCommand {
-	return cmd.InitWithCommand(META, id, nil)
-}
-
-//-------- setter/getter --------
-
-/**
- *  Entity ID
- */
-func (cmd *MetaCommand) ID() ID {
-	return IDParse(cmd.Get("ID"))
-}
-
-/**
- *  Entity Meta
- */
-func (cmd *MetaCommand) Meta() Meta {
-	if cmd._meta == nil {
-		meta := cmd.Get("meta")
-		cmd._meta = MetaParse(meta)
-	}
-	return cmd._meta
-}
-
-//-------- factories
-
-func MetaCommandQuery(id ID) *MetaCommand {
-	return new(MetaCommand).InitWithID(id)
-}
-
-func MetaCommandRespond(id ID, meta Meta) *MetaCommand {
-	return new(MetaCommand).InitWithMeta(id, meta)
+	Document() Document
+	Signature() string
 }

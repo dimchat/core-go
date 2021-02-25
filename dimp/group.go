@@ -36,6 +36,9 @@ import (
 
 type Group interface {
 	Entity
+	IGroup
+}
+type IGroup interface {
 
 	/**
 	 *  Get document for group name, assistants
@@ -56,7 +59,7 @@ type Group interface {
  */
 type BaseGroup struct {
 	BaseEntity
-	Group
+	IGroup
 
 	_founder ID
 }
@@ -69,37 +72,7 @@ func (group *BaseGroup) Init(identifier ID) *BaseGroup {
 	return group
 }
 
-func (group *BaseGroup) Equal(other interface{}) bool {
-	return group.BaseEntity.Equal(other)
-}
-
-//-------- Entity
-
-func (group *BaseGroup) DataSource() EntityDataSource {
-	return group.BaseEntity.DataSource()
-}
-
-func (group *BaseGroup) SetDataSource(delegate EntityDataSource) {
-	group.BaseEntity.SetDataSource(delegate)
-}
-
-func (group *BaseGroup) ID() ID {
-	return group.BaseEntity.ID()
-}
-
-func (group *BaseGroup) Type() uint8 {
-	return group.BaseEntity.Type()
-}
-
-func (group *BaseGroup) Meta() Meta {
-	return group.BaseEntity.Meta()
-}
-
-func (group *BaseGroup) GetDocument(docType string) Document {
-	return group.BaseEntity.GetDocument(docType)
-}
-
-//-------- Group
+//-------- IGroup
 
 func (group *BaseGroup) Bulletin() Bulletin {
 	doc := group.GetDocument(BULLETIN)

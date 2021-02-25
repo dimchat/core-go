@@ -54,203 +54,143 @@ const (
 )
 
 /**
- *  History command: {
+ *  Group history command: {
  *      type : 0x89,
  *      sn   : 123,
  *
- *      command : "...", // command name
- *      time    : 0,     // command timestamp
- *      extra   : info   // command parameters
+ *      command : "{NAME}",      // join, quit, ...
+ *      group   : "{GROUP_ID}",
+ *      // extra info: member or members
  *  }
  */
-type GroupCommand struct {
+type GroupCommand interface {
 	HistoryCommand
+	IGroupCommand
 }
+type IGroupCommand interface {
 
-func (cmd *GroupCommand) Init(dict map[string]interface{}) *GroupCommand {
-	if cmd.HistoryCommand.Init(dict) != nil {
-	}
-	return cmd
-}
+	Member() ID
+	SetMember(member ID)
 
-func (cmd *GroupCommand) InitWithCommand(command string, group ID) *GroupCommand {
-	if cmd.HistoryCommand.InitWithCommand(command) != nil {
-		// group ID
-		cmd.SetGroup(group)
-	}
-	return cmd
-}
-
-func (cmd *GroupCommand) InitWithMember(command string, group ID, member ID) *GroupCommand {
-	if cmd.InitWithCommand(command, group) != nil {
-		// member ID
-		cmd.SetMember(member)
-	}
-	return cmd
-}
-
-func (cmd *GroupCommand) InitWithMembers(command string, group ID, members []ID) *GroupCommand {
-	if cmd.InitWithCommand(command, group) != nil {
-		// member ID list
-		cmd.SetMembers(members)
-	}
-	return cmd
-}
-
-//-------- setter/getter --------
-
-/*
- *  Member ID
- */
-func (cmd *GroupCommand) Member() ID {
-	member := cmd.Get("member")
-	if member == nil {
-		return nil
-	}
-	return IDParse(member)
-}
-
-func (cmd *GroupCommand) SetMember(member ID)  {
-	cmd.Set("member", member.String())
-}
-
-/*
- *  Member ID list
- */
-func (cmd *GroupCommand) Members() []ID {
-	members := cmd.Get("members")
-	if members == nil {
-		return nil
-	} else {
-		return IDConvert(members)
-	}
-}
-
-func (cmd *GroupCommand) SetMembers(members []ID)  {
-	if members == nil {
-		cmd.Set("members", nil)
-	} else {
-		cmd.Set("members", IDRevert(members))
-	}
+	Members() []ID
+	SetMembers(members []ID)
 }
 
 //-------- Group Commands
 
-// "invite"
-type InviteCommand struct {
-	GroupCommand
-}
-
-func (cmd *InviteCommand) Init(dict map[string]interface{}) *InviteCommand {
-	if cmd.GroupCommand.Init(dict) != nil {
-	}
-	return cmd
-}
-
-func (cmd *InviteCommand) InitWithMember(group ID, member ID) *InviteCommand {
-	if cmd.GroupCommand.InitWithMember(INVITE, group, member) != nil {
-	}
-	return cmd
-}
-
-func (cmd *InviteCommand) InitWithMembers(group ID, members []ID) *InviteCommand {
-	if cmd.GroupCommand.InitWithMembers(INVITE, group, members) != nil {
-	}
-	return cmd
-}
-
-// "expel"
-type ExpelCommand struct {
-	GroupCommand
-}
-
-func (cmd *ExpelCommand) Init(dict map[string]interface{}) *ExpelCommand {
-	if cmd.GroupCommand.Init(dict) != nil {
-	}
-	return cmd
-}
-
-func (cmd *ExpelCommand) InitWithMember(group ID, member ID) *ExpelCommand {
-	if cmd.GroupCommand.InitWithMember(EXPEL, group, member) != nil {
-	}
-	return cmd
-}
-
-func (cmd *ExpelCommand) InitWithMembers(group ID, members []ID) *ExpelCommand {
-	if cmd.GroupCommand.InitWithMembers(EXPEL, group, members) != nil {
-	}
-	return cmd
-}
-
-// "join"
-type JoinCommand struct {
-	GroupCommand
-}
-
-func (cmd *JoinCommand) Init(dict map[string]interface{}) *JoinCommand {
-	if cmd.GroupCommand.Init(dict) != nil {
-	}
-	return cmd
-}
-
-func (cmd *JoinCommand) InitWithGroup(group ID) *JoinCommand {
-	if cmd.GroupCommand.InitWithCommand(JOIN, group) != nil {
-	}
-	return cmd
-}
-
-// "quit"
-type QuitCommand struct {
-	GroupCommand
-}
-
-func (cmd *QuitCommand) Init(dict map[string]interface{}) *QuitCommand {
-	if cmd.GroupCommand.Init(dict) != nil {
-	}
-	return cmd
-}
-
-func (cmd *QuitCommand) InitWithGroup(group ID) *QuitCommand {
-	if cmd.GroupCommand.InitWithCommand(QUIT, group) != nil {
-	}
-	return cmd
-}
-
-// "reset"
-type ResetCommand struct {
-	GroupCommand
-}
-
-func (cmd *ResetCommand) Init(dict map[string]interface{}) *ResetCommand {
-	if cmd.GroupCommand.Init(dict) != nil {
-	}
-	return cmd
-}
-
-func (cmd *ResetCommand) InitWithMembers(group ID, members []ID) *ResetCommand {
-	if cmd.GroupCommand.InitWithMembers(RESET, group, members) != nil {
-	}
-	return cmd
-}
-
-// "query"
 /**
- *  NOTICE:
- *      This command is just for querying group info,
- *      should not be saved in group history
+ *  Group history command: {
+ *      type : 0x89,
+ *      sn   : 123,
+ *
+ *      command : "invite",
+ *      group   : "{GROUP_ID}",
+ *      members : [],            // member ID list
+ *  }
  */
-type QueryCommand struct {
+type InviteCommand interface {
 	GroupCommand
+	IInviteCommand
+}
+type IInviteCommand interface {
+
+	InviteMembers() []ID
 }
 
-func (cmd *QueryCommand) Init(dict map[string]interface{}) *QueryCommand {
-	if cmd.GroupCommand.Init(dict) != nil {
-	}
-	return cmd
+/**
+ *  Group history command: {
+ *      type : 0x89,
+ *      sn   : 123,
+ *
+ *      command : "expel",
+ *      group   : "{GROUP_ID}",
+ *      members : [],            // member ID list
+ *  }
+ */
+type ExpelCommand interface {
+	GroupCommand
+	IExpelCommand
+}
+type IExpelCommand interface {
+
+	ExpelMembers() []ID
 }
 
-func (cmd *QueryCommand) InitWithGroup(group ID) *QueryCommand {
-	if cmd.GroupCommand.InitWithCommand(QUERY, group) != nil {
-	}
-	return cmd
+/**
+ *  Group history command: {
+ *      type : 0x89,
+ *      sn   : 123,
+ *
+ *      command : "join",
+ *      group   : "{GROUP_ID}",
+ *      text    : "May I?",
+ *  }
+ */
+type JoinCommand interface {
+	GroupCommand
+	IJoinCommand
+}
+type IJoinCommand interface {
+
+	Ask() string
+}
+
+/**
+ *  Group history command: {
+ *      type : 0x89,
+ *      sn   : 123,
+ *
+ *      command : "quit",
+ *      group   : "{GROUP_ID}",
+ *      text    : "Good bye!",
+ *  }
+ */
+type QuitCommand interface {
+	GroupCommand
+	IQuitCommand
+}
+type IQuitCommand interface {
+
+	Bye() string
+}
+
+/**
+ *  Group history command: {
+ *      type : 0x89,
+ *      sn   : 123,
+ *
+ *      command : "reset",
+ *      group   : "{GROUP_ID}",
+ *      members : [],            // member ID list
+ *  }
+ */
+type ResetCommand interface {
+	GroupCommand
+	IResetCommand
+}
+type IResetCommand interface {
+
+	AllMembers() []ID
+}
+
+/**
+ *  Group command: {
+ *      type : 0x89,
+ *      sn   : 123,
+ *
+ *      command : "query",
+ *      group   : "{GROUP_ID}",
+ *      text    : "May I?",
+ *  }
+ */
+type QueryCommand interface {
+	GroupCommand
+	IQueryCommand
+}
+//  NOTICE:
+//      This command is just for querying group info,
+//      should not be saved in group history
+type IQueryCommand interface {
+
+	Text() string
 }

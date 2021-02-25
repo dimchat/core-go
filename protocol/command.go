@@ -31,10 +31,7 @@
 package protocol
 
 import (
-	. "github.com/dimchat/dkd-go/dkd"
 	. "github.com/dimchat/dkd-go/protocol"
-	. "github.com/dimchat/mkm-go/protocol"
-	"time"
 )
 
 const (
@@ -53,11 +50,14 @@ const (
  *      sn   : 123,
  *
  *      command : "...", // command name
- *      extra   : info   // command parameters
+ *      // extra info
  *  }
  */
 type Command interface {
 	Content
+	ICommand
+}
+type ICommand interface {
 
 	/**
 	 *  Get command name
@@ -65,78 +65,6 @@ type Command interface {
 	 * @return command name string
 	 */
 	CommandName() string
-}
-
-type BaseCommand struct {
-	BaseContent
-	Command
-}
-
-func (cmd *BaseCommand) Init(dict map[string]interface{}) *BaseCommand {
-	if cmd.BaseContent.Init(dict) != nil {
-	}
-	return cmd
-}
-
-func (cmd *BaseCommand) InitWithType(msgType uint8, command string) *BaseCommand {
-	if cmd.BaseContent.InitWithType(msgType) != nil {
-		cmd.Set("command", command)
-	}
-	return cmd
-}
-
-func (cmd *BaseCommand) InitWithCommand(command string) *BaseCommand {
-	return cmd.InitWithType(COMMAND, command)
-}
-
-func (cmd *BaseCommand) Equal(other interface{}) bool {
-	return cmd.BaseContent.Equal(other)
-}
-
-//-------- Map
-
-func (cmd *BaseCommand) Get(name string) interface{} {
-	return cmd.BaseContent.Get(name)
-}
-
-func (cmd *BaseCommand) Set(name string, value interface{}) {
-	cmd.BaseContent.Set(name, value)
-}
-
-func (cmd *BaseCommand) Keys() []string {
-	return cmd.BaseContent.Keys()
-}
-
-func (cmd *BaseCommand) GetMap(clone bool) map[string]interface{} {
-	return cmd.BaseContent.GetMap(clone)
-}
-
-//-------- Content
-
-func (cmd *BaseCommand) Type() uint8 {
-	return cmd.BaseContent.Type()
-}
-
-func (cmd *BaseCommand) SN() uint32 {
-	return cmd.BaseContent.SN()
-}
-
-func (cmd *BaseCommand) Time() time.Time {
-	return cmd.BaseContent.Time()
-}
-
-func (cmd *BaseCommand) Group() ID {
-	return cmd.BaseContent.Group()
-}
-
-func (cmd *BaseCommand) SetGroup(group ID)  {
-	cmd.BaseContent.SetGroup(group)
-}
-
-//-------- Command
-
-func (cmd *BaseCommand) CommandName() string {
-	return CommandGetName(cmd.GetMap(false))
 }
 
 func CommandGetName(cmd map[string]interface{}) string {

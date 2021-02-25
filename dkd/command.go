@@ -2,12 +2,12 @@
  *
  *  DIMP : Decentralized Instant Messaging Protocol
  *
- *                                Written in 2020 by Moky <albert.moky@gmail.com>
+ *                                Written in 2021 by Moky <albert.moky@gmail.com>
  *
  * ==============================================================================
  * The MIT License (MIT)
  *
- * Copyright (c) 2020 Albert Moky
+ * Copyright (c) 2021 Albert Moky
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,49 +28,47 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package protocol
+package dkd
 
 import (
+	. "github.com/dimchat/core-go/protocol"
 	. "github.com/dimchat/dkd-go/dkd"
 	. "github.com/dimchat/dkd-go/protocol"
 )
 
 /**
- *  Text message: {
- *      type : 0x01,
+ *  Command message: {
+ *      type : 0x88,
  *      sn   : 123,
  *
- *      text : "..."
+ *      command : "...", // command name
+ *      // extra info
  *  }
  */
-type TextContent struct {
+type BaseCommand struct {
 	BaseContent
+	ICommand
 }
 
-func NewTextContent(text string) *TextContent {
-	return new(TextContent).InitWithText(text)
-}
-
-func (content *TextContent) Init(dict map[string]interface{}) *TextContent {
-	if content.BaseContent.Init(dict) != nil {
+func (cmd *BaseCommand) Init(dict map[string]interface{}) *BaseCommand {
+	if cmd.BaseContent.Init(dict) != nil {
 	}
-	return content
+	return cmd
 }
 
-func (content *TextContent) InitWithText(text string) *TextContent {
-	if content.InitWithType(TEXT) != nil {
-		content.SetText(text)
+func (cmd *BaseCommand) InitWithType(msgType uint8, command string) *BaseCommand {
+	if cmd.BaseContent.InitWithType(msgType) != nil {
+		cmd.Set("command", command)
 	}
-	return content
+	return cmd
 }
 
-//-------- setter/getter --------
-
-func (content *TextContent) Text() string {
-	text := content.Get("text")
-	return text.(string)
+func (cmd *BaseCommand) InitWithCommand(command string) *BaseCommand {
+	return cmd.InitWithType(COMMAND, command)
 }
 
-func (content *TextContent) SetText(text string) {
-	content.Set("text", text)
+//-------- ICommand
+
+func (cmd *BaseCommand) CommandName() string {
+	return CommandGetName(cmd.GetMap(false))
 }

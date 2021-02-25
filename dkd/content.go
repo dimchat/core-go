@@ -28,13 +28,99 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package protocol
+package dkd
 
 import (
+	. "github.com/dimchat/core-go/protocol"
 	. "github.com/dimchat/dkd-go/dkd"
 	. "github.com/dimchat/dkd-go/protocol"
 	. "github.com/dimchat/mkm-go/format"
 )
+
+/**
+ *  Top-Secret message: {
+ *      type : 0xFF,
+ *      sn   : 456,
+ *
+ *      forward : {...}  // reliable (secure + certified) message
+ *  }
+ */
+type SecretContent struct {
+	BaseContent
+	IForwardContent
+
+	_secret ReliableMessage
+}
+
+func NewForwardContent(msg ReliableMessage) ForwardContent {
+	return new(SecretContent).InitWithMessage(msg)
+}
+
+func (content *SecretContent) Init(dict map[string]interface{}) *SecretContent {
+	if content.BaseContent.Init(dict) != nil {
+		// lazy load
+		content._secret = nil
+	}
+	return content
+}
+
+func (content *SecretContent) InitWithMessage(msg ReliableMessage) *SecretContent {
+	if content.InitWithType(FORWARD) != nil {
+		content.Set("forward", msg.GetMap(false))
+		content._secret = msg
+	}
+	return content
+}
+
+func (content *SecretContent) ForwardMessage() ReliableMessage {
+	if content._secret == nil {
+		forward := content.Get("forward")
+		content._secret = ReliableMessageParse(forward)
+	}
+	return content._secret
+}
+
+/**
+ *  Text message: {
+ *      type : 0x01,
+ *      sn   : 123,
+ *
+ *      text : "..."
+ *  }
+ */
+
+type BaseTextContent struct {
+	BaseContent
+	ITextContent
+}
+
+func NewTextContent(text string) TextContent {
+	return new(BaseTextContent).InitWithText(text)
+}
+
+func (content *BaseTextContent) Init(dict map[string]interface{}) *BaseTextContent {
+	if content.BaseContent.Init(dict) != nil {
+	}
+	return content
+}
+
+func (content *BaseTextContent) InitWithText(text string) *BaseTextContent {
+	if content.InitWithType(TEXT) != nil {
+		content.SetText(text)
+	}
+	return content
+}
+
+//-------- setter/getter --------
+
+func (content *BaseTextContent) Text() string {
+	text := content.Get("text")
+	return text.(string)
+}
+
+func (content *BaseTextContent) SetText(text string) {
+	content.Set("text", text)
+}
 
 /**
  *  Web Page message: {
@@ -47,17 +133,18 @@ import (
  *      desc  : "..."
  *  }
  */
-type PageContent struct {
+type WebPageContent struct {
 	BaseContent
+	IPageContent
 
 	_icon []byte
 }
 
-func NewPageContent(url string, title string, desc string, icon []byte) *PageContent {
-	return new(PageContent).InitWithURL(url, title, desc, icon)
+func NewPageContent(url string, title string, desc string, icon []byte) PageContent {
+	return new(WebPageContent).InitWithURL(url, title, desc, icon)
 }
 
-func (content *PageContent) Init(dict map[string]interface{}) *PageContent {
+func (content *WebPageContent) Init(dict map[string]interface{}) *WebPageContent {
 	if content.BaseContent.Init(dict) != nil {
 		// lazy load
 		content._icon = nil
@@ -65,7 +152,7 @@ func (content *PageContent) Init(dict map[string]interface{}) *PageContent {
 	return content
 }
 
-func (content *PageContent) InitWithURL(url string, title string, desc string, icon []byte) *PageContent {
+func (content *WebPageContent) InitWithURL(url string, title string, desc string, icon []byte) *WebPageContent {
 	if content.BaseContent.InitWithType(PAGE) != nil {
 		content.SetURL(url)
 		content.SetTitle(title)
@@ -75,39 +162,39 @@ func (content *PageContent) InitWithURL(url string, title string, desc string, i
 	return content
 }
 
-//-------- setter/getter --------
+//-------- IPageContent
 
-func (content *PageContent) URL() string {
+func (content *WebPageContent) URL() string {
 	url := content.Get("URL")
 	return url.(string)
 }
-func (content *PageContent) SetURL(url string) {
+func (content *WebPageContent) SetURL(url string) {
 	content.Set("URL", url)
 }
 
-func (content *PageContent) Title() string {
+func (content *WebPageContent) Title() string {
 	title := content.Get("title")
 	if title == nil {
 		return ""
 	}
 	return title.(string)
 }
-func (content *PageContent) SetTitle(title string) {
+func (content *WebPageContent) SetTitle(title string) {
 	content.Set("title", title)
 }
 
-func (content *PageContent) Description() string {
+func (content *WebPageContent) Description() string {
 	desc := content.Get("desc")
 	if desc == nil {
 		return ""
 	}
 	return desc.(string)
 }
-func (content *PageContent) SetDescription(desc string) {
+func (content *WebPageContent) SetDescription(desc string) {
 	content.Set("desc", desc)
 }
 
-func (content *PageContent) Icon() []byte {
+func (content *WebPageContent) Icon() []byte {
 	if content._icon == nil {
 		b64 := content.Get("icon")
 		if b64 != nil {
@@ -116,7 +203,7 @@ func (content *PageContent) Icon() []byte {
 	}
 	return content._icon
 }
-func (content *PageContent) SetIcon(icon []byte) {
+func (content *WebPageContent) SetIcon(icon []byte) {
 	if icon == nil {
 		content.Set("icon", nil)
 	} else {

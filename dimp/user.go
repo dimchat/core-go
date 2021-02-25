@@ -49,6 +49,9 @@ import (
  */
 type User interface {
 	Entity
+	IUser
+}
+type IUser interface {
 
 	/**
 	 *  Get visa document for nickname, avatar, public key
@@ -107,7 +110,7 @@ type User interface {
  */
 type BaseUser struct {
 	BaseEntity
-	User
+	IUser
 }
 
 func (user *BaseUser) Init(identifier ID) *BaseUser {
@@ -116,37 +119,7 @@ func (user *BaseUser) Init(identifier ID) *BaseUser {
 	return user
 }
 
-func (user *BaseUser) Equal(other interface{}) bool {
-	return user.BaseEntity.Equal(other)
-}
-
-//-------- Entity
-
-func (user *BaseUser) DataSource() EntityDataSource {
-	return user.BaseEntity.DataSource()
-}
-
-func (user *BaseUser) SetDataSource(delegate EntityDataSource) {
-	user.BaseEntity.SetDataSource(delegate)
-}
-
-func (user *BaseUser) ID() ID {
-	return user.BaseEntity.ID()
-}
-
-func (user *BaseUser) Type() uint8 {
-	return user.BaseEntity.Type()
-}
-
-func (user *BaseUser) Meta() Meta {
-	return user.BaseEntity.Meta()
-}
-
-func (user *BaseUser) GetDocument(docType string) Document {
-	return user.BaseEntity.GetDocument(docType)
-}
-
-//-------- User
+//-------- IUser
 
 func (user *BaseUser) Visa() Visa {
 	doc := user.GetDocument(VISA)
@@ -224,12 +197,8 @@ func (user *BaseUser) Decrypt(ciphertext []byte) []byte {
 }
 
 func (user *BaseUser) SignVisa(visa Visa) Visa {
-	doc, ok := visa.(Document)
-	if !ok {
-		return nil
-	}
 	// NOTICE: only sign visa with the private key paired with your meta.key
-	if user.ID().Equal(doc.ID()) == false {
+	if user.ID().Equal(visa.ID()) == false {
 		// visa ID not match
 		return nil
 	}
@@ -238,17 +207,13 @@ func (user *BaseUser) SignVisa(visa Visa) Visa {
 		panic("failed to get sign key for visa: : " + user.ID().String())
 		return nil
 	}
-	doc.Sign(key)
+	visa.Sign(key)
 	return visa
 }
 
 func (user *BaseUser) VerifyVisa(visa Visa) bool {
-	doc, ok := visa.(Document)
-	if !ok {
-		return false
-	}
 	// NOTICE: only verify visa with meta.key
-	if user.ID().Equal(doc.ID()) == false {
+	if user.ID().Equal(visa.ID()) == false {
 		// visa ID not match
 		return false
 	}
@@ -257,5 +222,5 @@ func (user *BaseUser) VerifyVisa(visa Visa) bool {
 		panic("failed to get verify key for visa: : " + user.ID().String())
 		return false
 	}
-	return doc.Verify(key)
+	return visa.Verify(key)
 }

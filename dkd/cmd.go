@@ -2,12 +2,12 @@
  *
  *  DIMP : Decentralized Instant Messaging Protocol
  *
- *                                Written in 2020 by Moky <albert.moky@gmail.com>
+ *                                Written in 2021 by Moky <albert.moky@gmail.com>
  *
  * ==============================================================================
  * The MIT License (MIT)
  *
- * Copyright (c) 2020 Albert Moky
+ * Copyright (c) 2021 Albert Moky
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,18 +28,11 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package protocol
+package dkd
 
 import (
+	. "github.com/dimchat/core-go/protocol"
 	. "github.com/dimchat/dkd-go/protocol"
-)
-
-const (
-	//-------- history command names begin --------
-	// account
-	REGISTER = "register"
-	SUICIDE  = "suicide"
-	//-------- history command names end --------
 )
 
 /**
@@ -49,20 +42,21 @@ const (
  *
  *      command : "...", // command name
  *      time    : 0,     // command timestamp
- *      extra   : info   // command parameters
+ *      // extra info
  *  }
  */
-type HistoryCommand struct {
+type BaseHistoryCommand struct {
 	BaseCommand
+	IHistoryCommand
 }
 
-func (cmd *HistoryCommand) Init(dict map[string]interface{}) *HistoryCommand {
+func (cmd *BaseHistoryCommand) Init(dict map[string]interface{}) *BaseHistoryCommand {
 	if cmd.BaseCommand.Init(dict) != nil {
 	}
 	return cmd
 }
 
-func (cmd *HistoryCommand) InitWithCommand(command string) *HistoryCommand {
+func (cmd *BaseHistoryCommand) InitWithCommand(command string) *BaseHistoryCommand {
 	if cmd.BaseCommand.InitWithType(HISTORY, command) != nil {
 	}
 	return cmd
