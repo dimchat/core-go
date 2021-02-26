@@ -37,11 +37,11 @@ import (
 )
 
 /**
- *  Factory for Barrack
- *  ~~~~~~~~~~~~~~~~~~~
+ *  Barrack shadow as EntityFactory
+ *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  */
 type BarrackFactory struct {
-	BarrackShadow
+	BaseBarrackShadow
 	EntityFactory
 
 	// memory caches
@@ -50,7 +50,7 @@ type BarrackFactory struct {
 }
 
 func (shadow *BarrackFactory) Init(barrack IBarrack) *BarrackFactory {
-	if shadow.BarrackShadow.Init(barrack) != nil {
+	if shadow.BaseBarrackShadow.Init(barrack) != nil {
 		shadow._users = make(map[ID]User)
 		shadow._groups = make(map[ID]Group)
 	}

@@ -40,7 +40,7 @@ import (
  *  Message Processor Implementations
  *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  *
- *  Abstract method:
+ * @abstract:
  *      ProcessContent(content Content, rMsg ReliableMessage) Content
  */
 type MessageProcessor struct {
