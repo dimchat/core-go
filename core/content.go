@@ -64,47 +64,67 @@ func (factory *GeneralContentFactory) ParseContent(content map[string]interface{
 func BuildContentFactories() {
 	// Top-Secret
 	ContentRegister(FORWARD, NewGeneralContentFactory(func(dict map[string]interface{}) Content {
-		return new(SecretContent).Init(dict)
+		content := new(SecretContent)
+		content.Init(content, dict).AutoRelease()
+		return content
 	}))
 	// Text
 	ContentRegister(TEXT, NewGeneralContentFactory(func(dict map[string]interface{}) Content {
-		return new(BaseTextContent).Init(dict)
+		content := new(BaseTextContent)
+		content.Init(content, dict).AutoRelease()
+		return content
 	}))
 
 	// File
 	ContentRegister(FILE, NewGeneralContentFactory(func(dict map[string]interface{}) Content {
-		return new(BaseFileContent).Init(dict)
+		content := new(BaseFileContent)
+		content.Init(content, dict).AutoRelease()
+		return content
 	}))
 	// Image
 	ContentRegister(IMAGE, NewGeneralContentFactory(func(dict map[string]interface{}) Content {
-		return new(ImageFileContent).Init(dict)
+		content := new(ImageFileContent)
+		content.Init(content, dict).AutoRelease()
+		return content
 	}))
 	// Audio
 	ContentRegister(AUDIO, NewGeneralContentFactory(func(dict map[string]interface{}) Content {
-		return new(AudioFileContent).Init(dict)
+		content := new(AudioFileContent)
+		content.Init(content, dict).AutoRelease()
+		return content
 	}))
 	// Video
 	ContentRegister(VIDEO, NewGeneralContentFactory(func(dict map[string]interface{}) Content {
-		return new(VideoFileContent).Init(dict)
+		content := new(VideoFileContent)
+		content.Init(content, dict).AutoRelease()
+		return content
 	}))
 
 	// Web Page
 	ContentRegister(PAGE, NewGeneralContentFactory(func(dict map[string]interface{}) Content {
-		return new(WebPageContent).Init(dict)
+		content := new(WebPageContent)
+		content.Init(content, dict).AutoRelease()
+		return content
 	}))
 
 	// Command
 	ContentRegister(COMMAND, NewGeneralCommandFactory(func(dict map[string]interface{}) Command {
-		return new(BaseCommand).Init(dict)
+		content := new(BaseCommand)
+		content.Init(content, dict).AutoRelease()
+		return content
 	}))
 	// History Command
 	ContentRegister(HISTORY, NewHistoryCommandFactory(func(dict map[string]interface{}) Command {
-		return new(BaseHistoryCommand).Init(dict)
+		content := new(BaseHistoryCommand)
+		content.Init(content, dict).AutoRelease()
+		return content
 	}))
 
 	// unknown content type
 	ContentRegister(0, NewGeneralContentFactory(func(dict map[string]interface{}) Content {
-		return new(BaseContent).Init(dict)
+		content := new(BaseContent)
+		content.Init(content, dict).AutoRelease()
+		return content
 	}))
 }
 

@@ -32,8 +32,9 @@ package core
 
 import (
 	. "github.com/dimchat/core-go/dimp"
-	. "github.com/dimchat/mkm-go/crypto"
 	. "github.com/dimchat/mkm-go/protocol"
+	. "github.com/dimchat/mkm-go/types"
+	"reflect"
 )
 
 /**
@@ -65,105 +66,156 @@ type IBarrack interface {
 /**
  *  Delegate for Entity
  *  ~~~~~~~~~~~~~~~~~~~
+ *
+ * @abstract:
+ *      // EntityDataSource
+ *      GetMeta(identifier ID) Meta
+ *      GetDocument(identifier ID, docType string) Document
+ *      // UserDataSource
+ *      GetContacts(user ID) []ID
+ *      GetPrivateKeysForDecryption(user ID) []DecryptKey
+ *      GetPrivateKeyForSignature(user ID) SignKey
+ *      GetPrivateKeyForVisaSignature(user ID) SignKey
+ *
+ *      // EntityCreator
+ *      CreateUser(identifier ID) User
+ *      CreateGroup(identifier ID) Group
+ *      GetLocalUsers() []User
  */
 type Barrack struct {
+	BaseObject
 	IBarrack
 
-	// Shadow is a delegate doing really jobs of barrack,
-	// it should not be equal to the barrack itself.
-	_shadow IBarrack
+	// memory caches
+	_users map[ID]User
+	_groups map[ID]Group
 }
 
-func (barrack *Barrack) Init() *Barrack {
-	barrack._shadow = nil
+func (barrack *Barrack) Init(this Object) *Barrack {
+	if barrack.BaseObject.Init(this) != nil {
+		barrack._users = make(map[ID]User)
+		barrack._groups = make(map[ID]Group)
+	}
 	return barrack
 }
 
-func (barrack *Barrack) SetShadow(shadow IBarrack) {
-	barrack._shadow = shadow
-}
-func (barrack *Barrack) Shadow() IBarrack {
-	return barrack._shadow
+func (barrack *Barrack) self() IBarrack {
+	return barrack.BaseObject.Self().(IBarrack)
 }
 
-//-------- EntityCreator
-
-func (barrack *Barrack) CreateUser(identifier ID) User {
-	return barrack.Shadow().CreateUser(identifier)
+/**
+ * Call it when received 'UIApplicationDidReceiveMemoryWarningNotification',
+ * this will remove 50% of cached objects
+ *
+ * @return number of survivors
+ */
+func (barrack *Barrack) ReduceMemory() int {
+	finger := 0
+	finger = thanos(barrack._users, finger)
+	finger = thanos(barrack._groups, finger)
+	return finger >> 1
 }
 
-func (barrack *Barrack) CreateGroup(identifier ID) Group {
-	return barrack.Shadow().CreateGroup(identifier)
+func thanos(planet interface{}, finger int) int {
+	if reflect.TypeOf(planet).Kind() != reflect.Map {
+		panic(planet)
+		return finger
+	}
+	dict := reflect.ValueOf(planet)
+	keys := dict.MapKeys()
+	for _, key := range keys {
+		finger++
+		if (finger & 1) == 1 {
+			// kill it
+			dict.SetMapIndex(key, reflect.Value{})
+		}
+		// let it go
+	}
+	return finger
 }
 
-func (barrack *Barrack) GetLocalUsers() []User {
-	return barrack.Shadow().GetLocalUsers()
+func (barrack *Barrack) cacheUser(user User) {
+	if user.DataSource() == nil {
+		user.SetDataSource(barrack.self())
+	}
+	barrack._users[user.ID()] = user
+}
+
+func (barrack *Barrack) cacheGroup(group Group) {
+	if group.DataSource() == nil {
+		group.SetDataSource(barrack.self())
+	}
+	barrack._groups[group.ID()] = group
 }
 
 //-------- EntityFactory
 
 func (barrack *Barrack) SelectLocalUser(receiver ID) User {
-	return barrack.Shadow().SelectLocalUser(receiver)
+	self := barrack.self()
+	users := self.GetLocalUsers()
+	if users == nil || len(users) == 0 {
+		panic("local users should not be empty")
+	} else if receiver.IsBroadcast() {
+		// broadcast message can decrypt by anyone, so just return current user
+		return users[0]
+	}
+	if receiver.IsGroup() {
+		// group message (recipient not designated)
+		members := self.GetMembers(receiver)
+		if members == nil || len(members) == 0 {
+			// TODO: group not ready, waiting for group info
+			return nil
+		}
+		for _, item := range users {
+			if item == nil {
+				continue
+			}
+			for _, member := range members {
+				if item.ID().Equal(member) {
+					// DISCUSS: set this item to be current user?
+					return item
+				}
+			}
+		}
+	} else {
+		// 1. personal message
+		// 2. split group message
+		for _, item := range users {
+			if item == nil {
+				continue
+			}
+			if item.ID().Equal(receiver) {
+				// DISCUSS: set this item to be current user?
+				return item
+			}
+		}
+	}
+	return nil
 }
 
 func (barrack *Barrack) GetUser(identifier ID) User {
-	return barrack.Shadow().GetUser(identifier)
+	// 1. get from user cache
+	user := barrack._users[identifier]
+	if user == nil {
+		// 2. create user and cache it
+		user = barrack.self().CreateUser(identifier)
+		if user != nil {
+			barrack.cacheUser(user)
+		}
+	}
+	return user
 }
 
 func (barrack *Barrack) GetGroup(identifier ID) Group {
-	return barrack.Shadow().GetGroup(identifier)
-}
-
-//-------- EntityDataSource
-
-func (barrack *Barrack) GetMeta(identifier ID) Meta {
-	return barrack.Shadow().GetMeta(identifier)
-}
-
-func (barrack *Barrack) GetDocument(identifier ID, docType string) Document {
-	return barrack.Shadow().GetDocument(identifier, docType)
-}
-
-//-------- UserDataSource
-
-func (barrack *Barrack) GetContacts(user ID) []ID {
-	return barrack.Shadow().GetContacts(user)
-}
-
-func (barrack *Barrack) GetPublicKeyForEncryption(user ID) EncryptKey {
-	return barrack.Shadow().GetPublicKeyForEncryption(user)
-}
-
-func (barrack *Barrack) GetPublicKeysForVerification(user ID) []VerifyKey {
-	return barrack.Shadow().GetPublicKeysForVerification(user)
-}
-
-func (barrack *Barrack) GetPrivateKeysForDecryption(user ID) []DecryptKey {
-	return barrack.Shadow().GetPrivateKeysForDecryption(user)
-}
-
-func (barrack *Barrack) GetPrivateKeyForSignature(user ID) SignKey {
-	return barrack.Shadow().GetPrivateKeyForSignature(user)
-}
-
-func (barrack *Barrack) GetPrivateKeyForVisaSignature(user ID) SignKey {
-	return barrack.Shadow().GetPrivateKeyForVisaSignature(user)
-}
-
-//-------- GroupDataSource
-
-func (barrack *Barrack) GetFounder(group ID) ID {
-	return barrack.Shadow().GetFounder(group)
-}
-
-func (barrack *Barrack) GetOwner(group ID) ID {
-	return barrack.Shadow().GetOwner(group)
-}
-
-func (barrack *Barrack) GetMembers(group ID) []ID {
-	return barrack.Shadow().GetMembers(group)
-}
-
-func (barrack *Barrack) GetAssistants(group ID) []ID {
-	return barrack.Shadow().GetAssistants(group)
+	// 1. get from group cache
+	// 1. get from user cache
+	group := barrack._groups[identifier]
+	if group == nil {
+		// 2. create group and cache it
+		group = barrack.self().CreateGroup(identifier)
+		if group != nil {
+			barrack.cacheGroup(group)
+		}
+	}
+	return group
 }

@@ -33,6 +33,7 @@ package dkd
 import (
 	. "github.com/dimchat/core-go/protocol"
 	. "github.com/dimchat/mkm-go/protocol"
+	. "github.com/dimchat/mkm-go/types"
 )
 
 /**
@@ -48,36 +49,77 @@ import (
 type BaseGroupCommand struct {
 	BaseHistoryCommand
 	IGroupCommand
+
+	_member ID
+	_members []ID
 }
 
-func (cmd *BaseGroupCommand) Init(dict map[string]interface{}) *BaseGroupCommand {
-	if cmd.BaseHistoryCommand.Init(dict) != nil {
+func (cmd *BaseGroupCommand) Init(this GroupCommand, dict map[string]interface{}) *BaseGroupCommand {
+	if cmd.BaseHistoryCommand.Init(this, dict) != nil {
+		cmd.setMember(nil)
+		cmd.setMembers(nil)
 	}
 	return cmd
 }
 
-func (cmd *BaseGroupCommand) InitWithCommand(command string, group ID) *BaseGroupCommand {
-	if cmd.BaseHistoryCommand.InitWithCommand(command) != nil {
-		// group ID
+func (cmd *BaseGroupCommand) InitWithGroupCommand(this GroupCommand, command string, group ID, member ID, members []ID) *BaseGroupCommand {
+	if cmd.InitWithCommand(this, command, group) != nil {
 		cmd.SetGroup(group)
-	}
-	return cmd
-}
-
-func (cmd *BaseGroupCommand) InitWithMember(command string, group ID, member ID) *BaseGroupCommand {
-	if cmd.InitWithCommand(command, group) != nil {
-		// member ID
 		cmd.SetMember(member)
+		cmd.setMembers(members)
 	}
 	return cmd
 }
 
-func (cmd *BaseGroupCommand) InitWithMembers(command string, group ID, members []ID) *BaseGroupCommand {
-	if cmd.InitWithCommand(command, group) != nil {
-		// member ID list
-		cmd.SetMembers(members)
+func (cmd *BaseGroupCommand) InitWithCommand(this GroupCommand, command string, group ID) *BaseGroupCommand {
+	if cmd.InitWithGroupCommand(this, command, group, nil, nil) != nil {
 	}
 	return cmd
+}
+
+func (cmd *BaseGroupCommand) InitWithMember(this GroupCommand, command string, group ID, member ID) *BaseGroupCommand {
+	if cmd.InitWithGroupCommand(this, command, group, member, nil) != nil {
+	}
+	return cmd
+}
+
+func (cmd *BaseGroupCommand) InitWithMembers(this GroupCommand, command string, group ID, members []ID) *BaseGroupCommand {
+	if cmd.InitWithGroupCommand(this, command, group, nil, members) != nil {
+	}
+	return cmd
+}
+
+func (cmd *BaseGroupCommand) Release() int {
+	cnt := cmd.BaseHistoryCommand.Release()
+	if cnt == 0 {
+		// this object is going to be destroyed,
+		// release children
+		cmd.setMember(nil)
+		cmd.setMembers(nil)
+	}
+	return cnt
+}
+
+func (cmd *BaseGroupCommand) setMember(member ID) {
+	if member != cmd._member {
+		ObjectRetain(member)
+		ObjectRelease(cmd._member)
+		cmd._member = member
+	}
+}
+
+func (cmd *BaseGroupCommand) setMembers(members []ID) {
+	if members != nil {
+		for _, item := range members {
+			item.Retain()
+		}
+	}
+	if cmd._members != nil {
+		for _, item := range cmd._members {
+			item.Release()
+		}
+	}
+	cmd._members = members
 }
 
 //-------- IGroupCommand
@@ -135,23 +177,24 @@ type InviteGroupCommand struct {
 }
 
 func NewInviteCommand(group ID, members []ID) InviteCommand {
-	return new(InviteGroupCommand).InitWithMembers(group, members)
+	cmd := new(InviteGroupCommand)
+	return cmd.InitWithMembers(cmd, group, members)
 }
 
-func (cmd *InviteGroupCommand) Init(dict map[string]interface{}) *InviteGroupCommand {
-	if cmd.BaseGroupCommand.Init(dict) != nil {
+func (cmd *InviteGroupCommand) Init(this InviteCommand, dict map[string]interface{}) *InviteGroupCommand {
+	if cmd.BaseGroupCommand.Init(this, dict) != nil {
 	}
 	return cmd
 }
 
-func (cmd *InviteGroupCommand) InitWithMember(group ID, member ID) *InviteGroupCommand {
-	if cmd.BaseGroupCommand.InitWithMember(INVITE, group, member) != nil {
+func (cmd *InviteGroupCommand) InitWithMember(this InviteCommand, group ID, member ID) *InviteGroupCommand {
+	if cmd.BaseGroupCommand.InitWithMember(this, INVITE, group, member) != nil {
 	}
 	return cmd
 }
 
-func (cmd *InviteGroupCommand) InitWithMembers(group ID, members []ID) *InviteGroupCommand {
-	if cmd.BaseGroupCommand.InitWithMembers(INVITE, group, members) != nil {
+func (cmd *InviteGroupCommand) InitWithMembers(this InviteCommand, group ID, members []ID) *InviteGroupCommand {
+	if cmd.BaseGroupCommand.InitWithMembers(this, INVITE, group, members) != nil {
 	}
 	return cmd
 }
@@ -183,23 +226,24 @@ type ExpelGroupCommand struct {
 }
 
 func NewExpelCommand(group ID, members []ID) ExpelCommand {
-	return new(ExpelGroupCommand).InitWithMembers(group, members)
+	cmd := new(ExpelGroupCommand)
+	return cmd.InitWithMembers(cmd, group, members)
 }
 
-func (cmd *ExpelGroupCommand) Init(dict map[string]interface{}) *ExpelGroupCommand {
-	if cmd.BaseGroupCommand.Init(dict) != nil {
+func (cmd *ExpelGroupCommand) Init(this ExpelCommand, dict map[string]interface{}) *ExpelGroupCommand {
+	if cmd.BaseGroupCommand.Init(this, dict) != nil {
 	}
 	return cmd
 }
 
-func (cmd *ExpelGroupCommand) InitWithMember(group ID, member ID) *ExpelGroupCommand {
-	if cmd.BaseGroupCommand.InitWithMember(EXPEL, group, member) != nil {
+func (cmd *ExpelGroupCommand) InitWithMember(this ExpelCommand, group ID, member ID) *ExpelGroupCommand {
+	if cmd.BaseGroupCommand.InitWithMember(this, EXPEL, group, member) != nil {
 	}
 	return cmd
 }
 
-func (cmd *ExpelGroupCommand) InitWithMembers(group ID, members []ID) *ExpelGroupCommand {
-	if cmd.BaseGroupCommand.InitWithMembers(EXPEL, group, members) != nil {
+func (cmd *ExpelGroupCommand) InitWithMembers(this ExpelCommand, group ID, members []ID) *ExpelGroupCommand {
+	if cmd.BaseGroupCommand.InitWithMembers(this, EXPEL, group, members) != nil {
 	}
 	return cmd
 }
@@ -231,17 +275,18 @@ type JoinGroupCommand struct {
 }
 
 func NewJoinCommand(group ID) JoinCommand {
-	return new(JoinGroupCommand).InitWithGroup(group)
+	cmd := new(JoinGroupCommand)
+	return cmd.InitWithGroup(cmd, group)
 }
 
-func (cmd *JoinGroupCommand) Init(dict map[string]interface{}) *JoinGroupCommand {
-	if cmd.BaseGroupCommand.Init(dict) != nil {
+func (cmd *JoinGroupCommand) Init(this JoinCommand, dict map[string]interface{}) *JoinGroupCommand {
+	if cmd.BaseGroupCommand.Init(this, dict) != nil {
 	}
 	return cmd
 }
 
-func (cmd *JoinGroupCommand) InitWithGroup(group ID) *JoinGroupCommand {
-	if cmd.BaseGroupCommand.InitWithCommand(JOIN, group) != nil {
+func (cmd *JoinGroupCommand) InitWithGroup(this JoinCommand, group ID) *JoinGroupCommand {
+	if cmd.BaseGroupCommand.InitWithCommand(this, JOIN, group) != nil {
 	}
 	return cmd
 }
@@ -273,17 +318,18 @@ type QuitGroupCommand struct {
 }
 
 func NewQuitCommand(group ID) QuitCommand {
-	return new(QuitGroupCommand).InitWithGroup(group)
+	cmd := new(QuitGroupCommand)
+	return cmd.InitWithGroup(cmd, group)
 }
 
-func (cmd *QuitGroupCommand) Init(dict map[string]interface{}) *QuitGroupCommand {
-	if cmd.BaseGroupCommand.Init(dict) != nil {
+func (cmd *QuitGroupCommand) Init(this QuitCommand, dict map[string]interface{}) *QuitGroupCommand {
+	if cmd.BaseGroupCommand.Init(this, dict) != nil {
 	}
 	return cmd
 }
 
-func (cmd *QuitGroupCommand) InitWithGroup(group ID) *QuitGroupCommand {
-	if cmd.BaseGroupCommand.InitWithCommand(QUIT, group) != nil {
+func (cmd *QuitGroupCommand) InitWithGroup(this QuitCommand, group ID) *QuitGroupCommand {
+	if cmd.BaseGroupCommand.InitWithCommand(this, QUIT, group) != nil {
 	}
 	return cmd
 }
@@ -315,17 +361,18 @@ type ResetGroupCommand struct {
 }
 
 func NewResetCommand(group ID, members []ID) ResetCommand {
-	return new(ResetGroupCommand).InitWithMembers(group, members)
+	cmd := new(ResetGroupCommand)
+	return cmd.InitWithMembers(cmd, group, members)
 }
 
-func (cmd *ResetGroupCommand) Init(dict map[string]interface{}) *ResetGroupCommand {
-	if cmd.BaseGroupCommand.Init(dict) != nil {
+func (cmd *ResetGroupCommand) Init(this ResetCommand, dict map[string]interface{}) *ResetGroupCommand {
+	if cmd.BaseGroupCommand.Init(this, dict) != nil {
 	}
 	return cmd
 }
 
-func (cmd *ResetGroupCommand) InitWithMembers(group ID, members []ID) *ResetGroupCommand {
-	if cmd.BaseGroupCommand.InitWithMembers(RESET, group, members) != nil {
+func (cmd *ResetGroupCommand) InitWithMembers(this ResetCommand, group ID, members []ID) *ResetGroupCommand {
+	if cmd.BaseGroupCommand.InitWithMembers(this, RESET, group, members) != nil {
 	}
 	return cmd
 }
@@ -352,17 +399,18 @@ type QueryGroupCommand struct {
 }
 
 func NewQueryCommand(group ID) QueryCommand {
-	return new(QueryGroupCommand).InitWithGroup(group)
+	cmd := new(QueryGroupCommand)
+	return cmd.InitWithGroup(cmd, group)
 }
 
-func (cmd *QueryGroupCommand) Init(dict map[string]interface{}) *QueryGroupCommand {
-	if cmd.BaseGroupCommand.Init(dict) != nil {
+func (cmd *QueryGroupCommand) Init(this QueryCommand, dict map[string]interface{}) *QueryGroupCommand {
+	if cmd.BaseGroupCommand.Init(this, dict) != nil {
 	}
 	return cmd
 }
 
-func (cmd *QueryGroupCommand) InitWithGroup(group ID) *QueryGroupCommand {
-	if cmd.BaseGroupCommand.InitWithCommand(QUERY, group) != nil {
+func (cmd *QueryGroupCommand) InitWithGroup(this QueryCommand, group ID) *QueryGroupCommand {
+	if cmd.BaseGroupCommand.InitWithCommand(this, QUERY, group) != nil {
 	}
 	return cmd
 }

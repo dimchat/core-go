@@ -127,34 +127,52 @@ func (factory *GroupCommandFactory) ParseContent(content map[string]interface{})
 func BuildCommandFactories() {
 	// Meta Command
 	CommandRegister(META, NewGeneralCommandFactory(func(dict map[string]interface{}) Command {
-		return new(BaseMetaCommand).Init(dict)
+		cmd := new(BaseMetaCommand)
+		cmd.Init(cmd, dict).AutoRelease()
+		return cmd
 	}))
 	// Document Command
 	CommandRegister(DOCUMENT, NewGeneralCommandFactory(func(dict map[string]interface{}) Command {
-		return new(BaseDocumentCommand).Init(dict)
+		cmd := new(BaseDocumentCommand)
+		cmd.Init(cmd, dict).AutoRelease()
+		return cmd
 	}))
 
 	// Group Commands
 	CommandRegister("group", NewGroupCommandFactory(func(dict map[string]interface{}) Command {
-		return new(BaseGroupCommand).Init(dict)
+		cmd := new(BaseGroupCommand)
+		cmd.Init(cmd, dict).AutoRelease()
+		return cmd
 	}))
 	CommandRegister(INVITE, NewGroupCommandFactory(func(dict map[string]interface{}) Command {
-		return new(InviteGroupCommand).Init(dict)
+		cmd := new(InviteGroupCommand)
+		cmd.Init(cmd, dict).AutoRelease()
+		return cmd
 	}))
 	CommandRegister(EXPEL, NewGroupCommandFactory(func(dict map[string]interface{}) Command {
-		return new(ExpelGroupCommand).Init(dict)
+		cmd := new(ExpelGroupCommand)
+		cmd.Init(cmd, dict).AutoRelease()
+		return cmd
 	}))
 	CommandRegister(JOIN, NewGroupCommandFactory(func(dict map[string]interface{}) Command {
-		return new(JoinGroupCommand).Init(dict)
+		cmd := new(JoinGroupCommand)
+		cmd.Init(cmd, dict).AutoRelease()
+		return cmd
 	}))
 	CommandRegister(QUIT, NewGroupCommandFactory(func(dict map[string]interface{}) Command {
-		return new(QuitGroupCommand).Init(dict)
+		cmd := new(QuitGroupCommand)
+		cmd.Init(cmd, dict).AutoRelease()
+		return cmd
 	}))
 	CommandRegister(QUERY, NewGroupCommandFactory(func(dict map[string]interface{}) Command {
-		return new(QueryGroupCommand).Init(dict)
+		cmd := new(QueryGroupCommand)
+		cmd.Init(cmd, dict).AutoRelease()
+		return cmd
 	}))
 	CommandRegister(RESET, NewGroupCommandFactory(func(dict map[string]interface{}) Command {
-		return new(ResetGroupCommand).Init(dict)
+		cmd := new(ResetGroupCommand)
+		cmd.Init(cmd, dict).AutoRelease()
+		return cmd
 	}))
 }
 

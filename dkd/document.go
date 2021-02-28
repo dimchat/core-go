@@ -33,6 +33,7 @@ package dkd
 import (
 	. "github.com/dimchat/core-go/protocol"
 	. "github.com/dimchat/mkm-go/protocol"
+	. "github.com/dimchat/mkm-go/types"
 )
 
 type BaseDocumentCommand struct {
@@ -42,27 +43,27 @@ type BaseDocumentCommand struct {
 	_doc Document
 }
 
-func (cmd *BaseDocumentCommand) Init(dict map[string]interface{}) *BaseDocumentCommand {
-	if cmd.BaseMetaCommand.Init(dict) != nil {
+func (cmd *BaseDocumentCommand) Init(this DocumentCommand, dict map[string]interface{}) *BaseDocumentCommand {
+	if cmd.BaseMetaCommand.Init(this, dict) != nil {
 		// lazy load
-		cmd._doc = nil
+		cmd.setDocument(nil)
 	}
 	return cmd
 }
 
-func (cmd *BaseDocumentCommand) InitWithMeta(id ID, meta Meta, doc Document) *BaseDocumentCommand {
-	if cmd.BaseMetaCommand.InitWithCommand(DOCUMENT, id, meta) != nil {
+func (cmd *BaseDocumentCommand) InitWithMeta(this DocumentCommand, id ID, meta Meta, doc Document) *BaseDocumentCommand {
+	if cmd.BaseMetaCommand.InitWithCommand(this, DOCUMENT, id, meta) != nil {
 		// document
-		cmd._doc = doc
 		if doc != nil {
 			cmd.Set("document", doc.GetMap(false))
 		}
+		cmd.setDocument(doc)
 	}
 	return cmd
 }
 
-func (cmd *BaseDocumentCommand) InitWithDocument(id ID, doc Document) *BaseDocumentCommand {
-	return cmd.InitWithMeta(id, nil, doc)
+func (cmd *BaseDocumentCommand) InitWithDocument(this DocumentCommand, id ID, doc Document) *BaseDocumentCommand {
+	return cmd.InitWithMeta(this, id, nil, doc)
 }
 
 /**
@@ -70,8 +71,8 @@ func (cmd *BaseDocumentCommand) InitWithDocument(id ID, doc Document) *BaseDocum
  *
  * @param identifier - entity ID
  */
-func (cmd *BaseDocumentCommand) InitWithID(id ID) *BaseDocumentCommand {
-	return cmd.InitWithMeta(id, nil, nil)
+func (cmd *BaseDocumentCommand) InitWithID(this DocumentCommand, id ID) *BaseDocumentCommand {
+	return cmd.InitWithMeta(this, id, nil, nil)
 }
 
 /**
@@ -80,13 +81,31 @@ func (cmd *BaseDocumentCommand) InitWithID(id ID) *BaseDocumentCommand {
  * @param identifier - entity ID
  * @param signature - document signature
  */
-func (cmd *BaseDocumentCommand) InitWithSignature(id ID, signature string) *BaseDocumentCommand {
-	if cmd.InitWithID(id) != nil {
+func (cmd *BaseDocumentCommand) InitWithSignature(this DocumentCommand, id ID, signature string) *BaseDocumentCommand {
+	if cmd.InitWithID(this, id) != nil {
 		if signature != "" {
 			cmd.Set("signature", signature)
 		}
 	}
 	return cmd
+}
+
+func (cmd *BaseDocumentCommand) Release() int {
+	cnt := cmd.BaseMetaCommand.Release()
+	if cnt == 0 {
+		// this object is going to be destroyed,
+		// release children
+		cmd.setDocument(nil)
+	}
+	return cnt
+}
+
+func (cmd *BaseDocumentCommand) setDocument(doc Document) {
+	if doc != cmd._doc {
+		ObjectRetain(doc)
+		ObjectRelease(cmd._doc)
+		cmd._doc = doc
+	}
 }
 
 //-------- IDocumentCommand
@@ -101,7 +120,7 @@ func (cmd *BaseDocumentCommand) Document() Document {
 			// compatible with v1.0
 			document = cmd.Get("profile")
 		}
-		cmd._doc = DocumentParse(document)
+		cmd.setDocument(DocumentParse(document))
 	}
 	return cmd._doc
 }
@@ -119,9 +138,13 @@ func (cmd *BaseDocumentCommand) Signature() string {
 //
 
 func DocumentCommandQuery(id ID, signature string) DocumentCommand {
-	return new(BaseDocumentCommand).InitWithSignature(id, signature)
+	cmd := new(BaseDocumentCommand)
+	cmd.InitWithSignature(cmd, id, signature).AutoRelease()
+	return cmd
 }
 
 func DocumentCommandRespond(id ID, meta Meta, doc Document) DocumentCommand {
-	return new(BaseDocumentCommand).InitWithMeta(id, meta, doc)
+	cmd := new(BaseDocumentCommand)
+	cmd.InitWithMeta(cmd, id, meta, doc).AutoRelease()
+	return cmd
 }

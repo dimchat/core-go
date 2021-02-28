@@ -43,25 +43,25 @@ type BaseMetaCommand struct {
 	_meta Meta
 }
 
-func (cmd *BaseMetaCommand) Init(dict map[string]interface{}) *BaseMetaCommand {
-	if cmd.BaseCommand.Init(dict) != nil {
+func (cmd *BaseMetaCommand) Init(this MetaCommand,dict map[string]interface{}) *BaseMetaCommand {
+	if cmd.BaseCommand.Init(this, dict) != nil {
 		// lazy load
-		cmd._identifier = nil
-		cmd._meta = nil
+		cmd.setID(nil)
+		cmd.setMeta(nil)
 	}
 	return cmd
 }
 
-func (cmd *BaseMetaCommand) InitWithCommand(command string, id ID, meta Meta) *BaseMetaCommand {
-	if cmd.BaseCommand.InitWithCommand(command) != nil {
+func (cmd *BaseMetaCommand) InitWithCommand(this MetaCommand, command string, id ID, meta Meta) *BaseMetaCommand {
+	if cmd.BaseCommand.InitWithCommand(this, command) != nil {
 		// ID
-		cmd._identifier = id
 		cmd.Set("ID", id.String())
+		cmd.setID(id)
 		// meta
-		cmd._meta = meta
 		if meta != nil {
 			cmd.Set("meta", meta.GetMap(false))
 		}
+		cmd.setMeta(meta)
 	}
 	return cmd
 }
@@ -72,8 +72,8 @@ func (cmd *BaseMetaCommand) InitWithCommand(command string, id ID, meta Meta) *B
  * @param identifier - entity ID
  * @param meta - entity Meta
  */
-func (cmd *BaseMetaCommand) InitWithMeta(id ID, meta Meta) *BaseMetaCommand {
-	return cmd.InitWithCommand(META, id, meta)
+func (cmd *BaseMetaCommand) InitWithMeta(this MetaCommand, id ID, meta Meta) *BaseMetaCommand {
+	return cmd.InitWithCommand(this, META, id, meta)
 }
 
 /**
@@ -81,20 +81,54 @@ func (cmd *BaseMetaCommand) InitWithMeta(id ID, meta Meta) *BaseMetaCommand {
  *
  * @param identifier - entity ID
  */
-func (cmd *BaseMetaCommand) InitWithID(id ID) *BaseMetaCommand {
-	return cmd.InitWithCommand(META, id, nil)
+func (cmd *BaseMetaCommand) InitWithID(this MetaCommand, id ID) *BaseMetaCommand {
+	return cmd.InitWithCommand(this, META, id, nil)
+}
+
+func (cmd *BaseMetaCommand) Release() int {
+	cnt := cmd.BaseCommand.Release()
+	if cnt == 0 {
+		// this object is going to be destroyed,
+		// release children
+		cmd.setID(nil)
+		cmd.setMeta(nil)
+	}
+	return cnt
+}
+
+func (cmd *BaseMetaCommand) setID(identifier ID) {
+	if identifier != nil {
+		identifier.Retain()
+	}
+	if cmd._identifier != nil {
+		cmd._identifier.Release()
+	}
+	cmd._identifier = identifier
+}
+
+func (cmd *BaseMetaCommand) setMeta(meta Meta) {
+	if meta != nil {
+		meta.Retain()
+	}
+	if cmd._meta != nil {
+		cmd._meta.Release()
+	}
+	cmd._meta = meta
 }
 
 //-------- IMetaCommand
 
 func (cmd *BaseMetaCommand) ID() ID {
-	return IDParse(cmd.Get("ID"))
+	if cmd._identifier == nil {
+		cmd.setID(IDParse(cmd.Get("ID")))
+	}
+	return cmd._identifier
 }
 
 func (cmd *BaseMetaCommand) Meta() Meta {
 	if cmd._meta == nil {
 		meta := cmd.Get("meta")
-		cmd._meta = MetaParse(meta)
+		cmd.setMeta(MetaParse(meta))
 	}
 	return cmd._meta
 }
@@ -104,9 +138,13 @@ func (cmd *BaseMetaCommand) Meta() Meta {
 //
 
 func MetaCommandQuery(id ID) MetaCommand {
-	return new(BaseMetaCommand).InitWithID(id)
+	cmd := new(BaseMetaCommand)
+	cmd.InitWithID(cmd, id).AutoRelease()
+	return cmd
 }
 
 func MetaCommandRespond(id ID, meta Meta) MetaCommand {
-	return new(BaseMetaCommand).InitWithMeta(id, meta)
+	cmd := new(BaseMetaCommand)
+	cmd.InitWithMeta(cmd, id, meta).AutoRelease()
+	return cmd
 }

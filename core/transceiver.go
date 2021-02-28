@@ -56,12 +56,12 @@ type MessageTransceiver struct {
 
 func (transceiver *MessageTransceiver) Init() *MessageTransceiver {
 	// shadows
-	transceiver._transformer = nil
-	transceiver._processor = nil
-	transceiver._packer = nil
+	transceiver.SetTransformer(nil)
+	transceiver.SetProcessor(nil)
+	transceiver.SetPacker(nil)
 	// delegates
-	transceiver._entityFactory = nil
-	transceiver._keyDelegate = nil
+	transceiver.SetEntityFactory(nil)
+	transceiver.SetCipherKeyDelegate(nil)
 	return transceiver
 }
 

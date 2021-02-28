@@ -65,6 +65,7 @@ type Entity interface {
  *  ~~~~~~~~~~~
  */
 type BaseEntity struct {
+	BaseObject
 	Entity
 
 	_identifier ID
@@ -72,10 +73,30 @@ type BaseEntity struct {
 	_delegate EntityDataSource
 }
 
-func (entity *BaseEntity) Init(identifier ID) *BaseEntity {
-	entity._identifier = identifier
-	entity._delegate = nil
+func (entity *BaseEntity) Init(this Entity, identifier ID) *BaseEntity {
+	if entity.BaseObject.Init(this) != nil {
+		entity.setID(identifier)
+		entity._delegate = nil
+	}
 	return entity
+}
+
+func (entity *BaseEntity) Release() int {
+	cnt := entity.BaseObject.Release()
+	if cnt == 0 {
+		// this object is going to be destroyed,
+		// release children
+		entity.setID(nil)
+	}
+	return cnt
+}
+
+func (entity *BaseEntity) setID(identifier ID) {
+	if identifier != entity._identifier {
+		ObjectRetain(identifier)
+		ObjectRelease(entity._identifier)
+		entity._identifier = identifier
+	}
 }
 
 func (entity *BaseEntity) Equal(other interface{}) bool {

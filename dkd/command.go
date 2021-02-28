@@ -50,21 +50,23 @@ type BaseCommand struct {
 	ICommand
 }
 
-func (cmd *BaseCommand) Init(dict map[string]interface{}) *BaseCommand {
-	if cmd.BaseContent.Init(dict) != nil {
+/* designated initializer */
+func (cmd *BaseCommand) Init(this Command, dict map[string]interface{}) *BaseCommand {
+	if cmd.BaseContent.Init(this, dict) != nil {
 	}
 	return cmd
 }
 
-func (cmd *BaseCommand) InitWithType(msgType uint8, command string) *BaseCommand {
-	if cmd.BaseContent.InitWithType(msgType) != nil {
+/* designated initializer */
+func (cmd *BaseCommand) InitWithType(this Command, msgType uint8, command string) *BaseCommand {
+	if cmd.BaseContent.InitWithType(this, msgType) != nil {
 		cmd.Set("command", command)
 	}
 	return cmd
 }
 
-func (cmd *BaseCommand) InitWithCommand(command string) *BaseCommand {
-	return cmd.InitWithType(COMMAND, command)
+func (cmd *BaseCommand) InitWithCommand(this Command, command string) *BaseCommand {
+	return cmd.InitWithType(this, COMMAND, command)
 }
 
 //-------- ICommand
