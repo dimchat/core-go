@@ -43,16 +43,16 @@ type BaseDocumentCommand struct {
 	_doc Document
 }
 
-func (cmd *BaseDocumentCommand) Init(this DocumentCommand, dict map[string]interface{}) *BaseDocumentCommand {
-	if cmd.BaseMetaCommand.Init(this, dict) != nil {
+func (cmd *BaseDocumentCommand) Init(dict map[string]interface{}) *BaseDocumentCommand {
+	if cmd.BaseMetaCommand.Init(dict) != nil {
 		// lazy load
 		cmd.setDocument(nil)
 	}
 	return cmd
 }
 
-func (cmd *BaseDocumentCommand) InitWithMeta(this DocumentCommand, id ID, meta Meta, doc Document) *BaseDocumentCommand {
-	if cmd.BaseMetaCommand.InitWithCommand(this, DOCUMENT, id, meta) != nil {
+func (cmd *BaseDocumentCommand) InitWithMeta(id ID, meta Meta, doc Document) *BaseDocumentCommand {
+	if cmd.BaseMetaCommand.InitWithCommand(DOCUMENT, id, meta) != nil {
 		// document
 		if doc != nil {
 			cmd.Set("document", doc.GetMap(false))
@@ -62,8 +62,8 @@ func (cmd *BaseDocumentCommand) InitWithMeta(this DocumentCommand, id ID, meta M
 	return cmd
 }
 
-func (cmd *BaseDocumentCommand) InitWithDocument(this DocumentCommand, id ID, doc Document) *BaseDocumentCommand {
-	return cmd.InitWithMeta(this, id, nil, doc)
+func (cmd *BaseDocumentCommand) InitWithDocument(id ID, doc Document) *BaseDocumentCommand {
+	return cmd.InitWithMeta(id, nil, doc)
 }
 
 /**
@@ -71,8 +71,8 @@ func (cmd *BaseDocumentCommand) InitWithDocument(this DocumentCommand, id ID, do
  *
  * @param identifier - entity ID
  */
-func (cmd *BaseDocumentCommand) InitWithID(this DocumentCommand, id ID) *BaseDocumentCommand {
-	return cmd.InitWithMeta(this, id, nil, nil)
+func (cmd *BaseDocumentCommand) InitWithID(id ID) *BaseDocumentCommand {
+	return cmd.InitWithMeta(id, nil, nil)
 }
 
 /**
@@ -81,8 +81,8 @@ func (cmd *BaseDocumentCommand) InitWithID(this DocumentCommand, id ID) *BaseDoc
  * @param identifier - entity ID
  * @param signature - document signature
  */
-func (cmd *BaseDocumentCommand) InitWithSignature(this DocumentCommand, id ID, signature string) *BaseDocumentCommand {
-	if cmd.InitWithID(this, id) != nil {
+func (cmd *BaseDocumentCommand) InitWithSignature(id ID, signature string) *BaseDocumentCommand {
+	if cmd.InitWithID(id) != nil {
 		if signature != "" {
 			cmd.Set("signature", signature)
 		}
@@ -138,13 +138,15 @@ func (cmd *BaseDocumentCommand) Signature() string {
 //
 
 func DocumentCommandQuery(id ID, signature string) DocumentCommand {
-	cmd := new(BaseDocumentCommand)
-	cmd.InitWithSignature(cmd, id, signature).AutoRelease()
+	cmd := new(BaseDocumentCommand).InitWithSignature(id, signature)
+	ObjectRetain(cmd)
+	ObjectAutorelease(cmd)
 	return cmd
 }
 
 func DocumentCommandRespond(id ID, meta Meta, doc Document) DocumentCommand {
-	cmd := new(BaseDocumentCommand)
-	cmd.InitWithMeta(cmd, id, meta, doc).AutoRelease()
+	cmd := new(BaseDocumentCommand).InitWithMeta(id, meta, doc)
+	ObjectRetain(cmd)
+	ObjectAutorelease(cmd)
 	return cmd
 }

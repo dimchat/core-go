@@ -33,6 +33,7 @@ package dkd
 import (
 	. "github.com/dimchat/core-go/protocol"
 	. "github.com/dimchat/mkm-go/protocol"
+	. "github.com/dimchat/mkm-go/types"
 )
 
 type BaseMetaCommand struct {
@@ -43,8 +44,8 @@ type BaseMetaCommand struct {
 	_meta Meta
 }
 
-func (cmd *BaseMetaCommand) Init(this MetaCommand,dict map[string]interface{}) *BaseMetaCommand {
-	if cmd.BaseCommand.Init(this, dict) != nil {
+func (cmd *BaseMetaCommand) Init(dict map[string]interface{}) *BaseMetaCommand {
+	if cmd.BaseCommand.Init(dict) != nil {
 		// lazy load
 		cmd.setID(nil)
 		cmd.setMeta(nil)
@@ -52,8 +53,8 @@ func (cmd *BaseMetaCommand) Init(this MetaCommand,dict map[string]interface{}) *
 	return cmd
 }
 
-func (cmd *BaseMetaCommand) InitWithCommand(this MetaCommand, command string, id ID, meta Meta) *BaseMetaCommand {
-	if cmd.BaseCommand.InitWithCommand(this, command) != nil {
+func (cmd *BaseMetaCommand) InitWithCommand(command string, id ID, meta Meta) *BaseMetaCommand {
+	if cmd.BaseCommand.InitWithCommand(command) != nil {
 		// ID
 		cmd.Set("ID", id.String())
 		cmd.setID(id)
@@ -72,8 +73,8 @@ func (cmd *BaseMetaCommand) InitWithCommand(this MetaCommand, command string, id
  * @param identifier - entity ID
  * @param meta - entity Meta
  */
-func (cmd *BaseMetaCommand) InitWithMeta(this MetaCommand, id ID, meta Meta) *BaseMetaCommand {
-	return cmd.InitWithCommand(this, META, id, meta)
+func (cmd *BaseMetaCommand) InitWithMeta(id ID, meta Meta) *BaseMetaCommand {
+	return cmd.InitWithCommand(META, id, meta)
 }
 
 /**
@@ -81,8 +82,8 @@ func (cmd *BaseMetaCommand) InitWithMeta(this MetaCommand, id ID, meta Meta) *Ba
  *
  * @param identifier - entity ID
  */
-func (cmd *BaseMetaCommand) InitWithID(this MetaCommand, id ID) *BaseMetaCommand {
-	return cmd.InitWithCommand(this, META, id, nil)
+func (cmd *BaseMetaCommand) InitWithID(id ID) *BaseMetaCommand {
+	return cmd.InitWithCommand(META, id, nil)
 }
 
 func (cmd *BaseMetaCommand) Release() int {
@@ -97,23 +98,19 @@ func (cmd *BaseMetaCommand) Release() int {
 }
 
 func (cmd *BaseMetaCommand) setID(identifier ID) {
-	if identifier != nil {
-		identifier.Retain()
+	if identifier != cmd._identifier {
+		ObjectRetain(identifier)
+		ObjectRelease(cmd._identifier)
+		cmd._identifier = identifier
 	}
-	if cmd._identifier != nil {
-		cmd._identifier.Release()
-	}
-	cmd._identifier = identifier
 }
 
 func (cmd *BaseMetaCommand) setMeta(meta Meta) {
-	if meta != nil {
-		meta.Retain()
+	if meta != cmd._meta {
+		ObjectRetain(meta)
+		ObjectRelease(cmd._meta)
+		cmd._meta = meta
 	}
-	if cmd._meta != nil {
-		cmd._meta.Release()
-	}
-	cmd._meta = meta
 }
 
 //-------- IMetaCommand
@@ -138,13 +135,15 @@ func (cmd *BaseMetaCommand) Meta() Meta {
 //
 
 func MetaCommandQuery(id ID) MetaCommand {
-	cmd := new(BaseMetaCommand)
-	cmd.InitWithID(cmd, id).AutoRelease()
+	cmd := new(BaseMetaCommand).InitWithID(id)
+	ObjectRetain(cmd)
+	ObjectAutorelease(cmd)
 	return cmd
 }
 
 func MetaCommandRespond(id ID, meta Meta) MetaCommand {
-	cmd := new(BaseMetaCommand)
-	cmd.InitWithMeta(cmd, id, meta).AutoRelease()
+	cmd := new(BaseMetaCommand).InitWithMeta(id, meta)
+	ObjectRetain(cmd)
+	ObjectAutorelease(cmd)
 	return cmd
 }

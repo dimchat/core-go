@@ -54,22 +54,23 @@ type SecretContent struct {
 }
 
 func NewForwardContent(msg ReliableMessage) ForwardContent {
-	content := new(SecretContent)
-	return content.InitWithMessage(content, msg)
+	content := new(SecretContent).InitWithMessage(msg)
+	ObjectRetain(content)
+	return content
 }
 
-func (content *SecretContent) Init(this ForwardContent, dict map[string]interface{}) *SecretContent {
-	if content.BaseContent.Init(this, dict) != nil {
+func (content *SecretContent) Init(dict map[string]interface{}) *SecretContent {
+	if content.BaseContent.Init(dict) != nil {
 		// lazy load
-		content._secret = nil
+		content.setSecretMessage(nil)
 	}
 	return content
 }
 
-func (content *SecretContent) InitWithMessage(this ForwardContent, msg ReliableMessage) *SecretContent {
-	if content.BaseContent.InitWithType(this, FORWARD) != nil {
+func (content *SecretContent) InitWithMessage(msg ReliableMessage) *SecretContent {
+	if content.BaseContent.InitWithType(FORWARD) != nil {
 		content.Set("forward", msg.GetMap(false))
-		content.setMessage(msg)
+		content.setSecretMessage(msg)
 	}
 	return content
 }
@@ -79,12 +80,12 @@ func (content *SecretContent) Release() int {
 	if cnt == 0 {
 		// this object is going to be destroyed,
 		// release children
-		content.setMessage(nil)
+		content.setSecretMessage(nil)
 	}
 	return cnt
 }
 
-func (content *SecretContent) setMessage(secret ReliableMessage) {
+func (content *SecretContent) setSecretMessage(secret ReliableMessage) {
 	if secret != content._secret {
 		ObjectRetain(secret)
 		ObjectRelease(content._secret)
@@ -97,7 +98,7 @@ func (content *SecretContent) setMessage(secret ReliableMessage) {
 func (content *SecretContent) ForwardMessage() ReliableMessage {
 	if content._secret == nil {
 		forward := content.Get("forward")
-		content._secret = ReliableMessageParse(forward)
+		content.setSecretMessage(ReliableMessageParse(forward))
 	}
 	return content._secret
 }
@@ -117,18 +118,19 @@ type BaseTextContent struct {
 }
 
 func NewTextContent(text string) TextContent {
-	content := new(BaseTextContent)
-	return content.InitWithText(content, text)
+	content := new(BaseTextContent).InitWithText(text)
+	ObjectRetain(content)
+	return content
 }
 
-func (content *BaseTextContent) Init(this TextContent,dict map[string]interface{}) *BaseTextContent {
-	if content.BaseContent.Init(this, dict) != nil {
+func (content *BaseTextContent) Init(dict map[string]interface{}) *BaseTextContent {
+	if content.BaseContent.Init(dict) != nil {
 	}
 	return content
 }
 
-func (content *BaseTextContent) InitWithText(this TextContent,text string) *BaseTextContent {
-	if content.InitWithType(this, TEXT) != nil {
+func (content *BaseTextContent) InitWithText(text string) *BaseTextContent {
+	if content.InitWithType(TEXT) != nil {
 		content.SetText(text)
 	}
 	return content
@@ -164,20 +166,21 @@ type WebPageContent struct {
 }
 
 func NewPageContent(url string, title string, desc string, icon []byte) PageContent {
-	content := new(WebPageContent)
-	return content.InitWithURL(content, url, title, desc, icon)
+	content := new(WebPageContent).InitWithURL(url, title, desc, icon)
+	ObjectRetain(content)
+	return content
 }
 
-func (content *WebPageContent) Init(this PageContent,dict map[string]interface{}) *WebPageContent {
-	if content.BaseContent.Init(this, dict) != nil {
+func (content *WebPageContent) Init(dict map[string]interface{}) *WebPageContent {
+	if content.BaseContent.Init(dict) != nil {
 		// lazy load
 		content._icon = nil
 	}
 	return content
 }
 
-func (content *WebPageContent) InitWithURL(this PageContent,url string, title string, desc string, icon []byte) *WebPageContent {
-	if content.BaseContent.InitWithType(this, PAGE) != nil {
+func (content *WebPageContent) InitWithURL(url string, title string, desc string, icon []byte) *WebPageContent {
+	if content.BaseContent.InitWithType(PAGE) != nil {
 		content.SetURL(url)
 		content.SetTitle(title)
 		content.SetDescription(desc)

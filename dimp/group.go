@@ -64,8 +64,8 @@ type BaseGroup struct {
 	_founder ID
 }
 
-func (group *BaseGroup) Init(this Group, identifier ID) *BaseGroup {
-	if group.BaseEntity.Init(this, identifier) != nil {
+func (group *BaseGroup) Init(identifier ID) *BaseGroup {
+	if group.BaseEntity.Init(identifier) != nil {
 		// lazy load
 		group._founder = nil
 	}

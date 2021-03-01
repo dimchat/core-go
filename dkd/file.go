@@ -58,12 +58,14 @@ type BaseFileContent struct {
 }
 
 func NewFileContent(msgType uint8, filename string, data []byte) FileContent {
-	content := new(BaseFileContent)
-	return content.InitWithType(content, msgType, filename, data)
+	content := new(BaseFileContent).InitWithType(msgType, filename, data)
+	ObjectRetain(content)
+	return content
 }
 
-func (content *BaseFileContent) Init(this FileContent, dict map[string]interface{}) *BaseFileContent {
-	if content.BaseContent.Init(this, dict) != nil {
+/* designated initializer */
+func (content *BaseFileContent) Init(dict map[string]interface{}) *BaseFileContent {
+	if content.BaseContent.Init(dict) != nil {
 		// lazy load
 		content._data = nil
 		content.setPassword(nil)
@@ -71,11 +73,12 @@ func (content *BaseFileContent) Init(this FileContent, dict map[string]interface
 	return content
 }
 
-func (content *BaseFileContent) InitWithType(this FileContent, msgType uint8, filename string, data []byte) *BaseFileContent {
+/* designated initializer */
+func (content *BaseFileContent) InitWithType(msgType uint8, filename string, data []byte) *BaseFileContent {
 	if msgType == 0 {
 		msgType = FILE
 	}
-	if content.BaseContent.InitWithType(this, msgType) != nil {
+	if content.BaseContent.InitWithType(msgType) != nil {
 		content.SetFilename(filename)
 		content.SetData(data)
 		content.setPassword(nil)
@@ -181,20 +184,21 @@ type ImageFileContent struct {
 }
 
 func NewImageContent(filename string, data []byte) ImageContent {
-	content := new(ImageFileContent)
-	return content.InitWithFilename(content, filename, data)
+	content := new(ImageFileContent).InitWithFilename(filename, data)
+	ObjectRetain(content)
+	return content
 }
 
-func (content *ImageFileContent) Init(this ImageContent, dict map[string]interface{}) *ImageFileContent {
-	if content.BaseFileContent.Init(this, dict) != nil {
+func (content *ImageFileContent) Init(dict map[string]interface{}) *ImageFileContent {
+	if content.BaseFileContent.Init(dict) != nil {
 		// lazy load
 		content._thumbnail = nil
 	}
 	return content
 }
 
-func (content *ImageFileContent) InitWithFilename(this ImageContent, filename string, data []byte) *ImageFileContent {
-	if content.BaseFileContent.InitWithType(this, IMAGE, filename, data) != nil {
+func (content *ImageFileContent) InitWithFilename(filename string, data []byte) *ImageFileContent {
+	if content.BaseFileContent.InitWithType(IMAGE, filename, data) != nil {
 		content._thumbnail = nil
 	}
 	return content
@@ -239,18 +243,19 @@ type AudioFileContent struct {
 }
 
 func NewAudioContent(filename string, data []byte) AudioContent {
-	content := new(AudioFileContent)
-	return content.InitWithFilename(content, filename, data)
+	content := new(AudioFileContent).InitWithFilename(filename, data)
+	ObjectRetain(content)
+	return content
 }
 
-func (content *AudioFileContent) Init(this AudioContent, dict map[string]interface{}) *AudioFileContent {
-	if content.BaseFileContent.Init(this, dict) != nil {
+func (content *AudioFileContent) Init(dict map[string]interface{}) *AudioFileContent {
+	if content.BaseFileContent.Init(dict) != nil {
 	}
 	return content
 }
 
-func (content *AudioFileContent) InitWithFilename(this AudioContent, filename string, data []byte) *AudioFileContent {
-	if content.BaseFileContent.InitWithType(this, AUDIO, filename, data) != nil {
+func (content *AudioFileContent) InitWithFilename(filename string, data []byte) *AudioFileContent {
+	if content.BaseFileContent.InitWithType(AUDIO, filename, data) != nil {
 	}
 	return content
 }
@@ -288,20 +293,21 @@ type VideoFileContent struct {
 }
 
 func NewVideoContent(filename string, data []byte) VideoContent {
-	content := new(VideoFileContent)
-	return content.InitWithFilename(content, filename, data)
+	content := new(VideoFileContent).InitWithFilename(filename, data)
+	ObjectRetain(content)
+	return content
 }
 
-func (content *VideoFileContent) Init(this VideoContent, dict map[string]interface{}) *VideoFileContent {
-	if content.BaseFileContent.Init(this, dict) != nil {
+func (content *VideoFileContent) Init(dict map[string]interface{}) *VideoFileContent {
+	if content.BaseFileContent.Init(dict) != nil {
 		// lazy load
 		content._snapshot = nil
 	}
 	return content
 }
 
-func (content *VideoFileContent) InitWithFilename(this VideoContent, filename string, data []byte) *VideoFileContent {
-	if content.BaseFileContent.InitWithType(this, VIDEO, filename, data) != nil {
+func (content *VideoFileContent) InitWithFilename(filename string, data []byte) *VideoFileContent {
+	if content.BaseFileContent.InitWithType(VIDEO, filename, data) != nil {
 		content._snapshot = nil
 	}
 	return content

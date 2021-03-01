@@ -91,8 +91,8 @@ type Barrack struct {
 	_groups map[ID]Group
 }
 
-func (barrack *Barrack) Init(this Object) *Barrack {
-	if barrack.BaseObject.Init(this) != nil {
+func (barrack *Barrack) Init() *Barrack {
+	if barrack.BaseObject.Init() != nil {
 		barrack._users = make(map[ID]User)
 		barrack._groups = make(map[ID]Group)
 	}

@@ -50,14 +50,14 @@ type BaseHistoryCommand struct {
 	IHistoryCommand
 }
 
-func (cmd *BaseHistoryCommand) Init(this HistoryCommand, dict map[string]interface{}) *BaseHistoryCommand {
-	if cmd.BaseCommand.Init(this, dict) != nil {
+func (cmd *BaseHistoryCommand) Init(dict map[string]interface{}) *BaseHistoryCommand {
+	if cmd.BaseCommand.Init(dict) != nil {
 	}
 	return cmd
 }
 
-func (cmd *BaseHistoryCommand) InitWithCommand(this HistoryCommand, command string) *BaseHistoryCommand {
-	if cmd.BaseCommand.InitWithType(this, HISTORY, command) != nil {
+func (cmd *BaseHistoryCommand) InitWithCommand(command string) *BaseHistoryCommand {
+	if cmd.BaseCommand.InitWithType(HISTORY, command) != nil {
 	}
 	return cmd
 }

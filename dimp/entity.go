@@ -73,8 +73,8 @@ type BaseEntity struct {
 	_delegate EntityDataSource
 }
 
-func (entity *BaseEntity) Init(this Entity, identifier ID) *BaseEntity {
-	if entity.BaseObject.Init(this) != nil {
+func (entity *BaseEntity) Init(identifier ID) *BaseEntity {
+	if entity.BaseObject.Init() != nil {
 		entity.setID(identifier)
 		entity._delegate = nil
 	}

@@ -34,6 +34,7 @@ import (
 	. "github.com/dimchat/core-go/dkd"
 	. "github.com/dimchat/core-go/protocol"
 	. "github.com/dimchat/dkd-go/protocol"
+	. "github.com/dimchat/mkm-go/types"
 )
 
 type CommandParser func(map[string]interface{})Command
@@ -127,51 +128,60 @@ func (factory *GroupCommandFactory) ParseContent(content map[string]interface{})
 func BuildCommandFactories() {
 	// Meta Command
 	CommandRegister(META, NewGeneralCommandFactory(func(dict map[string]interface{}) Command {
-		cmd := new(BaseMetaCommand)
-		cmd.Init(cmd, dict).AutoRelease()
+		cmd := new(BaseMetaCommand).Init(dict)
+		ObjectRetain(cmd)
+		ObjectAutorelease(cmd)
 		return cmd
 	}))
 	// Document Command
 	CommandRegister(DOCUMENT, NewGeneralCommandFactory(func(dict map[string]interface{}) Command {
-		cmd := new(BaseDocumentCommand)
-		cmd.Init(cmd, dict).AutoRelease()
+		cmd := new(BaseDocumentCommand).Init(dict)
+		ObjectRetain(cmd)
+		ObjectAutorelease(cmd)
 		return cmd
 	}))
 
 	// Group Commands
 	CommandRegister("group", NewGroupCommandFactory(func(dict map[string]interface{}) Command {
-		cmd := new(BaseGroupCommand)
-		cmd.Init(cmd, dict).AutoRelease()
+		cmd := new(BaseGroupCommand).Init(dict)
+		ObjectRetain(cmd)
+		ObjectAutorelease(cmd)
 		return cmd
 	}))
 	CommandRegister(INVITE, NewGroupCommandFactory(func(dict map[string]interface{}) Command {
-		cmd := new(InviteGroupCommand)
-		cmd.Init(cmd, dict).AutoRelease()
+		cmd := new(InviteGroupCommand).Init(dict)
+		ObjectRetain(cmd)
+		ObjectAutorelease(cmd)
 		return cmd
 	}))
 	CommandRegister(EXPEL, NewGroupCommandFactory(func(dict map[string]interface{}) Command {
-		cmd := new(ExpelGroupCommand)
-		cmd.Init(cmd, dict).AutoRelease()
+		cmd := new(ExpelGroupCommand).Init(dict)
+		ObjectRetain(cmd)
+		ObjectAutorelease(cmd)
 		return cmd
 	}))
 	CommandRegister(JOIN, NewGroupCommandFactory(func(dict map[string]interface{}) Command {
-		cmd := new(JoinGroupCommand)
-		cmd.Init(cmd, dict).AutoRelease()
+		cmd := new(JoinGroupCommand).Init(dict)
+		ObjectRetain(cmd)
+		ObjectAutorelease(cmd)
 		return cmd
 	}))
 	CommandRegister(QUIT, NewGroupCommandFactory(func(dict map[string]interface{}) Command {
-		cmd := new(QuitGroupCommand)
-		cmd.Init(cmd, dict).AutoRelease()
+		cmd := new(QuitGroupCommand).Init(dict)
+		ObjectRetain(cmd)
+		ObjectAutorelease(cmd)
 		return cmd
 	}))
 	CommandRegister(QUERY, NewGroupCommandFactory(func(dict map[string]interface{}) Command {
-		cmd := new(QueryGroupCommand)
-		cmd.Init(cmd, dict).AutoRelease()
+		cmd := new(QueryGroupCommand).Init(dict)
+		ObjectRetain(cmd)
+		ObjectAutorelease(cmd)
 		return cmd
 	}))
 	CommandRegister(RESET, NewGroupCommandFactory(func(dict map[string]interface{}) Command {
-		cmd := new(ResetGroupCommand)
-		cmd.Init(cmd, dict).AutoRelease()
+		cmd := new(ResetGroupCommand).Init(dict)
+		ObjectRetain(cmd)
+		ObjectAutorelease(cmd)
 		return cmd
 	}))
 }

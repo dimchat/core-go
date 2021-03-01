@@ -35,6 +35,7 @@ import (
 	. "github.com/dimchat/core-go/protocol"
 	. "github.com/dimchat/dkd-go/dkd"
 	. "github.com/dimchat/dkd-go/protocol"
+	. "github.com/dimchat/mkm-go/types"
 )
 
 type ContentParser func(map[string]interface{})Content
@@ -64,66 +65,76 @@ func (factory *GeneralContentFactory) ParseContent(content map[string]interface{
 func BuildContentFactories() {
 	// Top-Secret
 	ContentRegister(FORWARD, NewGeneralContentFactory(func(dict map[string]interface{}) Content {
-		content := new(SecretContent)
-		content.Init(content, dict).AutoRelease()
+		content := new(SecretContent).Init(dict)
+		ObjectRetain(content)
+		ObjectAutorelease(content)
 		return content
 	}))
 	// Text
 	ContentRegister(TEXT, NewGeneralContentFactory(func(dict map[string]interface{}) Content {
-		content := new(BaseTextContent)
-		content.Init(content, dict).AutoRelease()
+		content := new(BaseTextContent).Init(dict)
+		ObjectRetain(content)
+		ObjectAutorelease(content)
 		return content
 	}))
 
 	// File
 	ContentRegister(FILE, NewGeneralContentFactory(func(dict map[string]interface{}) Content {
-		content := new(BaseFileContent)
-		content.Init(content, dict).AutoRelease()
+		content := new(BaseFileContent).Init(dict)
+		ObjectRetain(content)
+		ObjectAutorelease(content)
 		return content
 	}))
 	// Image
 	ContentRegister(IMAGE, NewGeneralContentFactory(func(dict map[string]interface{}) Content {
-		content := new(ImageFileContent)
-		content.Init(content, dict).AutoRelease()
+		content := new(ImageFileContent).Init(dict)
+		ObjectRetain(content)
+		ObjectAutorelease(content)
 		return content
 	}))
 	// Audio
 	ContentRegister(AUDIO, NewGeneralContentFactory(func(dict map[string]interface{}) Content {
-		content := new(AudioFileContent)
-		content.Init(content, dict).AutoRelease()
+		content := new(AudioFileContent).Init(dict)
+		ObjectRetain(content)
+		ObjectAutorelease(content)
 		return content
 	}))
 	// Video
 	ContentRegister(VIDEO, NewGeneralContentFactory(func(dict map[string]interface{}) Content {
-		content := new(VideoFileContent)
-		content.Init(content, dict).AutoRelease()
+		content := new(VideoFileContent).Init(dict)
+		ObjectRetain(content)
+		ObjectAutorelease(content)
 		return content
 	}))
 
 	// Web Page
 	ContentRegister(PAGE, NewGeneralContentFactory(func(dict map[string]interface{}) Content {
-		content := new(WebPageContent)
-		content.Init(content, dict).AutoRelease()
+		content := new(WebPageContent).Init(dict)
+		ObjectRetain(content)
+		ObjectAutorelease(content)
 		return content
 	}))
 
 	// Command
 	ContentRegister(COMMAND, NewGeneralCommandFactory(func(dict map[string]interface{}) Command {
-		content := new(BaseCommand)
-		content.Init(content, dict).AutoRelease()
+		content := new(BaseCommand).Init(dict)
+		ObjectRetain(content)
+		ObjectAutorelease(content)
 		return content
 	}))
 	// History Command
 	ContentRegister(HISTORY, NewHistoryCommandFactory(func(dict map[string]interface{}) Command {
-		content := new(BaseHistoryCommand)
-		content.Init(content, dict).AutoRelease()
+		content := new(BaseHistoryCommand).Init(dict)
+		ObjectRetain(content)
+		ObjectAutorelease(content)
 		return content
 	}))
 
 	// unknown content type
 	ContentRegister(0, NewGeneralContentFactory(func(dict map[string]interface{}) Content {
-		content := new(BaseContent)
-		content.Init(content, dict).AutoRelease()
+		content := new(BaseContent).Init(dict)
+		ObjectRetain(content)
+		ObjectAutorelease(content)
 		return content
 	}))
 }
