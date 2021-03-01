@@ -232,7 +232,7 @@ func (content *WebPageContent) Icon() []byte {
 }
 func (content *WebPageContent) SetIcon(icon []byte) {
 	if icon == nil {
-		content.Set("icon", nil)
+		content.Remove("icon")
 	} else {
 		b64 := Base64Encode(icon)
 		content.Set("icon", b64)

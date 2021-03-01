@@ -68,7 +68,7 @@ func (cmd *BaseGroupCommand) InitWithGroupCommand(command string, group ID, memb
 	if cmd.BaseHistoryCommand.InitWithCommand(command) != nil {
 		cmd.SetGroup(group)
 		cmd.SetMember(member)
-		cmd.setMembers(members)
+		cmd.SetMembers(members)
 	}
 	return cmd
 }
@@ -130,35 +130,42 @@ func (cmd *BaseGroupCommand) setMembers(members []ID) {
  *  Member ID
  */
 func (cmd *BaseGroupCommand) Member() ID {
-	member := cmd.Get("member")
-	if member == nil {
-		return nil
+	if cmd._member == nil {
+		member := cmd.Get("member")
+		cmd._member = IDParse(member)
 	}
-	return IDParse(member)
+	return cmd._member
 }
 
 func (cmd *BaseGroupCommand) SetMember(member ID) {
-	cmd.Set("member", member.String())
+	if member == nil {
+		cmd.Remove("member")
+	} else {
+		cmd.Set("member", member.String())
+	}
+	cmd.setMember(member)
 }
 
 /*
  *  Member ID list
  */
 func (cmd *BaseGroupCommand) Members() []ID {
-	members := cmd.Get("members")
-	if members == nil {
-		return nil
-	} else {
-		return IDConvert(members)
+	if cmd._members == nil {
+		members := cmd.Get("members")
+		if members != nil {
+			cmd._members = IDConvert(members)
+		}
 	}
+	return cmd._members
 }
 
 func (cmd *BaseGroupCommand) SetMembers(members []ID) {
 	if members == nil {
-		cmd.Set("members", nil)
+		cmd.Remove("members")
 	} else {
 		cmd.Set("members", IDRevert(members))
 	}
+	cmd.setMembers(members)
 }
 
 //-------- Group Commands

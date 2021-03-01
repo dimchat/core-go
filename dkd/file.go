@@ -128,7 +128,7 @@ func (content *BaseFileContent) Data() []byte {
 }
 func (content *BaseFileContent) SetData(data []byte) {
 	if data == nil {
-		content.Set("data", nil)
+		content.Remove("data")
 	} else {
 		b64 := Base64Encode(data)
 		content.Set("data", b64)
@@ -157,7 +157,7 @@ func (content *BaseFileContent) Password() SymmetricKey {
 
 func (content *BaseFileContent) SetPassword(password SymmetricKey) {
 	if password == nil {
-		content.Set("password", nil)
+		content.Remove("password")
 	} else {
 		content.Set("password", password.GetMap(false))
 	}
@@ -218,7 +218,7 @@ func (content *ImageFileContent) Thumbnail() []byte {
 
 func (content *ImageFileContent) SetThumbnail(thumbnail []byte) {
 	if thumbnail == nil {
-		content.Set("thumbnail", nil)
+		content.Remove("thumbnail")
 	} else {
 		b64 := Base64Encode(thumbnail)
 		content.Set("thumbnail", b64)
@@ -327,7 +327,7 @@ func (content *VideoFileContent) Snapshot() []byte {
 
 func (content *VideoFileContent) SetSnapshot(snapshot []byte) {
 	if snapshot == nil {
-		content.Set("snapshot", nil)
+		content.Remove("snapshot")
 	} else {
 		b64 := Base64Encode(snapshot)
 		content.Set("snapshot", b64)
