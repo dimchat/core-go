@@ -49,6 +49,9 @@ import (
  */
 type Entity interface {
 	Object
+	IEntity
+}
+type IEntity interface {
 
 	ID() ID
 	Type() uint8
@@ -66,7 +69,7 @@ type Entity interface {
  */
 type BaseEntity struct {
 	BaseObject
-	Entity
+	IEntity
 
 	_identifier ID
 
@@ -100,7 +103,7 @@ func (entity *BaseEntity) setID(identifier ID) {
 }
 
 func (entity *BaseEntity) Equal(other interface{}) bool {
-	e, ok := other.(Entity)
+	e, ok := other.(IEntity)
 	if ok {
 		value := reflect.ValueOf(other)
 		if value.Kind() == reflect.Ptr {
