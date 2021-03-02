@@ -127,6 +127,7 @@ func thanos(planet interface{}, finger int) int {
 		finger++
 		if (finger & 1) == 1 {
 			// kill it
+			ObjectRelease(dict.MapIndex(key))
 			dict.SetMapIndex(key, reflect.Value{})
 		}
 		// let it go
@@ -138,14 +139,24 @@ func (barrack *Barrack) cacheUser(user User) {
 	if user.DataSource() == nil {
 		user.SetDataSource(barrack.self())
 	}
-	barrack._users[user.ID()] = user
+	old := barrack._users[user.ID()]
+	if old != user {
+		ObjectRetain(user)
+		ObjectRelease(old)
+		barrack._users[user.ID()] = user
+	}
 }
 
 func (barrack *Barrack) cacheGroup(group Group) {
 	if group.DataSource() == nil {
 		group.SetDataSource(barrack.self())
 	}
-	barrack._groups[group.ID()] = group
+	old := barrack._groups[group.ID()]
+	if old != group {
+		ObjectRetain(group)
+		ObjectRelease(old)
+		barrack._groups[group.ID()] = group
+	}
 }
 
 //-------- EntityFactory
