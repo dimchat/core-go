@@ -33,7 +33,6 @@ package dkd
 import (
 	. "github.com/dimchat/core-go/protocol"
 	. "github.com/dimchat/mkm-go/protocol"
-	. "github.com/dimchat/mkm-go/types"
 )
 
 type BaseDocumentCommand struct {
@@ -46,7 +45,7 @@ type BaseDocumentCommand struct {
 func (cmd *BaseDocumentCommand) Init(dict map[string]interface{}) *BaseDocumentCommand {
 	if cmd.BaseMetaCommand.Init(dict) != nil {
 		// lazy load
-		cmd.setDocument(nil)
+		cmd._doc = nil
 	}
 	return cmd
 }
@@ -57,7 +56,7 @@ func (cmd *BaseDocumentCommand) InitWithMeta(id ID, meta Meta, doc Document) *Ba
 		if doc != nil {
 			cmd.Set("document", doc.GetMap(false))
 		}
-		cmd.setDocument(doc)
+		cmd._doc = doc
 	}
 	return cmd
 }
@@ -90,24 +89,6 @@ func (cmd *BaseDocumentCommand) InitWithSignature(id ID, signature string) *Base
 	return cmd
 }
 
-//func (cmd *BaseDocumentCommand) Release() int {
-//	cnt := cmd.BaseMetaCommand.Release()
-//	if cnt == 0 {
-//		// this object is going to be destroyed,
-//		// release children
-//		cmd.setDocument(nil)
-//	}
-//	return cnt
-//}
-
-func (cmd *BaseDocumentCommand) setDocument(doc Document) {
-	if doc != cmd._doc {
-		//ObjectRetain(doc)
-		//ObjectRelease(cmd._doc)
-		cmd._doc = doc
-	}
-}
-
 //-------- IDocumentCommand
 
 /*
@@ -120,7 +101,7 @@ func (cmd *BaseDocumentCommand) Document() Document {
 			// compatible with v1.0
 			document = cmd.Get("profile")
 		}
-		cmd.setDocument(DocumentParse(document))
+		cmd._doc = DocumentParse(document)
 	}
 	return cmd._doc
 }
@@ -138,15 +119,9 @@ func (cmd *BaseDocumentCommand) Signature() string {
 //
 
 func DocumentCommandQuery(id ID, signature string) DocumentCommand {
-	cmd := new(BaseDocumentCommand).InitWithSignature(id, signature)
-	ObjectRetain(cmd)
-	ObjectAutorelease(cmd)
-	return cmd
+	return new(BaseDocumentCommand).InitWithSignature(id, signature)
 }
 
 func DocumentCommandRespond(id ID, meta Meta, doc Document) DocumentCommand {
-	cmd := new(BaseDocumentCommand).InitWithMeta(id, meta, doc)
-	ObjectRetain(cmd)
-	ObjectAutorelease(cmd)
-	return cmd
+	return new(BaseDocumentCommand).InitWithMeta(id, meta, doc)
 }

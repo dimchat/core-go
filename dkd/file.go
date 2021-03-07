@@ -36,7 +36,6 @@ import (
 	. "github.com/dimchat/dkd-go/protocol"
 	. "github.com/dimchat/mkm-go/crypto"
 	. "github.com/dimchat/mkm-go/format"
-	. "github.com/dimchat/mkm-go/types"
 )
 
 /**
@@ -58,9 +57,7 @@ type BaseFileContent struct {
 }
 
 func NewFileContent(msgType uint8, filename string, data []byte) FileContent {
-	content := new(BaseFileContent).InitWithType(msgType, filename, data)
-	ObjectRetain(content)
-	return content
+	return new(BaseFileContent).InitWithType(msgType, filename, data)
 }
 
 /* designated initializer */
@@ -68,7 +65,7 @@ func (content *BaseFileContent) Init(dict map[string]interface{}) *BaseFileConte
 	if content.BaseContent.Init(dict) != nil {
 		// lazy load
 		content._data = nil
-		content.setPassword(nil)
+		content._key = nil
 	}
 	return content
 }
@@ -81,27 +78,9 @@ func (content *BaseFileContent) InitWithType(msgType uint8, filename string, dat
 	if content.BaseContent.InitWithType(msgType) != nil {
 		content.SetFilename(filename)
 		content.SetData(data)
-		content.setPassword(nil)
+		content._key = nil
 	}
 	return content
-}
-
-//func (content *BaseFileContent) Release() int {
-//	cnt := content.BaseContent.Release()
-//	if cnt == 0 {
-//		// this object is going to be destroyed,
-//		// release children
-//		content.setPassword(nil)
-//	}
-//	return cnt
-//}
-
-func (content *BaseFileContent) setPassword(key SymmetricKey) {
-	if key != content._key {
-		//ObjectRetain(key)
-		//ObjectRelease(content._key)
-		content._key = key
-	}
 }
 
 //-------- IFileContent
@@ -150,7 +129,7 @@ func (content *BaseFileContent) SetFilename(filename string) {
 func (content *BaseFileContent) Password() SymmetricKey {
 	if content._key == nil {
 		dict := content.Get("password")
-		content.setPassword(SymmetricKeyParse(dict))
+		content._key = SymmetricKeyParse(dict)
 	}
 	return content._key
 }
@@ -161,7 +140,7 @@ func (content *BaseFileContent) SetPassword(password SymmetricKey) {
 	} else {
 		content.Set("password", password.GetMap(false))
 	}
-	content.setPassword(password)
+	content._key = password
 }
 
 /**
@@ -184,9 +163,7 @@ type ImageFileContent struct {
 }
 
 func NewImageContent(filename string, data []byte) ImageContent {
-	content := new(ImageFileContent).InitWithFilename(filename, data)
-	ObjectRetain(content)
-	return content
+	return new(ImageFileContent).InitWithFilename(filename, data)
 }
 
 func (content *ImageFileContent) Init(dict map[string]interface{}) *ImageFileContent {
@@ -243,9 +220,7 @@ type AudioFileContent struct {
 }
 
 func NewAudioContent(filename string, data []byte) AudioContent {
-	content := new(AudioFileContent).InitWithFilename(filename, data)
-	ObjectRetain(content)
-	return content
+	return new(AudioFileContent).InitWithFilename(filename, data)
 }
 
 func (content *AudioFileContent) Init(dict map[string]interface{}) *AudioFileContent {
@@ -293,9 +268,7 @@ type VideoFileContent struct {
 }
 
 func NewVideoContent(filename string, data []byte) VideoContent {
-	content := new(VideoFileContent).InitWithFilename(filename, data)
-	ObjectRetain(content)
-	return content
+	return new(VideoFileContent).InitWithFilename(filename, data)
 }
 
 func (content *VideoFileContent) Init(dict map[string]interface{}) *VideoFileContent {

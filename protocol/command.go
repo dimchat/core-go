@@ -32,7 +32,6 @@ package protocol
 
 import (
 	. "github.com/dimchat/dkd-go/protocol"
-	. "github.com/dimchat/mkm-go/types"
 )
 
 const (
@@ -91,12 +90,7 @@ type CommandFactory interface {
 var commandFactories = make(map[string]CommandFactory)
 
 func CommandRegister(command string, factory CommandFactory) {
-	old := commandFactories[command]
-	if old != factory {
-		ObjectRetain(factory)
-		ObjectRelease(old)
-		commandFactories[command] = factory
-	}
+	commandFactories[command] = factory
 }
 
 func CommandGetFactory(command string) CommandFactory {

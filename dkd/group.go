@@ -33,7 +33,6 @@ package dkd
 import (
 	. "github.com/dimchat/core-go/protocol"
 	. "github.com/dimchat/mkm-go/protocol"
-	. "github.com/dimchat/mkm-go/types"
 )
 
 /**
@@ -57,8 +56,9 @@ type BaseGroupCommand struct {
 /* designated initializer */
 func (cmd *BaseGroupCommand) Init(dict map[string]interface{}) *BaseGroupCommand {
 	if cmd.BaseHistoryCommand.Init(dict) != nil {
-		cmd.setMember(nil)
-		cmd.setMembers(nil)
+		// lazy load
+		cmd._member = nil
+		cmd._members = nil
 	}
 	return cmd
 }
@@ -91,39 +91,6 @@ func (cmd *BaseGroupCommand) InitWithMembers(command string, group ID, members [
 	return cmd
 }
 
-//func (cmd *BaseGroupCommand) Release() int {
-//	cnt := cmd.BaseHistoryCommand.Release()
-//	if cnt == 0 {
-//		// this object is going to be destroyed,
-//		// release children
-//		cmd.setMember(nil)
-//		cmd.setMembers(nil)
-//	}
-//	return cnt
-//}
-
-func (cmd *BaseGroupCommand) setMember(member ID) {
-	if member != cmd._member {
-		//ObjectRetain(member)
-		//ObjectRelease(cmd._member)
-		cmd._member = member
-	}
-}
-
-func (cmd *BaseGroupCommand) setMembers(members []ID) {
-	//if members != nil {
-	//	for _, item := range members {
-	//		ObjectRetain(item)
-	//	}
-	//}
-	//if cmd._members != nil {
-	//	for _, item := range cmd._members {
-	//		ObjectRelease(item)
-	//	}
-	//}
-	cmd._members = members
-}
-
 //-------- IGroupCommand
 
 /*
@@ -143,7 +110,7 @@ func (cmd *BaseGroupCommand) SetMember(member ID) {
 	} else {
 		cmd.Set("member", member.String())
 	}
-	cmd.setMember(member)
+	cmd._member = member
 }
 
 /*
@@ -165,7 +132,7 @@ func (cmd *BaseGroupCommand) SetMembers(members []ID) {
 	} else {
 		cmd.Set("members", IDRevert(members))
 	}
-	cmd.setMembers(members)
+	cmd._members = members
 }
 
 //-------- Group Commands
@@ -186,9 +153,7 @@ type InviteGroupCommand struct {
 }
 
 func NewInviteCommand(group ID, members []ID) InviteCommand {
-	cmd := new(InviteGroupCommand).InitWithMembers(group, members)
-	ObjectRetain(cmd)
-	return cmd
+	return new(InviteGroupCommand).InitWithMembers(group, members)
 }
 
 func (cmd *InviteGroupCommand) Init(dict map[string]interface{}) *InviteGroupCommand {
@@ -236,9 +201,7 @@ type ExpelGroupCommand struct {
 }
 
 func NewExpelCommand(group ID, members []ID) ExpelCommand {
-	cmd := new(ExpelGroupCommand).InitWithMembers(group, members)
-	ObjectRetain(cmd)
-	return cmd
+	return new(ExpelGroupCommand).InitWithMembers(group, members)
 }
 
 func (cmd *ExpelGroupCommand) Init(dict map[string]interface{}) *ExpelGroupCommand {
@@ -286,9 +249,7 @@ type JoinGroupCommand struct {
 }
 
 func NewJoinCommand(group ID) JoinCommand {
-	cmd := new(JoinGroupCommand).InitWithGroup(group)
-	ObjectRetain(cmd)
-	return cmd
+	return new(JoinGroupCommand).InitWithGroup(group)
 }
 
 func (cmd *JoinGroupCommand) Init(dict map[string]interface{}) *JoinGroupCommand {
@@ -330,9 +291,7 @@ type QuitGroupCommand struct {
 }
 
 func NewQuitCommand(group ID) QuitCommand {
-	cmd := new(QuitGroupCommand).InitWithGroup(group)
-	ObjectRetain(cmd)
-	return cmd
+	return new(QuitGroupCommand).InitWithGroup(group)
 }
 
 func (cmd *QuitGroupCommand) Init(dict map[string]interface{}) *QuitGroupCommand {
@@ -374,9 +333,7 @@ type ResetGroupCommand struct {
 }
 
 func NewResetCommand(group ID, members []ID) ResetCommand {
-	cmd := new(ResetGroupCommand).InitWithMembers(group, members)
-	ObjectRetain(cmd)
-	return cmd
+	return new(ResetGroupCommand).InitWithMembers(group, members)
 }
 
 func (cmd *ResetGroupCommand) Init(dict map[string]interface{}) *ResetGroupCommand {
@@ -413,9 +370,7 @@ type QueryGroupCommand struct {
 }
 
 func NewQueryCommand(group ID) QueryCommand {
-	cmd := new(QueryGroupCommand).InitWithGroup(group)
-	ObjectRetain(cmd)
-	return cmd
+	return new(QueryGroupCommand).InitWithGroup(group)
 }
 
 func (cmd *QueryGroupCommand) Init(dict map[string]interface{}) *QueryGroupCommand {

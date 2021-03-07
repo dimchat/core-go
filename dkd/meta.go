@@ -33,7 +33,6 @@ package dkd
 import (
 	. "github.com/dimchat/core-go/protocol"
 	. "github.com/dimchat/mkm-go/protocol"
-	. "github.com/dimchat/mkm-go/types"
 )
 
 type BaseMetaCommand struct {
@@ -47,8 +46,8 @@ type BaseMetaCommand struct {
 func (cmd *BaseMetaCommand) Init(dict map[string]interface{}) *BaseMetaCommand {
 	if cmd.BaseCommand.Init(dict) != nil {
 		// lazy load
-		cmd.setID(nil)
-		cmd.setMeta(nil)
+		cmd._identifier = nil
+		cmd._meta = nil
 	}
 	return cmd
 }
@@ -57,12 +56,12 @@ func (cmd *BaseMetaCommand) InitWithCommand(command string, id ID, meta Meta) *B
 	if cmd.BaseCommand.InitWithCommand(command) != nil {
 		// ID
 		cmd.Set("ID", id.String())
-		cmd.setID(id)
+		cmd._identifier = id
 		// meta
 		if meta != nil {
 			cmd.Set("meta", meta.GetMap(false))
 		}
-		cmd.setMeta(meta)
+		cmd._meta = meta
 	}
 	return cmd
 }
@@ -86,46 +85,18 @@ func (cmd *BaseMetaCommand) InitWithID(id ID) *BaseMetaCommand {
 	return cmd.InitWithCommand(META, id, nil)
 }
 
-//func (cmd *BaseMetaCommand) Release() int {
-//	cnt := cmd.BaseCommand.Release()
-//	if cnt == 0 {
-//		// this object is going to be destroyed,
-//		// release children
-//		cmd.setID(nil)
-//		cmd.setMeta(nil)
-//	}
-//	return cnt
-//}
-
-func (cmd *BaseMetaCommand) setID(identifier ID) {
-	if identifier != cmd._identifier {
-		//ObjectRetain(identifier)
-		//ObjectRelease(cmd._identifier)
-		cmd._identifier = identifier
-	}
-}
-
-func (cmd *BaseMetaCommand) setMeta(meta Meta) {
-	if meta != cmd._meta {
-		//ObjectRetain(meta)
-		//ObjectRelease(cmd._meta)
-		cmd._meta = meta
-	}
-}
-
 //-------- IMetaCommand
 
 func (cmd *BaseMetaCommand) ID() ID {
 	if cmd._identifier == nil {
-		cmd.setID(IDParse(cmd.Get("ID")))
+		cmd._identifier = IDParse(cmd.Get("ID"))
 	}
 	return cmd._identifier
 }
 
 func (cmd *BaseMetaCommand) Meta() Meta {
 	if cmd._meta == nil {
-		meta := cmd.Get("meta")
-		cmd.setMeta(MetaParse(meta))
+		cmd._meta = MetaParse(cmd.Get("meta"))
 	}
 	return cmd._meta
 }
@@ -135,15 +106,9 @@ func (cmd *BaseMetaCommand) Meta() Meta {
 //
 
 func MetaCommandQuery(id ID) MetaCommand {
-	cmd := new(BaseMetaCommand).InitWithID(id)
-	ObjectRetain(cmd)
-	ObjectAutorelease(cmd)
-	return cmd
+	return new(BaseMetaCommand).InitWithID(id)
 }
 
 func MetaCommandRespond(id ID, meta Meta) MetaCommand {
-	cmd := new(BaseMetaCommand).InitWithMeta(id, meta)
-	ObjectRetain(cmd)
-	ObjectAutorelease(cmd)
-	return cmd
+	return new(BaseMetaCommand).InitWithMeta(id, meta)
 }

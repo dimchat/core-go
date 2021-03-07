@@ -35,7 +35,6 @@ import (
 	. "github.com/dimchat/dkd-go/dkd"
 	. "github.com/dimchat/dkd-go/protocol"
 	. "github.com/dimchat/mkm-go/format"
-	. "github.com/dimchat/mkm-go/types"
 )
 
 /**
@@ -54,43 +53,23 @@ type SecretContent struct {
 }
 
 func NewForwardContent(msg ReliableMessage) ForwardContent {
-	content := new(SecretContent).InitWithMessage(msg)
-	ObjectRetain(content)
-	return content
+	return new(SecretContent).InitWithMessage(msg)
 }
 
 func (content *SecretContent) Init(dict map[string]interface{}) *SecretContent {
 	if content.BaseContent.Init(dict) != nil {
 		// lazy load
-		content.setSecretMessage(nil)
+		content._secret = nil
 	}
 	return content
 }
 
-func (content *SecretContent) InitWithMessage(msg ReliableMessage) *SecretContent {
+func (content *SecretContent) InitWithMessage(secret ReliableMessage) *SecretContent {
 	if content.BaseContent.InitWithType(FORWARD) != nil {
-		content.Set("forward", msg.GetMap(false))
-		content.setSecretMessage(msg)
-	}
-	return content
-}
-
-//func (content *SecretContent) Release() int {
-//	cnt := content.Dictionary.Release()
-//	if cnt == 0 {
-//		// this object is going to be destroyed,
-//		// release children
-//		content.setSecretMessage(nil)
-//	}
-//	return cnt
-//}
-
-func (content *SecretContent) setSecretMessage(secret ReliableMessage) {
-	if secret != content._secret {
-		//ObjectRetain(secret)
-		//ObjectRelease(content._secret)
+		content.Set("forward", secret.GetMap(false))
 		content._secret = secret
 	}
+	return content
 }
 
 //-------- IForwardContent
@@ -98,7 +77,7 @@ func (content *SecretContent) setSecretMessage(secret ReliableMessage) {
 func (content *SecretContent) ForwardMessage() ReliableMessage {
 	if content._secret == nil {
 		forward := content.Get("forward")
-		content.setSecretMessage(ReliableMessageParse(forward))
+		content._secret = ReliableMessageParse(forward)
 	}
 	return content._secret
 }
@@ -118,9 +97,7 @@ type BaseTextContent struct {
 }
 
 func NewTextContent(text string) TextContent {
-	content := new(BaseTextContent).InitWithText(text)
-	ObjectRetain(content)
-	return content
+	return new(BaseTextContent).InitWithText(text)
 }
 
 func (content *BaseTextContent) Init(dict map[string]interface{}) *BaseTextContent {
@@ -166,9 +143,7 @@ type WebPageContent struct {
 }
 
 func NewPageContent(url string, title string, desc string, icon []byte) PageContent {
-	content := new(WebPageContent).InitWithURL(url, title, desc, icon)
-	ObjectRetain(content)
-	return content
+	return new(WebPageContent).InitWithURL(url, title, desc, icon)
 }
 
 func (content *WebPageContent) Init(dict map[string]interface{}) *WebPageContent {

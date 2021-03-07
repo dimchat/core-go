@@ -32,6 +32,7 @@ package core
 
 import (
 	. "github.com/dimchat/core-go/dimp"
+	. "github.com/dimchat/core-go/mrc"
 	. "github.com/dimchat/mkm-go/protocol"
 	. "github.com/dimchat/mkm-go/types"
 	"reflect"
@@ -128,7 +129,6 @@ func thanos(planet interface{}, finger int) int {
 		finger++
 		if (finger & 1) == 1 {
 			// kill it
-			ObjectRelease(dict.MapIndex(key))
 			dict.SetMapIndex(key, reflect.Value{})
 		}
 		// let it go
@@ -140,24 +140,14 @@ func (barrack *Barrack) cacheUser(user User) {
 	if user.DataSource() == nil {
 		user.SetDataSource(barrack.self())
 	}
-	old := barrack._users[user.ID()]
-	if old != user {
-		ObjectRetain(user)
-		ObjectRelease(old)
-		barrack._users[user.ID()] = user
-	}
+	barrack._users[user.ID()] = user
 }
 
 func (barrack *Barrack) cacheGroup(group Group) {
 	if group.DataSource() == nil {
 		group.SetDataSource(barrack.self())
 	}
-	old := barrack._groups[group.ID()]
-	if old != group {
-		ObjectRetain(group)
-		ObjectRelease(old)
-		barrack._groups[group.ID()] = group
-	}
+	barrack._groups[group.ID()] = group
 }
 
 //-------- EntityFactory
