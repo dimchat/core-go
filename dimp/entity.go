@@ -77,27 +77,25 @@ type BaseEntity struct {
 }
 
 func (entity *BaseEntity) Init(identifier ID) *BaseEntity {
-	if entity.BaseObject.Init() != nil {
-		entity.setID(identifier)
-		entity._delegate = nil
-	}
+	entity.setID(identifier)
+	entity._delegate = nil
 	return entity
 }
 
-func (entity *BaseEntity) Release() int {
-	cnt := entity.BaseObject.Release()
-	if cnt == 0 {
-		// this object is going to be destroyed,
-		// release children
-		entity.setID(nil)
-	}
-	return cnt
-}
+//func (entity *BaseEntity) Release() int {
+//	cnt := entity.BaseObject.Release()
+//	if cnt == 0 {
+//		// this object is going to be destroyed,
+//		// release children
+//		entity.setID(nil)
+//	}
+//	return cnt
+//}
 
 func (entity *BaseEntity) setID(identifier ID) {
 	if identifier != entity._identifier {
-		ObjectRetain(identifier)
-		ObjectRelease(entity._identifier)
+		//ObjectRetain(identifier)
+		//ObjectRelease(entity._identifier)
 		entity._identifier = identifier
 	}
 }

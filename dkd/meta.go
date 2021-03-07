@@ -86,29 +86,29 @@ func (cmd *BaseMetaCommand) InitWithID(id ID) *BaseMetaCommand {
 	return cmd.InitWithCommand(META, id, nil)
 }
 
-func (cmd *BaseMetaCommand) Release() int {
-	cnt := cmd.BaseCommand.Release()
-	if cnt == 0 {
-		// this object is going to be destroyed,
-		// release children
-		cmd.setID(nil)
-		cmd.setMeta(nil)
-	}
-	return cnt
-}
+//func (cmd *BaseMetaCommand) Release() int {
+//	cnt := cmd.BaseCommand.Release()
+//	if cnt == 0 {
+//		// this object is going to be destroyed,
+//		// release children
+//		cmd.setID(nil)
+//		cmd.setMeta(nil)
+//	}
+//	return cnt
+//}
 
 func (cmd *BaseMetaCommand) setID(identifier ID) {
 	if identifier != cmd._identifier {
-		ObjectRetain(identifier)
-		ObjectRelease(cmd._identifier)
+		//ObjectRetain(identifier)
+		//ObjectRelease(cmd._identifier)
 		cmd._identifier = identifier
 	}
 }
 
 func (cmd *BaseMetaCommand) setMeta(meta Meta) {
 	if meta != cmd._meta {
-		ObjectRetain(meta)
-		ObjectRelease(cmd._meta)
+		//ObjectRetain(meta)
+		//ObjectRelease(cmd._meta)
 		cmd._meta = meta
 	}
 }

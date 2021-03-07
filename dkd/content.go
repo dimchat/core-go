@@ -75,20 +75,20 @@ func (content *SecretContent) InitWithMessage(msg ReliableMessage) *SecretConten
 	return content
 }
 
-func (content *SecretContent) Release() int {
-	cnt := content.Dictionary.Release()
-	if cnt == 0 {
-		// this object is going to be destroyed,
-		// release children
-		content.setSecretMessage(nil)
-	}
-	return cnt
-}
+//func (content *SecretContent) Release() int {
+//	cnt := content.Dictionary.Release()
+//	if cnt == 0 {
+//		// this object is going to be destroyed,
+//		// release children
+//		content.setSecretMessage(nil)
+//	}
+//	return cnt
+//}
 
 func (content *SecretContent) setSecretMessage(secret ReliableMessage) {
 	if secret != content._secret {
-		ObjectRetain(secret)
-		ObjectRelease(content._secret)
+		//ObjectRetain(secret)
+		//ObjectRelease(content._secret)
 		content._secret = secret
 	}
 }

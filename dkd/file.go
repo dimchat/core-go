@@ -86,20 +86,20 @@ func (content *BaseFileContent) InitWithType(msgType uint8, filename string, dat
 	return content
 }
 
-func (content *BaseFileContent) Release() int {
-	cnt := content.BaseContent.Release()
-	if cnt == 0 {
-		// this object is going to be destroyed,
-		// release children
-		content.setPassword(nil)
-	}
-	return cnt
-}
+//func (content *BaseFileContent) Release() int {
+//	cnt := content.BaseContent.Release()
+//	if cnt == 0 {
+//		// this object is going to be destroyed,
+//		// release children
+//		content.setPassword(nil)
+//	}
+//	return cnt
+//}
 
 func (content *BaseFileContent) setPassword(key SymmetricKey) {
 	if key != content._key {
-		ObjectRetain(key)
-		ObjectRelease(content._key)
+		//ObjectRetain(key)
+		//ObjectRelease(content._key)
 		content._key = key
 	}
 }

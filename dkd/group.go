@@ -91,36 +91,36 @@ func (cmd *BaseGroupCommand) InitWithMembers(command string, group ID, members [
 	return cmd
 }
 
-func (cmd *BaseGroupCommand) Release() int {
-	cnt := cmd.BaseHistoryCommand.Release()
-	if cnt == 0 {
-		// this object is going to be destroyed,
-		// release children
-		cmd.setMember(nil)
-		cmd.setMembers(nil)
-	}
-	return cnt
-}
+//func (cmd *BaseGroupCommand) Release() int {
+//	cnt := cmd.BaseHistoryCommand.Release()
+//	if cnt == 0 {
+//		// this object is going to be destroyed,
+//		// release children
+//		cmd.setMember(nil)
+//		cmd.setMembers(nil)
+//	}
+//	return cnt
+//}
 
 func (cmd *BaseGroupCommand) setMember(member ID) {
 	if member != cmd._member {
-		ObjectRetain(member)
-		ObjectRelease(cmd._member)
+		//ObjectRetain(member)
+		//ObjectRelease(cmd._member)
 		cmd._member = member
 	}
 }
 
 func (cmd *BaseGroupCommand) setMembers(members []ID) {
-	if members != nil {
-		for _, item := range members {
-			ObjectRetain(item)
-		}
-	}
-	if cmd._members != nil {
-		for _, item := range cmd._members {
-			ObjectRelease(item)
-		}
-	}
+	//if members != nil {
+	//	for _, item := range members {
+	//		ObjectRetain(item)
+	//	}
+	//}
+	//if cmd._members != nil {
+	//	for _, item := range cmd._members {
+	//		ObjectRelease(item)
+	//	}
+	//}
 	cmd._members = members
 }
 

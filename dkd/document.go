@@ -90,20 +90,20 @@ func (cmd *BaseDocumentCommand) InitWithSignature(id ID, signature string) *Base
 	return cmd
 }
 
-func (cmd *BaseDocumentCommand) Release() int {
-	cnt := cmd.BaseMetaCommand.Release()
-	if cnt == 0 {
-		// this object is going to be destroyed,
-		// release children
-		cmd.setDocument(nil)
-	}
-	return cnt
-}
+//func (cmd *BaseDocumentCommand) Release() int {
+//	cnt := cmd.BaseMetaCommand.Release()
+//	if cnt == 0 {
+//		// this object is going to be destroyed,
+//		// release children
+//		cmd.setDocument(nil)
+//	}
+//	return cnt
+//}
 
 func (cmd *BaseDocumentCommand) setDocument(doc Document) {
 	if doc != cmd._doc {
-		ObjectRetain(doc)
-		ObjectRelease(cmd._doc)
+		//ObjectRetain(doc)
+		//ObjectRelease(cmd._doc)
 		cmd._doc = doc
 	}
 }

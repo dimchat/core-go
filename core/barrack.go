@@ -83,6 +83,7 @@ type IBarrack interface {
  *      GetLocalUsers() []User
  */
 type Barrack struct {
+	InheritableObject
 	BaseObject
 	IBarrack
 
@@ -92,7 +93,7 @@ type Barrack struct {
 }
 
 func (barrack *Barrack) Init() *Barrack {
-	if barrack.BaseObject.Init() != nil {
+	if barrack.InheritableObject.Init() != nil {
 		barrack._users = make(map[ID]User)
 		barrack._groups = make(map[ID]Group)
 	}
@@ -100,7 +101,7 @@ func (barrack *Barrack) Init() *Barrack {
 }
 
 func (barrack *Barrack) self() IBarrack {
-	return barrack.BaseObject.Self().(IBarrack)
+	return barrack.InheritableObject.Self().(IBarrack)
 }
 
 /**
