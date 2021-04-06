@@ -35,6 +35,7 @@ import (
 	. "github.com/dimchat/dkd-go/dkd"
 	. "github.com/dimchat/dkd-go/protocol"
 	. "github.com/dimchat/mkm-go/format"
+	. "github.com/dimchat/mkm-go/types"
 )
 
 /**
@@ -206,7 +207,7 @@ func (content *WebPageContent) Icon() []byte {
 	return content._icon
 }
 func (content *WebPageContent) SetIcon(icon []byte) {
-	if icon == nil {
+	if ValueIsNil(icon) {
 		content.Remove("icon")
 	} else {
 		b64 := Base64Encode(icon)

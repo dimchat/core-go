@@ -33,6 +33,7 @@ package dkd
 import (
 	. "github.com/dimchat/core-go/protocol"
 	. "github.com/dimchat/mkm-go/protocol"
+	. "github.com/dimchat/mkm-go/types"
 )
 
 /**
@@ -105,7 +106,7 @@ func (cmd *BaseGroupCommand) Member() ID {
 }
 
 func (cmd *BaseGroupCommand) SetMember(member ID) {
-	if member == nil {
+	if ValueIsNil(member) {
 		cmd.Remove("member")
 	} else {
 		cmd.Set("member", member.String())
@@ -127,7 +128,7 @@ func (cmd *BaseGroupCommand) Members() []ID {
 }
 
 func (cmd *BaseGroupCommand) SetMembers(members []ID) {
-	if members == nil {
+	if ValueIsNil(members) {
 		cmd.Remove("members")
 	} else {
 		cmd.Set("members", IDRevert(members))

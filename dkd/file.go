@@ -36,6 +36,7 @@ import (
 	. "github.com/dimchat/dkd-go/protocol"
 	. "github.com/dimchat/mkm-go/crypto"
 	. "github.com/dimchat/mkm-go/format"
+	. "github.com/dimchat/mkm-go/types"
 )
 
 /**
@@ -106,7 +107,7 @@ func (content *BaseFileContent) Data() []byte {
 	return content._data
 }
 func (content *BaseFileContent) SetData(data []byte) {
-	if data == nil {
+	if ValueIsNil(data) {
 		content.Remove("data")
 	} else {
 		b64 := Base64Encode(data)
@@ -135,7 +136,7 @@ func (content *BaseFileContent) Password() SymmetricKey {
 }
 
 func (content *BaseFileContent) SetPassword(password SymmetricKey) {
-	if password == nil {
+	if ValueIsNil(password) {
 		content.Remove("password")
 	} else {
 		content.Set("password", password.GetMap(false))
@@ -194,7 +195,7 @@ func (content *ImageFileContent) Thumbnail() []byte {
 }
 
 func (content *ImageFileContent) SetThumbnail(thumbnail []byte) {
-	if thumbnail == nil {
+	if ValueIsNil(thumbnail) {
 		content.Remove("thumbnail")
 	} else {
 		b64 := Base64Encode(thumbnail)
@@ -299,7 +300,7 @@ func (content *VideoFileContent) Snapshot() []byte {
 }
 
 func (content *VideoFileContent) SetSnapshot(snapshot []byte) {
-	if snapshot == nil {
+	if ValueIsNil(snapshot) {
 		content.Remove("snapshot")
 	} else {
 		b64 := Base64Encode(snapshot)

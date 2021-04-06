@@ -36,6 +36,7 @@ import (
 	. "github.com/dimchat/mkm-go/crypto"
 	. "github.com/dimchat/mkm-go/format"
 	. "github.com/dimchat/mkm-go/protocol"
+	. "github.com/dimchat/mkm-go/types"
 )
 
 /**
@@ -85,7 +86,7 @@ func (transformer *MessageTransformer) SerializeContent(content Content, _ Symme
 	// NOTICE: check attachment for File/Image/Audio/Video message content
 	//         before serialize content, this job should be do in subclass
 	dict := content.GetMap(false)
-	return JSONEncode(dict)
+	return JSONEncodeMap(dict)
 }
 
 func (transformer *MessageTransformer) EncryptContent(data []byte, password SymmetricKey, _ InstantMessage) []byte {
@@ -107,7 +108,7 @@ func (transformer *MessageTransformer) SerializeKey(password SymmetricKey, iMsg 
 		return nil
 	}
 	dict := password.GetMap(false)
-	return JSONEncode(dict)
+	return JSONEncodeMap(dict)
 }
 
 func (transformer *MessageTransformer) EncryptKey(data []byte, receiver ID, _ InstantMessage) []byte {
@@ -138,12 +139,12 @@ func (transformer *MessageTransformer) DecryptKey(key []byte, _ ID, _ ID, sMsg S
 
 func (transformer *MessageTransformer) DeserializeKey(key []byte, sender ID, receiver ID, _ SecureMessage) SymmetricKey {
 	// NOTICE: the receiver will be group ID in a group message here
-	if key == nil {
+	if ValueIsNil(key) {
 		// get key from cache
 		keyCache := transformer.Transceiver().CipherKeyDelegate()
 		return keyCache.GetCipherKey(sender, receiver, false)
 	} else {
-		dict := JSONDecode(key)
+		dict := JSONDecodeMap(key)
 		// TODO: translate short keys
 		//       'A' -> 'algorithm'
 		//       'D' -> 'data'
@@ -168,7 +169,7 @@ func (transformer *MessageTransformer) DecryptContent(data []byte, password Symm
 }
 
 func (transformer *MessageTransformer) DeserializeContent(data []byte, password SymmetricKey, sMsg SecureMessage) Content {
-	dict := JSONDecode(data)
+	dict := JSONDecodeMap(data)
 	// TODO: translate short keys
 	//       'T' -> 'type'
 	//       'N' -> 'sn'

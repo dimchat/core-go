@@ -163,11 +163,11 @@ func (packer *MessagePacker) SignMessage(sMsg SecureMessage) ReliableMessage {
 
 func (packer *MessagePacker) SerializeMessage(rMsg ReliableMessage) []byte {
 	dict := rMsg.GetMap(false)
-	return JSONEncode(dict)
+	return JSONEncodeMap(dict)
 }
 
 func (packer *MessagePacker) DeserializeMessage(data []byte) ReliableMessage {
-	dict := JSONDecode(data)
+	dict := JSONDecodeMap(data)
 	// TODO: translate short keys
 	//       'S' -> 'sender'
 	//       'R' -> 'receiver'

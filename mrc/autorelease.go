@@ -25,7 +25,10 @@
  */
 package mrc
 
-import "sync"
+import (
+	. "github.com/dimchat/mkm-go/types"
+	"sync"
+)
 
 type AutoreleasePool interface {
 	SelfReference
@@ -125,7 +128,7 @@ func AutoreleasePoolPop(pool AutoreleasePool) AutoreleasePool {
 	if index < 0 {
 		panic("AutoreleasePool stack empty")
 	}
-	if pool == nil {
+	if ValueIsNil(pool) {
 		// pop one on the top
 		pool = poolStack[index]
 		poolStack = poolStack[:index]
