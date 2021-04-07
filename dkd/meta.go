@@ -33,6 +33,7 @@ package dkd
 import (
 	. "github.com/dimchat/core-go/protocol"
 	. "github.com/dimchat/mkm-go/protocol"
+	. "github.com/dimchat/mkm-go/types"
 )
 
 type BaseMetaCommand struct {
@@ -58,7 +59,7 @@ func (cmd *BaseMetaCommand) InitWithCommand(command string, id ID, meta Meta) *B
 		cmd.Set("ID", id.String())
 		cmd._identifier = id
 		// meta
-		if meta != nil {
+		if !ValueIsNil(meta) {
 			cmd.Set("meta", meta.GetMap(false))
 		}
 		cmd._meta = meta

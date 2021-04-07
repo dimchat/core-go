@@ -117,8 +117,12 @@ func (content *BaseTextContent) InitWithText(text string) *BaseTextContent {
 //-------- ITextContent
 
 func (content *BaseTextContent) Text() string {
-	text := content.Get("text")
-	return text.(string)
+	text, ok := content.Get("text").(string)
+	if ok {
+		return text
+	} else {
+		return ""
+	}
 }
 
 func (content *BaseTextContent) SetText(text string) {
@@ -168,30 +172,36 @@ func (content *WebPageContent) InitWithURL(url string, title string, desc string
 //-------- IPageContent
 
 func (content *WebPageContent) URL() string {
-	url := content.Get("URL")
-	return url.(string)
+	url, ok := content.Get("URL").(string)
+	if ok {
+		return url
+	} else {
+		return ""
+	}
 }
 func (content *WebPageContent) SetURL(url string) {
 	content.Set("URL", url)
 }
 
 func (content *WebPageContent) Title() string {
-	title := content.Get("title")
-	if title == nil {
+	text, ok := content.Get("title").(string)
+	if ok {
+		return text
+	} else {
 		return ""
 	}
-	return title.(string)
 }
 func (content *WebPageContent) SetTitle(title string) {
 	content.Set("title", title)
 }
 
 func (content *WebPageContent) Description() string {
-	desc := content.Get("desc")
-	if desc == nil {
+	text, ok := content.Get("desc").(string)
+	if ok {
+		return text
+	} else {
 		return ""
 	}
-	return desc.(string)
 }
 func (content *WebPageContent) SetDescription(desc string) {
 	content.Set("desc", desc)
@@ -199,9 +209,9 @@ func (content *WebPageContent) SetDescription(desc string) {
 
 func (content *WebPageContent) Icon() []byte {
 	if content._icon == nil {
-		b64 := content.Get("icon")
-		if b64 != nil {
-			content._icon = Base64Decode(b64.(string))
+		b64, ok := content.Get("icon").(string)
+		if ok {
+			content._icon = Base64Decode(b64)
 		}
 	}
 	return content._icon

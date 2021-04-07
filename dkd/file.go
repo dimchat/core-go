@@ -87,11 +87,12 @@ func (content *BaseFileContent) InitWithType(msgType uint8, filename string, dat
 //-------- IFileContent
 
 func (content *BaseFileContent) URL() string {
-	url := content.Get("URL")
-	if url == nil {
+	url, ok := content.Get("URL").(string)
+	if ok {
+		return url
+	} else {
 		return ""
 	}
-	return url.(string)
 }
 func (content *BaseFileContent) SetURL(url string) {
 	content.Set("URL", url)
@@ -99,9 +100,9 @@ func (content *BaseFileContent) SetURL(url string) {
 
 func (content *BaseFileContent) Data() []byte {
 	if content._data == nil {
-		b64 := content.Get("data")
-		if b64 != nil {
-			content._data = Base64Decode(b64.(string))
+		b64, ok := content.Get("data").(string)
+		if ok {
+			content._data = Base64Decode(b64)
 		}
 	}
 	return content._data
@@ -117,11 +118,12 @@ func (content *BaseFileContent) SetData(data []byte) {
 }
 
 func (content *BaseFileContent) Filename() string {
-	filename := content.Get("filename")
-	if filename == nil {
+	text, ok := content.Get("filename").(string)
+	if ok {
+		return text
+	} else {
 		return ""
 	}
-	return filename.(string)
 }
 func (content *BaseFileContent) SetFilename(filename string) {
 	content.Set("filename", filename)
@@ -186,9 +188,9 @@ func (content *ImageFileContent) InitWithFilename(filename string, data []byte) 
 
 func (content *ImageFileContent) Thumbnail() []byte {
 	if content._thumbnail == nil {
-		b64 := content.Get("thumbnail")
-		if b64 != nil {
-			content._thumbnail = Base64Decode(b64.(string))
+		b64, ok := content.Get("thumbnail").(string)
+		if ok {
+			content._thumbnail = Base64Decode(b64)
 		}
 	}
 	return content._thumbnail
@@ -239,11 +241,11 @@ func (content *AudioFileContent) InitWithFilename(filename string, data []byte) 
 //-------- IAudioContent
 
 func (content *AudioFileContent) Duration() int {
-	duration := content.Get("duration")
-	if duration == nil {
-		return 0
+	duration, ok := content.Get("duration").(int)
+	if ok {
+		return duration
 	} else {
-		return duration.(int)
+		return 0
 	}
 }
 func (content *AudioFileContent) SetDuration(duration int) {
@@ -291,9 +293,9 @@ func (content *VideoFileContent) InitWithFilename(filename string, data []byte) 
 
 func (content *VideoFileContent) Snapshot() []byte {
 	if content._snapshot == nil {
-		b64 := content.Get("snapshot")
-		if b64 != nil {
-			content._snapshot = Base64Decode(b64.(string))
+		b64, ok := content.Get("snapshot").(string)
+		if ok {
+			content._snapshot = Base64Decode(b64)
 		}
 	}
 	return content._snapshot

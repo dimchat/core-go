@@ -25,6 +25,8 @@
  */
 package mrc
 
+import . "github.com/dimchat/mkm-go/types"
+
 /**
  *  Manual Reference Counting
  *  ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -71,7 +73,7 @@ func (obj *InheritableObject) Init() *InheritableObject {
 }
 
 func (obj *InheritableObject) Retain(this SelfReference) SelfReference {
-	if this != nil {
+	if !ValueIsNil(this) {
 		obj._this = this
 	}
 	obj._retainCount++

@@ -33,6 +33,7 @@ package dkd
 import (
 	. "github.com/dimchat/core-go/protocol"
 	. "github.com/dimchat/mkm-go/protocol"
+	. "github.com/dimchat/mkm-go/types"
 )
 
 type BaseDocumentCommand struct {
@@ -53,7 +54,7 @@ func (cmd *BaseDocumentCommand) Init(dict map[string]interface{}) *BaseDocumentC
 func (cmd *BaseDocumentCommand) InitWithMeta(id ID, meta Meta, doc Document) *BaseDocumentCommand {
 	if cmd.BaseMetaCommand.InitWithCommand(DOCUMENT, id, meta) != nil {
 		// document
-		if doc != nil {
+		if !ValueIsNil(doc) {
 			cmd.Set("document", doc.GetMap(false))
 		}
 		cmd._doc = doc
@@ -107,11 +108,12 @@ func (cmd *BaseDocumentCommand) Document() Document {
 }
 
 func (cmd *BaseDocumentCommand) Signature() string {
-	signature := cmd.Get("signature")
-	if signature == nil {
+	text, ok := cmd.Get("signature").(string)
+	if ok {
+		return text
+	} else {
 		return ""
 	}
-	return signature.(string)
 }
 
 //
