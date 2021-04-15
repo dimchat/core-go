@@ -1,4 +1,4 @@
-github.com/dimchat/dkd-go v0.0.0-20210407094812-806114380177 h1:5k8dK1LGtMOboI7RHjReHV8mKSonfHctGrZEk7LKZG4=
-github.com/dimchat/dkd-go v0.0.0-20210407094812-806114380177/go.mod h1:SbAPWSUvvNZ8P/WzJL6+CCSHLXKB+zncZSafoNbCGuw=
-github.com/dimchat/mkm-go v0.0.0-20210407094619-769821a29563 h1:C379qnEQcWkkhmpWAPHL9272WXfMxLU2tf/pE7gxUfg=
-github.com/dimchat/mkm-go v0.0.0-20210407094619-769821a29563/go.mod h1:rRD77W4jdUAkfNA2fBa+co3/ADLpuTE9EXtlrldz39U=
+github.com/dimchat/dkd-go v0.0.0-20210414171517-06861114c735 h1:wTK7BM8Bpj5NctQKkDNxQ0hvJQV1KPSSdCFSzsLyC+M=
+github.com/dimchat/dkd-go v0.0.0-20210414171517-06861114c735/go.mod h1:2qJZviHXvgu/ZYhUAbOWUIIomTnnwI01/WlonLBEfuU=
+github.com/dimchat/mkm-go v0.0.0-20210414084215-45042246a701 h1:+hwhVqGPLK3GNUDKW13SvmN6Ed5y/FQ5B8Ke/Txi9tw=
+github.com/dimchat/mkm-go v0.0.0-20210414084215-45042246a701/go.mod h1:rRD77W4jdUAkfNA2fBa+co3/ADLpuTE9EXtlrldz39U=

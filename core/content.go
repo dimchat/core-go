@@ -93,6 +93,14 @@ func BuildContentFactories() {
 		return new(WebPageContent).Init(dict)
 	}))
 
+	// Money
+	ContentRegister(MONEY, NewGeneralContentFactory(func(dict map[string]interface{}) Content {
+		return new(BaseMoneyContent).Init(dict)
+	}))
+	ContentRegister(TRANSFER, NewGeneralContentFactory(func(dict map[string]interface{}) Content {
+		return new(TransferMoneyContent).Init(dict)
+	}))
+
 	// Command
 	ContentRegister(COMMAND, NewGeneralCommandFactory(func(dict map[string]interface{}) Command {
 		return new(BaseCommand).Init(dict)
