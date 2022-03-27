@@ -63,59 +63,55 @@ func (factory *GeneralContentFactory) ParseContent(content map[string]interface{
  */
 func BuildContentFactories() {
 	// Top-Secret
-	ContentRegister(FORWARD, NewGeneralContentFactory(func(dict map[string]interface{}) Content {
+	ContentSetFactory(FORWARD, NewGeneralContentFactory(func(dict map[string]interface{}) Content {
 		return new(SecretContent).Init(dict)
 	}))
 	// Text
-	ContentRegister(TEXT, NewGeneralContentFactory(func(dict map[string]interface{}) Content {
+	ContentSetFactory(TEXT, NewGeneralContentFactory(func(dict map[string]interface{}) Content {
 		return new(BaseTextContent).Init(dict)
 	}))
 
 	// File
-	ContentRegister(FILE, NewGeneralContentFactory(func(dict map[string]interface{}) Content {
+	ContentSetFactory(FILE, NewGeneralContentFactory(func(dict map[string]interface{}) Content {
 		return new(BaseFileContent).Init(dict)
 	}))
 	// Image
-	ContentRegister(IMAGE, NewGeneralContentFactory(func(dict map[string]interface{}) Content {
+	ContentSetFactory(IMAGE, NewGeneralContentFactory(func(dict map[string]interface{}) Content {
 		return new(ImageFileContent).Init(dict)
 	}))
 	// Audio
-	ContentRegister(AUDIO, NewGeneralContentFactory(func(dict map[string]interface{}) Content {
+	ContentSetFactory(AUDIO, NewGeneralContentFactory(func(dict map[string]interface{}) Content {
 		return new(AudioFileContent).Init(dict)
 	}))
 	// Video
-	ContentRegister(VIDEO, NewGeneralContentFactory(func(dict map[string]interface{}) Content {
+	ContentSetFactory(VIDEO, NewGeneralContentFactory(func(dict map[string]interface{}) Content {
 		return new(VideoFileContent).Init(dict)
 	}))
 
 	// Web Page
-	ContentRegister(PAGE, NewGeneralContentFactory(func(dict map[string]interface{}) Content {
+	ContentSetFactory(PAGE, NewGeneralContentFactory(func(dict map[string]interface{}) Content {
 		return new(WebPageContent).Init(dict)
 	}))
 
 	// Money
-	ContentRegister(MONEY, NewGeneralContentFactory(func(dict map[string]interface{}) Content {
+	ContentSetFactory(MONEY, NewGeneralContentFactory(func(dict map[string]interface{}) Content {
 		return new(BaseMoneyContent).Init(dict)
 	}))
-	ContentRegister(TRANSFER, NewGeneralContentFactory(func(dict map[string]interface{}) Content {
+	ContentSetFactory(TRANSFER, NewGeneralContentFactory(func(dict map[string]interface{}) Content {
 		return new(TransferMoneyContent).Init(dict)
 	}))
 
 	// Command
-	ContentRegister(COMMAND, NewGeneralCommandFactory(func(dict map[string]interface{}) Command {
+	ContentSetFactory(COMMAND, NewGeneralCommandFactory(func(dict map[string]interface{}) Command {
 		return new(BaseCommand).Init(dict)
 	}))
 	// History Command
-	ContentRegister(HISTORY, NewHistoryCommandFactory(func(dict map[string]interface{}) Command {
+	ContentSetFactory(HISTORY, NewHistoryCommandFactory(func(dict map[string]interface{}) Command {
 		return new(BaseHistoryCommand).Init(dict)
 	}))
 
 	// unknown content type
-	ContentRegister(0, NewGeneralContentFactory(func(dict map[string]interface{}) Content {
+	ContentSetFactory(0, NewGeneralContentFactory(func(dict map[string]interface{}) Content {
 		return new(BaseContent).Init(dict)
 	}))
-}
-
-func init() {
-	BuildContentFactories()
 }

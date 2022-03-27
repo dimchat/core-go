@@ -43,8 +43,8 @@ import (
  *  }
  */
 type ForwardContent interface {
-	Content
 	IForwardContent
+	Content
 }
 type IForwardContent interface {
 
@@ -60,8 +60,8 @@ type IForwardContent interface {
  *  }
  */
 type TextContent interface {
-	Content
 	ITextContent
+	Content
 }
 type ITextContent interface {
 
@@ -81,8 +81,8 @@ type ITextContent interface {
  *  }
  */
 type PageContent interface {
-	Content
 	IPageContent
+	Content
 }
 type IPageContent interface {
 

@@ -28,15 +28,15 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package dimp
+package mkm
 
 import (
 	. "github.com/dimchat/mkm-go/protocol"
 )
 
 type Group interface {
-	Entity
 	IGroup
+	Entity
 }
 type IGroup interface {
 

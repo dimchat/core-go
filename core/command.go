@@ -126,38 +126,38 @@ func (factory *GroupCommandFactory) ParseContent(content map[string]interface{})
  */
 func BuildCommandFactories() {
 	// Meta Command
-	CommandRegister(META, NewGeneralCommandFactory(func(dict map[string]interface{}) Command {
+	CommandSetFactory(META, NewGeneralCommandFactory(func(dict map[string]interface{}) Command {
 		return new(BaseMetaCommand).Init(dict)
 	}))
 	// Document Command
-	CommandRegister(DOCUMENT, NewGeneralCommandFactory(func(dict map[string]interface{}) Command {
+	factory := NewGeneralCommandFactory(func(dict map[string]interface{}) Command {
 		return new(BaseDocumentCommand).Init(dict)
-	}))
+	})
+	CommandSetFactory(DOCUMENT, factory)
+	CommandSetFactory("profile", factory)
+	CommandSetFactory("visa", factory)
+	CommandSetFactory("bulletin", factory)
 
 	// Group Commands
-	CommandRegister("group", NewGroupCommandFactory(func(dict map[string]interface{}) Command {
+	CommandSetFactory("group", NewGroupCommandFactory(func(dict map[string]interface{}) Command {
 		return new(BaseGroupCommand).Init(dict)
 	}))
-	CommandRegister(INVITE, NewGroupCommandFactory(func(dict map[string]interface{}) Command {
+	CommandSetFactory(INVITE, NewGroupCommandFactory(func(dict map[string]interface{}) Command {
 		return new(InviteGroupCommand).Init(dict)
 	}))
-	CommandRegister(EXPEL, NewGroupCommandFactory(func(dict map[string]interface{}) Command {
+	CommandSetFactory(EXPEL, NewGroupCommandFactory(func(dict map[string]interface{}) Command {
 		return new(ExpelGroupCommand).Init(dict)
 	}))
-	CommandRegister(JOIN, NewGroupCommandFactory(func(dict map[string]interface{}) Command {
+	CommandSetFactory(JOIN, NewGroupCommandFactory(func(dict map[string]interface{}) Command {
 		return new(JoinGroupCommand).Init(dict)
 	}))
-	CommandRegister(QUIT, NewGroupCommandFactory(func(dict map[string]interface{}) Command {
+	CommandSetFactory(QUIT, NewGroupCommandFactory(func(dict map[string]interface{}) Command {
 		return new(QuitGroupCommand).Init(dict)
 	}))
-	CommandRegister(QUERY, NewGroupCommandFactory(func(dict map[string]interface{}) Command {
+	CommandSetFactory(QUERY, NewGroupCommandFactory(func(dict map[string]interface{}) Command {
 		return new(QueryGroupCommand).Init(dict)
 	}))
-	CommandRegister(RESET, NewGroupCommandFactory(func(dict map[string]interface{}) Command {
+	CommandSetFactory(RESET, NewGroupCommandFactory(func(dict map[string]interface{}) Command {
 		return new(ResetGroupCommand).Init(dict)
 	}))
-}
-
-func init() {
-	BuildCommandFactories()
 }

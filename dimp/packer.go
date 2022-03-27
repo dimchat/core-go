@@ -28,44 +28,83 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package protocol
+package dimp
 
-import . "github.com/dimchat/dkd-go/protocol"
-
-/**
- *  Money message: {
- *      type : 0x40,
- *      sn   : 123,
- *
- *      currency : "RMB", // USD, USDT, ...
- *      amount   : 100.00
- *  }
- */
-type MoneyContent interface {
-	IMoneyContent
-	Content
-}
-type IMoneyContent interface {
-
-	Currency() string
-	Amount() float64
-}
+import (
+	. "github.com/dimchat/dkd-go/protocol"
+	. "github.com/dimchat/mkm-go/protocol"
+)
 
 /**
- *  Transfer money message: {
- *      type : 0x41,
- *      sn   : 123,
- *
- *      currency : "RMB", // USD, USDT, ...
- *      amount   : 100.00,
- *      text     : "Congrats!"
- *  }
+ *  Message Packer
+ *  ~~~~~~~~~~~~~~
  */
-type TransferContent interface {
-	ITransferContent
-	MoneyContent
+type Packer interface {
+	IPacker
 }
-type ITransferContent interface {
+type IPacker interface {
 
-	Text() string
+	/**
+	 *  Get group ID which should be exposed to public network
+	 *
+	 * @param content - message content
+	 * @return exposed group ID
+	 */
+	GetOvertGroup(content Content) ID
+
+	//
+	//  InstantMessage -> SecureMessage -> ReliableMessage -> Data
+	//
+
+	/**
+	 *  Encrypt message content
+	 *
+	 * @param iMsg - plain message
+	 * @return encrypted message
+	 */
+	EncryptMessage(iMsg InstantMessage) SecureMessage
+
+	/**
+	 *  Sign content data
+	 *
+	 * @param sMsg - encrypted message
+	 * @return network message
+	 */
+	SignMessage(sMsg SecureMessage) ReliableMessage
+
+	/**
+	 *  Serialize network message
+	 *
+	 * @param rMsg - network message
+	 * @return data package
+	 */
+	SerializeMessage(rMsg ReliableMessage) []byte
+
+	//
+	//  Data -> ReliableMessage -> SecureMessage -> InstantMessage
+	//
+
+	/**
+	 *  Deserialize network message
+	 *
+	 * @param data - data package
+	 * @return network message
+	 */
+	DeserializeMessage(data []byte) ReliableMessage
+
+	/**
+	 *  Verify encrypted content data
+	 *
+	 * @param rMsg - network message
+	 * @return encrypted message
+	 */
+	VerifyMessage(rMsg ReliableMessage) SecureMessage
+
+	/**
+	 *  Decrypt message content
+	 *
+	 * @param sMsg - encrypted message
+	 * @return plain message
+	 */
+	DecryptMessage(sMsg SecureMessage) InstantMessage
 }

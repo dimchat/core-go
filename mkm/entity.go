@@ -28,7 +28,7 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package dimp
+package mkm
 
 import (
 	. "github.com/dimchat/mkm-go/protocol"
@@ -47,8 +47,8 @@ import (
  *      document   - entity document
  */
 type Entity interface {
-	Object
 	IEntity
+	Object
 }
 type IEntity interface {
 

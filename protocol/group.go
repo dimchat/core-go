@@ -64,8 +64,8 @@ const (
  *  }
  */
 type GroupCommand interface {
-	HistoryCommand
 	IGroupCommand
+	HistoryCommand
 }
 type IGroupCommand interface {
 
@@ -89,8 +89,8 @@ type IGroupCommand interface {
  *  }
  */
 type InviteCommand interface {
-	GroupCommand
 	IInviteCommand
+	GroupCommand
 }
 type IInviteCommand interface {
 
@@ -108,8 +108,8 @@ type IInviteCommand interface {
  *  }
  */
 type ExpelCommand interface {
-	GroupCommand
 	IExpelCommand
+	GroupCommand
 }
 type IExpelCommand interface {
 
@@ -127,8 +127,8 @@ type IExpelCommand interface {
  *  }
  */
 type JoinCommand interface {
-	GroupCommand
 	IJoinCommand
+	GroupCommand
 }
 type IJoinCommand interface {
 
@@ -146,8 +146,8 @@ type IJoinCommand interface {
  *  }
  */
 type QuitCommand interface {
-	GroupCommand
 	IQuitCommand
+	GroupCommand
 }
 type IQuitCommand interface {
 
@@ -165,8 +165,8 @@ type IQuitCommand interface {
  *  }
  */
 type ResetCommand interface {
-	GroupCommand
 	IResetCommand
+	GroupCommand
 }
 type IResetCommand interface {
 
@@ -184,8 +184,8 @@ type IResetCommand interface {
  *  }
  */
 type QueryCommand interface {
-	GroupCommand
 	IQueryCommand
+	GroupCommand
 }
 //  NOTICE:
 //      This command is just for querying group info,

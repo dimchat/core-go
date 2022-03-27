@@ -28,7 +28,7 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package dimp
+package mkm
 
 import (
 	. "github.com/dimchat/mkm-go/protocol"
@@ -48,8 +48,8 @@ import (
  *      4. decrypt(data) - decrypt (symmetric key) data
  */
 type User interface {
-	Entity
 	IUser
+	Entity
 }
 type IUser interface {
 

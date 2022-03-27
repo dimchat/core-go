@@ -2,12 +2,12 @@
  *
  *  DIMP : Decentralized Instant Messaging Protocol
  *
- *                                Written in 2020 by Moky <albert.moky@gmail.com>
+ *                                Written in 2021 by Moky <albert.moky@gmail.com>
  *
  * ==============================================================================
  * The MIT License (MIT)
  *
- * Copyright (c) 2020 Albert Moky
+ * Copyright (c) 2021 Albert Moky
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,78 +28,61 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package protocol
+package dimp
 
 import (
 	. "github.com/dimchat/dkd-go/protocol"
 )
 
-const (
-	//-------- command names begin --------
-	META      = "meta"
-	DOCUMENT  = "document"
-	RECEIPT   = "receipt"
-	HANDSHAKE = "handshake"
-	LOGIN     = "login"
-	//-------- command names end --------
-)
-
 /**
- *  Command message: {
- *      type : 0x88,
- *      sn   : 123,
- *
- *      command : "...", // command name
- *      // extra info
- *  }
+ *  Message Processor
+ *  ~~~~~~~~~~~~~~~~~
  */
-type Command interface {
-	ICommand
-	Content
+type Processor interface {
+	IProcessor
 }
-type ICommand interface {
+type IProcessor interface {
 
 	/**
-	 *  Get command name
+	 *  Process data package
 	 *
-	 * @return command name string
+	 * @param data - data to be processed
+	 * @return response data
 	 */
-	CommandName() string
-}
-
-func CommandGetName(cmd map[string]interface{}) string {
-	text, ok := cmd["command"].(string)
-	if ok {
-		return text
-	} else {
-		return ""
-	}
-}
-
-/**
- *  Command Factory
- *  ~~~~~~~~~~~~~~~
- */
-type CommandFactory interface {
-	ICommandFactory
-}
-type ICommandFactory interface {
+	ProcessData(data []byte) []byte
 
 	/**
-	 *  Parse map object to command
+	 *  Process network message
 	 *
-	 * @param cmd - command info
-	 * @return Command
+	 * @param rMsg - message to be processed
+	 * @return response message
 	 */
-	ParseCommand(cmd map[string]interface{}) Command
-}
+	ProcessReliableMessage(rMsg ReliableMessage) ReliableMessage
 
-var commandFactories = make(map[string]CommandFactory)
+	/**
+	 *  Process encrypted message
+	 *
+	 * @param sMsg - message to be processed
+	 * @param rMsg - message received
+	 * @return response message
+	 */
+	ProcessSecureMessage(sMsg SecureMessage, rMsg ReliableMessage) SecureMessage
 
-func CommandSetFactory(command string, factory CommandFactory) {
-	commandFactories[command] = factory
-}
+	/**
+	 *  Process plain message
+	 *
+	 * @param iMsg - message to be processed
+	 * @param rMsg - message received
+	 * @return response message
+	 */
+	ProcessInstantMessage(iMsg InstantMessage, rMsg ReliableMessage) InstantMessage
 
-func CommandGetFactory(command string) CommandFactory {
-	return commandFactories[command]
+	/**
+	 *  Process message content
+	 *
+	 * @param content - content to be processed
+	 * @param rMsg - message received
+	 * @return response content
+	 */
+	ProcessContent(content Content, rMsg ReliableMessage) Content
 }

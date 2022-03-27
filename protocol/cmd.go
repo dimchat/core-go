@@ -53,8 +53,8 @@ const (
  *  }
  */
 type HistoryCommand interface {
-	Command
 	IHistoryCommand
+	Command
 }
 type IHistoryCommand interface {
 
@@ -71,8 +71,8 @@ type IHistoryCommand interface {
  *  }
  */
 type MetaCommand interface {
-	Command
 	IMetaCommand
+	Command
 }
 type IMetaCommand interface {
 
@@ -93,8 +93,8 @@ type IMetaCommand interface {
  *  }
  */
 type DocumentCommand interface {
-	MetaCommand
 	IDocumentCommand
+	MetaCommand
 }
 type IDocumentCommand interface {
 

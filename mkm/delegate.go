@@ -28,7 +28,7 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package dimp
+package mkm
 
 import (
 	. "github.com/dimchat/mkm-go/crypto"
@@ -58,6 +58,9 @@ import (
  *     meta.key only
  */
 type UserDataSource interface {
+	IUserDataSource
+}
+type IUserDataSource interface {
 
 	/**
 	 *  Get contacts list
@@ -117,6 +120,9 @@ type UserDataSource interface {
  *  ~~~~~~~~~~~~~~~~~
  */
 type GroupDataSource interface {
+	IGroupDataSource
+}
+type IGroupDataSource interface {
 
 	/**
 	 *  Get group founder
@@ -156,8 +162,11 @@ type GroupDataSource interface {
  *  ~~~~~~~~~~~~~~~~~~
  */
 type EntityDataSource interface {
-	UserDataSource
-	GroupDataSource
+	IEntityDataSource
+	IUserDataSource
+	IGroupDataSource
+}
+type IEntityDataSource interface {
 
 	/**
 	 *  Get meta for entity ID
@@ -180,19 +189,8 @@ type EntityDataSource interface {
 /**
  *  Entity Delegate
  *  ~~~~~~~~~~~~~~~
- *
- *  1. Create User/Group
- *  2. Select a local user as receiver
  */
-type EntityFactory interface {
-
-	/**
-	 *  Select local user for receiver
-	 *
-	 * @param receiver - user/group ID
-	 * @return local user
-	 */
-	SelectLocalUser(receiver ID) User
+type EntityDelegate interface {
 
 	/**
 	 *  Create user with ID
@@ -209,32 +207,4 @@ type EntityFactory interface {
 	 * @return group
 	 */
 	GetGroup(identifier ID) Group
-}
-
-/**
- *  Cipher Key Delegate
- *
- *  1. get symmetric key for sending message;
- *  2. cache symmetric key for reusing.
- */
-type CipherKeyDelegate interface {
-
-	/**
-	 *  Get cipher key for encrypt message from 'sender' to 'receiver'
-	 *
-	 * @param sender - from where (user or contact ID)
-	 * @param receiver - to where (contact or user/group ID)
-	 * @param generate - generate when key not exists
-	 * @return cipher key
-	 */
-	GetCipherKey(sender, receiver ID, generate bool) SymmetricKey
-
-	/**
-	 *  Cache cipher key for reusing, with the direction (from 'sender' to 'receiver')
-	 *
-	 * @param sender - from where (user or contact ID)
-	 * @param receiver - to where (contact or user/group ID)
-	 * @param key - cipher key
-	 */
-	CacheCipherKey(sender, receiver ID, key SymmetricKey)
 }

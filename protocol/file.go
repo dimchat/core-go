@@ -46,8 +46,8 @@ import (
  *  }
  */
 type FileContent interface {
-	Content
 	IFileContent
+	Content
 }
 type IFileContent interface {
 
@@ -76,8 +76,8 @@ type IFileContent interface {
  *  }
  */
 type ImageContent interface {
-	FileContent
 	IImageContent
+	FileContent
 }
 type IImageContent interface {
 
@@ -97,8 +97,8 @@ type IImageContent interface {
  *  }
  */
 type AudioContent interface {
-	FileContent
 	IAudioContent
+	FileContent
 }
 type IAudioContent interface {
 
@@ -118,8 +118,8 @@ type IAudioContent interface {
  *  }
  */
 type VideoContent interface {
-	FileContent
 	IVideoContent
+	FileContent
 }
 type IVideoContent interface {
 

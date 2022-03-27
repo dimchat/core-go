@@ -2,12 +2,12 @@
  *
  *  DIMP : Decentralized Instant Messaging Protocol
  *
- *                                Written in 2021 by Moky <albert.moky@gmail.com>
+ *                                Written in 2020 by Moky <albert.moky@gmail.com>
  *
  * ==============================================================================
  * The MIT License (MIT)
  *
- * Copyright (c) 2021 Albert Moky
+ * Copyright (c) 2020 Albert Moky
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -31,7 +31,10 @@
 package dimp
 
 import (
+	. "github.com/dimchat/core-go/mkm"
 	. "github.com/dimchat/dkd-go/protocol"
+	. "github.com/dimchat/mkm-go/crypto"
+	. "github.com/dimchat/mkm-go/format"
 	. "github.com/dimchat/mkm-go/protocol"
 )
 
@@ -39,140 +42,142 @@ import (
  *  Message Transceiver
  *  ~~~~~~~~~~~~~~~~~~~
  */
-type Transceiver interface {
-	Transformer
-	Processor
-	Packer
+type Transceiver struct {
+	InstantMessageDelegate
+	ReliableMessageDelegate
 
-	EntityFactory() EntityFactory
-	CipherKeyDelegate() CipherKeyDelegate
+	_barrack EntityDelegate
 }
 
-/**
- *  Message Packer
- *  ~~~~~~~~~~~~~~
- */
-type Packer interface {
-
-	/**
-	 *  Get group ID which should be exposed to public network
-	 *
-	 * @param content - message content
-	 * @return exposed group ID
-	 */
-	GetOvertGroup(content Content) ID
-
-	//
-	//  InstantMessage -> SecureMessage -> ReliableMessage -> Data
-	//
-
-	/**
-	 *  Encrypt message content
-	 *
-	 * @param iMsg - plain message
-	 * @return encrypted message
-	 */
-	EncryptMessage(iMsg InstantMessage) SecureMessage
-
-	/**
-	 *  Sign content data
-	 *
-	 * @param sMsg - encrypted message
-	 * @return network message
-	 */
-	SignMessage(sMsg SecureMessage) ReliableMessage
-
-	/**
-	 *  Serialize network message
-	 *
-	 * @param rMsg - network message
-	 * @return data package
-	 */
-	SerializeMessage(rMsg ReliableMessage) []byte
-
-	//
-	//  Data -> ReliableMessage -> SecureMessage -> InstantMessage
-	//
-
-	/**
-	 *  Deserialize network message
-	 *
-	 * @param data - data package
-	 * @return network message
-	 */
-	DeserializeMessage(data []byte) ReliableMessage
-
-	/**
-	 *  Verify encrypted content data
-	 *
-	 * @param rMsg - network message
-	 * @return encrypted message
-	 */
-	VerifyMessage(rMsg ReliableMessage) SecureMessage
-
-	/**
-	 *  Decrypt message content
-	 *
-	 * @param sMsg - encrypted message
-	 * @return plain message
-	 */
-	DecryptMessage(sMsg SecureMessage) InstantMessage
+func (transceiver *Transceiver) Init() *Transceiver {
+	transceiver._barrack = nil
+	return transceiver
 }
 
-/**
- *  Message Processor
- *  ~~~~~~~~~~~~~~~~~
- */
-type Processor interface {
-
-	/**
-	 *  Process data package
-	 *
-	 * @param data - data to be processed
-	 * @return response data
-	 */
-	ProcessData(data []byte) []byte
-
-	/**
-	 *  Process network message
-	 *
-	 * @param rMsg - message to be processed
-	 * @return response message
-	 */
-	ProcessReliableMessage(rMsg ReliableMessage) ReliableMessage
-
-	/**
-	 *  Process encrypted message
-	 *
-	 * @param sMsg - message to be processed
-	 * @param rMsg - message received
-	 * @return response message
-	 */
-	ProcessSecureMessage(sMsg SecureMessage, rMsg ReliableMessage) SecureMessage
-
-	/**
-	 *  Process plain message
-	 *
-	 * @param iMsg - message to be processed
-	 * @param rMsg - message received
-	 * @return response message
-	 */
-	ProcessInstantMessage(iMsg InstantMessage, rMsg ReliableMessage) InstantMessage
-
-	/**
-	 *  Process message content
-	 *
-	 * @param content - content to be processed
-	 * @param rMsg - message received
-	 * @return response content
-	 */
-	ProcessContent(content Content, rMsg ReliableMessage) Content
+func (transceiver *Transceiver) EntityDelegate() EntityDelegate {
+	return transceiver._barrack
+}
+func (transceiver *Transceiver) SetEntityDelegate(barrack EntityDelegate) {
+	transceiver._barrack = barrack
 }
 
-/**
- *  Message Transformer
- *  ~~~~~~~~~~~~~~~~~~~
- */
-type Transformer interface {
-	MessageDelegate
+func (transceiver *Transceiver) IsBroadcast(msg Message) bool {
+	receiver := msg.Group()
+	if receiver == nil {
+		receiver = msg.Receiver()
+	}
+	return receiver.IsBroadcast()
+}
+
+//-------- InstantMessageDelegate
+
+func (transceiver *Transceiver) SerializeContent(content Content, password SymmetricKey, iMsg InstantMessage) []byte {
+	// NOTICE: check attachment for File/Image/Audio/Video message content
+	//         before serialize content, this job should be do in subclass
+	dict := content.GetMap(false)
+	return JSONEncodeMap(dict)
+}
+
+func (transceiver *Transceiver) EncryptContent(data []byte, password SymmetricKey, iMsg InstantMessage) []byte {
+	return password.Encrypt(data)
+}
+
+func (transceiver *Transceiver) EncodeData(data []byte, iMsg InstantMessage) string {
+	if transceiver.IsBroadcast(iMsg) {
+		// broadcast message content will not be encrypted (just encoded to JsON),
+		// so no need to encode to Base64 here
+		return UTF8Decode(data)
+	}
+	return Base64Encode(data)
+}
+
+func (transceiver *Transceiver) SerializeKey(password SymmetricKey, iMsg InstantMessage) []byte {
+	if transceiver.IsBroadcast(iMsg) {
+		// broadcast message has no key
+		return nil
+	}
+	dict := password.GetMap(false)
+	return JSONEncodeMap(dict)
+}
+
+func (transceiver *Transceiver) EncryptKey(data []byte, receiver ID, iMsg InstantMessage) []byte {
+	// TODO: make sure the receiver's public key exists
+	barrack := transceiver.EntityDelegate()
+	contact := barrack.GetUser(receiver)
+	// encrypt with receiver's public key
+	return contact.Encrypt(data)
+}
+
+func (transceiver *Transceiver) EncodeKey(data []byte, iMsg InstantMessage) string {
+	return Base64Encode(data)
+}
+
+//-------- SecureMessageDelegate
+
+func (transceiver *Transceiver) DecodeKey(key string, sMsg SecureMessage) []byte {
+	return Base64Decode(key)
+}
+
+func (transceiver *Transceiver) DecryptKey(key []byte, sender ID, receiver ID, sMsg SecureMessage) []byte {
+	// NOTICE: the receiver will be group ID in a group message here
+	barrack := transceiver.EntityDelegate()
+	user := barrack.GetUser(sMsg.Receiver())
+	// decrypt key data with the receiver/group member's private key
+	return user.Decrypt(key)
+}
+
+func (transceiver *Transceiver) DeserializeKey(key []byte, sender ID, receiver ID, sMsg SecureMessage) SymmetricKey {
+	// NOTICE: the receiver will be group ID in a group message here
+	dict := JSONDecodeMap(key)
+	// TODO: translate short keys
+	//       'A' -> 'algorithm'
+	//       'D' -> 'data'
+	//       'V' -> 'iv'
+	//       'M' -> 'mode'
+	//       'P' -> 'padding'
+	return SymmetricKeyParse(dict)
+}
+
+func (transceiver *Transceiver) DecodeData(data string, sMsg SecureMessage) []byte {
+	if transceiver.IsBroadcast(sMsg) {
+		// broadcast message content will not be encrypted (just encoded to JsON),
+		// so return the string data directly
+		return UTF8Encode(data)
+	}
+	return Base64Decode(data)
+}
+
+func (transceiver *Transceiver) DecryptContent(data []byte, password SymmetricKey, sMsg SecureMessage) []byte {
+	return password.Decrypt(data)
+}
+
+func (transceiver *Transceiver) DeserializeContent(data []byte, password SymmetricKey, sMsg SecureMessage) Content {
+	dict := JSONDecodeMap(data)
+	// TODO: translate short keys
+	//       'T' -> 'type'
+	//       'N' -> 'sn'
+	//       'G' -> 'group'
+	return ContentParse(dict)
+}
+
+func (transceiver *Transceiver) SignData(data []byte, sender ID, sMsg SecureMessage) []byte {
+	barrack := transceiver.EntityDelegate()
+	user := barrack.GetUser(sender)
+	return user.Sign(data)
+}
+
+func (transceiver *Transceiver) EncodeSignature(signature []byte, sMsg SecureMessage) string {
+	return Base64Encode(signature)
+}
+
+//-------- ReliableMessageDelegate
+
+func (transceiver *Transceiver) DecodeSignature(signature string, rMsg ReliableMessage) []byte {
+	return Base64Decode(signature)
+}
+
+func (transceiver *Transceiver) VerifyDataSignature(data []byte, signature []byte, sender ID, rMsg ReliableMessage) bool {
+	barrack := transceiver.EntityDelegate()
+	contact := barrack.GetUser(sender)
+	return contact.Verify(data, signature)
 }
