@@ -114,8 +114,9 @@ func (transceiver *Transceiver) EncodeKey(data []byte, iMsg InstantMessage) stri
 
 //-------- SecureMessageDelegate
 
-func (transceiver *Transceiver) DecodeKey(key string, sMsg SecureMessage) []byte {
-	return Base64Decode(key)
+func (transceiver *Transceiver) DecodeKey(key interface{}, sMsg SecureMessage) []byte {
+	text := key.(string)
+	return Base64Decode(text)
 }
 
 func (transceiver *Transceiver) DecryptKey(key []byte, sender ID, receiver ID, sMsg SecureMessage) []byte {
@@ -138,13 +139,14 @@ func (transceiver *Transceiver) DeserializeKey(key []byte, sender ID, receiver I
 	return SymmetricKeyParse(dict)
 }
 
-func (transceiver *Transceiver) DecodeData(data string, sMsg SecureMessage) []byte {
+func (transceiver *Transceiver) DecodeData(data interface{}, sMsg SecureMessage) []byte {
+	text := data.(string)
 	if transceiver.IsBroadcast(sMsg) {
 		// broadcast message content will not be encrypted (just encoded to JsON),
 		// so return the string data directly
-		return UTF8Encode(data)
+		return UTF8Encode(text)
 	}
-	return Base64Decode(data)
+	return Base64Decode(text)
 }
 
 func (transceiver *Transceiver) DecryptContent(data []byte, password SymmetricKey, sMsg SecureMessage) []byte {
@@ -172,8 +174,9 @@ func (transceiver *Transceiver) EncodeSignature(signature []byte, sMsg SecureMes
 
 //-------- ReliableMessageDelegate
 
-func (transceiver *Transceiver) DecodeSignature(signature string, rMsg ReliableMessage) []byte {
-	return Base64Decode(signature)
+func (transceiver *Transceiver) DecodeSignature(signature interface{}, rMsg ReliableMessage) []byte {
+	text := signature.(string)
+	return Base64Decode(text)
 }
 
 func (transceiver *Transceiver) VerifyDataSignature(data []byte, signature []byte, sender ID, rMsg ReliableMessage) bool {

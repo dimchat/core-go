@@ -49,7 +49,7 @@ type IProcessor interface {
 	 * @param data - data to be processed
 	 * @return response data
 	 */
-	ProcessData(data []byte) []byte
+	ProcessPackage(data []byte) [][]byte
 
 	/**
 	 *  Process network message
@@ -57,7 +57,7 @@ type IProcessor interface {
 	 * @param rMsg - message to be processed
 	 * @return response message
 	 */
-	ProcessReliableMessage(rMsg ReliableMessage) ReliableMessage
+	ProcessReliableMessage(rMsg ReliableMessage) []ReliableMessage
 
 	/**
 	 *  Process encrypted message
@@ -66,7 +66,7 @@ type IProcessor interface {
 	 * @param rMsg - message received
 	 * @return response message
 	 */
-	ProcessSecureMessage(sMsg SecureMessage, rMsg ReliableMessage) SecureMessage
+	ProcessSecureMessage(sMsg SecureMessage, rMsg ReliableMessage) []SecureMessage
 
 	/**
 	 *  Process plain message
@@ -75,7 +75,7 @@ type IProcessor interface {
 	 * @param rMsg - message received
 	 * @return response message
 	 */
-	ProcessInstantMessage(iMsg InstantMessage, rMsg ReliableMessage) InstantMessage
+	ProcessInstantMessage(iMsg InstantMessage, rMsg ReliableMessage) []InstantMessage
 
 	/**
 	 *  Process message content
@@ -84,5 +84,5 @@ type IProcessor interface {
 	 * @param rMsg - message received
 	 * @return response content
 	 */
-	ProcessContent(content Content, rMsg ReliableMessage) Content
+	ProcessContent(content Content, rMsg ReliableMessage) []Content
 }
