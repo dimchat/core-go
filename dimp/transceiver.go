@@ -43,10 +43,14 @@ import (
  *  ~~~~~~~~~~~~~~~~~~~
  */
 type Transceiver struct {
-	InstantMessageDelegate
-	ReliableMessageDelegate
+	ITransceiver
 
 	_barrack EntityDelegate
+}
+type ITransceiver interface {
+	IInstantMessageDelegate
+	ISecureMessageDelegate
+	IReliableMessageDelegate
 }
 
 func (transceiver *Transceiver) Init() *Transceiver {
@@ -69,7 +73,7 @@ func (transceiver *Transceiver) IsBroadcast(msg Message) bool {
 	return receiver.IsBroadcast()
 }
 
-//-------- InstantMessageDelegate
+//-------- IInstantMessageDelegate
 
 func (transceiver *Transceiver) SerializeContent(content Content, password SymmetricKey, iMsg InstantMessage) []byte {
 	// NOTICE: check attachment for File/Image/Audio/Video message content
@@ -112,7 +116,7 @@ func (transceiver *Transceiver) EncodeKey(data []byte, iMsg InstantMessage) stri
 	return Base64Encode(data)
 }
 
-//-------- SecureMessageDelegate
+//-------- ISecureMessageDelegate
 
 func (transceiver *Transceiver) DecodeKey(key interface{}, sMsg SecureMessage) []byte {
 	text := key.(string)
@@ -172,7 +176,7 @@ func (transceiver *Transceiver) EncodeSignature(signature []byte, sMsg SecureMes
 	return Base64Encode(signature)
 }
 
-//-------- ReliableMessageDelegate
+//-------- IReliableMessageDelegate
 
 func (transceiver *Transceiver) DecodeSignature(signature interface{}, rMsg ReliableMessage) []byte {
 	text := signature.(string)

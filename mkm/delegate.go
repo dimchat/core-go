@@ -191,6 +191,9 @@ type IEntityDataSource interface {
  *  ~~~~~~~~~~~~~~~
  */
 type EntityDelegate interface {
+	IEntityDelegate
+}
+type IEntityDelegate interface {
 
 	/**
 	 *  Create user with ID
