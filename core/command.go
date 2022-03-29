@@ -39,23 +39,26 @@ import (
 type CommandParser func(map[string]interface{})Command
 
 /**
- *  Command Factory
+ *  General Command Factory
+ *  ~~~~~~~~~~~~~~~~~~~~~~~
  */
 type GeneralCommandFactory struct {
-	ContentFactory
-	CommandFactory
+	IContentFactory
+	ICommandFactory
 
-	_parser CommandParser
+	_parse CommandParser
 }
 
-func NewGeneralCommandFactory(parser CommandParser) *GeneralCommandFactory {
-	return new(GeneralCommandFactory).Init(parser)
+func NewGeneralCommandFactory(fn CommandParser) *GeneralCommandFactory {
+	return new(GeneralCommandFactory).Init(fn)
 }
 
-func (factory *GeneralCommandFactory) Init(parser CommandParser) *GeneralCommandFactory {
-	factory._parser = parser
+func (factory *GeneralCommandFactory) Init(fn CommandParser) *GeneralCommandFactory {
+	factory._parse = fn
 	return factory
 }
+
+//-------- IContentFactory
 
 func (factory *GeneralCommandFactory) ParseContent(content map[string]interface{}) Content {
 	// get factory by command name
@@ -73,8 +76,10 @@ func (factory *GeneralCommandFactory) ParseContent(content map[string]interface{
 	return cmdFactory.ParseCommand(content)
 }
 
+//-------- ICommandFactory
+
 func (factory *GeneralCommandFactory) ParseCommand(cmd map[string]interface{}) Command {
-	return factory._parser(cmd)
+	return factory._parse(cmd)
 }
 
 /**
@@ -84,12 +89,12 @@ type HistoryCommandFactory struct {
 	GeneralCommandFactory
 }
 
-func NewHistoryCommandFactory(parser CommandParser) *HistoryCommandFactory {
-	return new(HistoryCommandFactory).Init(parser)
+func NewHistoryCommandFactory(fn CommandParser) *HistoryCommandFactory {
+	return new(HistoryCommandFactory).Init(fn)
 }
 
-func (factory *HistoryCommandFactory) Init(parser CommandParser) *HistoryCommandFactory {
-	if factory.GeneralCommandFactory.Init(parser) != nil {
+func (factory *HistoryCommandFactory) Init(fn CommandParser) *HistoryCommandFactory {
+	if factory.GeneralCommandFactory.Init(fn) != nil {
 	}
 	return factory
 }
@@ -101,12 +106,12 @@ type GroupCommandFactory struct {
 	GeneralCommandFactory
 }
 
-func NewGroupCommandFactory(parser CommandParser) *GroupCommandFactory {
-	return new(GroupCommandFactory).Init(parser)
+func NewGroupCommandFactory(fn CommandParser) *GroupCommandFactory {
+	return new(GroupCommandFactory).Init(fn)
 }
 
-func (factory *GroupCommandFactory) Init(parser CommandParser) *GroupCommandFactory {
-	if factory.GeneralCommandFactory.Init(parser) != nil {
+func (factory *GroupCommandFactory) Init(fn CommandParser) *GroupCommandFactory {
+	if factory.GeneralCommandFactory.Init(fn) != nil {
 	}
 	return factory
 }

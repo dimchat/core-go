@@ -73,6 +73,10 @@ func (content *BaseMoneyContent) InitWithType(msgType uint8, currency string, am
 	return content
 }
 
+func (content *BaseMoneyContent) setCurrency(currency string) {
+	content.Set("currency", currency)
+}
+
 //-------- IMoneyContent
 
 func (content *BaseMoneyContent) Currency() string {
@@ -82,9 +86,6 @@ func (content *BaseMoneyContent) Currency() string {
 	} else {
 		return ""
 	}
-}
-func (content *BaseMoneyContent) setCurrency(currency string) {
-	content.Set("currency", currency)
 }
 
 func (content *BaseMoneyContent) Amount() float64 {

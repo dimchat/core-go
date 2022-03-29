@@ -58,6 +58,12 @@ type HistoryCommand interface {
 }
 type IHistoryCommand interface {
 
+	/**
+	 *  Get history event name
+	 *
+	 * @return history event name string
+	 */
+	HistoryEvent() string
 }
 
 /**

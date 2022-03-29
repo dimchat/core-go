@@ -61,3 +61,14 @@ func (cmd *BaseHistoryCommand) InitWithCommand(command string) *BaseHistoryComma
 	}
 	return cmd
 }
+
+//-------- IHistoryCommand
+
+func (cmd *BaseHistoryCommand) HistoryEvent() string {
+	text, ok := cmd.Get("event").(string)
+	if ok {
+		return text
+	} else {
+		return cmd.CommandName()
+	}
+}

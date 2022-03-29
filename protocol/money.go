@@ -48,7 +48,9 @@ type MoneyContent interface {
 type IMoneyContent interface {
 
 	Currency() string
+
 	Amount() float64
+	SetAmount(amount float64)
 }
 
 /**

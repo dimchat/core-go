@@ -39,23 +39,29 @@ import (
 
 type ContentParser func(map[string]interface{})Content
 
+/**
+ *  General Content Factory
+ *  ~~~~~~~~~~~~~~~~~~~~~~~
+ */
 type GeneralContentFactory struct {
-	ContentFactory
+	IContentFactory
 
-	_parser ContentParser
+	_parse ContentParser
 }
 
-func NewGeneralContentFactory(parser ContentParser) *GeneralContentFactory {
-	return new(GeneralContentFactory).Init(parser)
+func NewGeneralContentFactory(fn ContentParser) *GeneralContentFactory {
+	return new(GeneralContentFactory).Init(fn)
 }
 
-func (factory *GeneralContentFactory) Init(parser ContentParser) *GeneralContentFactory {
-	factory._parser = parser
+func (factory *GeneralContentFactory) Init(fn ContentParser) *GeneralContentFactory {
+	factory._parse = fn
 	return factory
 }
 
+//-------- IContentFactory
+
 func (factory *GeneralContentFactory) ParseContent(content map[string]interface{}) Content {
-	return factory._parser(content)
+	return factory._parse(content)
 }
 
 /**

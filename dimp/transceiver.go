@@ -51,6 +51,10 @@ type ITransceiver interface {
 	IInstantMessageDelegate
 	ISecureMessageDelegate
 	IReliableMessageDelegate
+
+	// ref(barrack)
+	EntityDelegate() EntityDelegate
+	SetEntityDelegate(barrack EntityDelegate)
 }
 
 func (transceiver *Transceiver) Init() *Transceiver {
