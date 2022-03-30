@@ -43,10 +43,7 @@ import (
  *  }
  */
 type ForwardContent interface {
-	IForwardContent
 	Content
-}
-type IForwardContent interface {
 
 	ForwardMessage() ReliableMessage
 }
@@ -60,10 +57,7 @@ type IForwardContent interface {
  *  }
  */
 type TextContent interface {
-	ITextContent
 	Content
-}
-type ITextContent interface {
 
 	Text() string
 	SetText(text string)
@@ -81,10 +75,7 @@ type ITextContent interface {
  *  }
  */
 type PageContent interface {
-	IPageContent
 	Content
-}
-type IPageContent interface {
 
 	URL() string
 	SetURL(url string)

@@ -47,7 +47,6 @@ import (
  */
 type BaseMoneyContent struct {
 	BaseContent
-	IMoneyContent
 }
 
 func NewMoneyContent(msgType uint8, currency string, amount float64) MoneyContent {
@@ -111,7 +110,6 @@ func (content *BaseMoneyContent) SetAmount(amount float64) {
  */
 type TransferMoneyContent struct {
 	BaseMoneyContent
-	ITransferContent
 }
 
 func NewTransferContent(currency string, amount float64) TransferContent {
@@ -132,7 +130,7 @@ func (content *TransferMoneyContent) InitWithCurrency(currency string, amount fl
 
 //-------- ITransferContent
 
-func (content *TransferMoneyContent) Text() string {
+func (content *TransferMoneyContent) Comment() string {
 	text, ok := content.Get("text").(string)
 	if ok {
 		return text

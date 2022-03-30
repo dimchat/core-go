@@ -51,7 +51,6 @@ import (
  */
 type BaseFileContent struct {
 	BaseContent
-	IFileContent
 
 	_data []byte       // file data (plaintext)
 	_key SymmetricKey  // symmetric key to decrypt the encrypted data from URL
@@ -160,7 +159,6 @@ func (content *BaseFileContent) SetPassword(password SymmetricKey) {
 
 type ImageFileContent struct {
 	BaseFileContent
-	IImageContent
 
 	_thumbnail []byte
 }
@@ -219,7 +217,6 @@ func (content *ImageFileContent) SetThumbnail(thumbnail []byte) {
  */
 type AudioFileContent struct {
 	BaseFileContent
-	IAudioContent
 }
 
 func NewAudioContent(filename string, data []byte) AudioContent {
@@ -265,7 +262,6 @@ func (content *AudioFileContent) SetDuration(duration int) {
  */
 type VideoFileContent struct {
 	BaseFileContent
-	IVideoContent
 
 	_snapshot []byte
 }

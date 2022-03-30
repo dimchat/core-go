@@ -47,10 +47,7 @@ import (
  *      document   - entity document
  */
 type Entity interface {
-	IEntity
 	Object
-}
-type IEntity interface {
 
 	ID() ID
 	Type() uint8
@@ -68,7 +65,6 @@ type IEntity interface {
  */
 type BaseEntity struct {
 	BaseObject
-	IEntity
 
 	_identifier ID
 
@@ -81,8 +77,10 @@ func (entity *BaseEntity) Init(identifier ID) *BaseEntity {
 	return entity
 }
 
+//-------- IObject
+
 func (entity *BaseEntity) Equal(other interface{}) bool {
-	e, ok := other.(IEntity)
+	e, ok := other.(Entity)
 	if ok {
 		// compare pointers
 		if entity == other {
@@ -94,6 +92,8 @@ func (entity *BaseEntity) Equal(other interface{}) bool {
 		return entity._identifier.Equal(other)
 	}
 }
+
+//-------- IEntity
 
 func (entity *BaseEntity) DataSource() EntityDataSource {
 	return entity._delegate

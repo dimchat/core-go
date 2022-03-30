@@ -46,10 +46,7 @@ import (
  *  }
  */
 type FileContent interface {
-	IFileContent
 	Content
-}
-type IFileContent interface {
 
 	URL() string
 	SetURL(url string)
@@ -76,10 +73,7 @@ type IFileContent interface {
  *  }
  */
 type ImageContent interface {
-	IImageContent
 	FileContent
-}
-type IImageContent interface {
 
 	Thumbnail() []byte
 	SetThumbnail(thumbnail []byte)
@@ -97,10 +91,7 @@ type IImageContent interface {
  *  }
  */
 type AudioContent interface {
-	IAudioContent
 	FileContent
-}
-type IAudioContent interface {
 
 	Duration() int
 	SetDuration(duration int)
@@ -118,10 +109,7 @@ type IAudioContent interface {
  *  }
  */
 type VideoContent interface {
-	IVideoContent
 	FileContent
-}
-type IVideoContent interface {
 
 	Snapshot() []byte
 	SetSnapshot(snapshot []byte)

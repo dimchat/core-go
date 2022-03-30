@@ -43,8 +43,6 @@ type CommandParser func(map[string]interface{})Command
  *  ~~~~~~~~~~~~~~~~~~~~~~~
  */
 type GeneralCommandFactory struct {
-	IContentFactory
-	ICommandFactory
 
 	_parse CommandParser
 }
@@ -115,6 +113,8 @@ func (factory *GroupCommandFactory) Init(fn CommandParser) *GroupCommandFactory 
 	}
 	return factory
 }
+
+//-------- IContentFactory
 
 func (factory *GroupCommandFactory) ParseContent(content map[string]interface{}) Content {
 	command := CommandGetName(content)

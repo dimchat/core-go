@@ -36,6 +36,13 @@ import (
 	. "github.com/dimchat/mkm-go/protocol"
 )
 
+type IBarrack interface {
+	EntityDelegate
+	EntityDataSource
+	UserDataSource
+	GroupDataSource
+}
+
 /**
  *  Entity Manager
  *  ~~~~~~~~~~~~~~
@@ -55,15 +62,8 @@ import (
  *      GetPrivateKeyForVisaSignature(user ID) SignKey
  */
 type Barrack struct {
-	IBarrack
 
 	_source EntityDataSource  // facebook
-}
-type IBarrack interface {
-	IEntityDelegate
-	IEntityDataSource
-	IUserDataSource
-	IGroupDataSource
 }
 
 func (barrack *Barrack) Init() *Barrack {
@@ -103,29 +103,29 @@ func (barrack *Barrack) getMetaKey(user ID) VerifyKey {
 
 //-------- IEntityDelegate
 
-func (barrack *Barrack) GetUser(identifier ID) User {
-	panic("not implemented")
-}
-
-func (barrack *Barrack) GetGroup(identifier ID) Group {
-	panic("not implemented")
-}
+//func (barrack *Barrack) GetUser(identifier ID) User {
+//	panic("not implemented")
+//}
+//
+//func (barrack *Barrack) GetGroup(identifier ID) Group {
+//	panic("not implemented")
+//}
 
 //-------- IEntityDataSource
 
-func (barrack *Barrack) GetMeta(identifier ID) Meta {
-	panic("not implemented")
-}
-
-func (barrack *Barrack) GetDocument(identifier ID, docType string) Document {
-	panic("not implemented")
-}
+//func (barrack *Barrack) GetMeta(identifier ID) Meta {
+//	panic("not implemented")
+//}
+//
+//func (barrack *Barrack) GetDocument(identifier ID, docType string) Document {
+//	panic("not implemented")
+//}
 
 //-------- IUserDataSource
 
-func (barrack *Barrack) GetContacts(user ID) []ID {
-	panic("not implemented")
-}
+//func (barrack *Barrack) GetContacts(user ID) []ID {
+//	panic("not implemented")
+//}
 
 func (barrack *Barrack) GetPublicKeyForEncryption(user ID) EncryptKey {
 	// 1. get key from visa
@@ -167,17 +167,17 @@ func (barrack *Barrack) GetPublicKeysForVerification(user ID) []VerifyKey {
 	return keys
 }
 
-func (barrack *Barrack) GetPrivateKeysForDecryption(user ID) []DecryptKey {
-	panic("not implemented")
-}
-
-func (barrack *Barrack) GetPrivateKeyForSignature(user ID) SignKey {
-	panic("not implemented")
-}
-
-func (barrack *Barrack) GetPrivateKeyForVisaSignature(user ID) SignKey {
-	panic("not implemented")
-}
+//func (barrack *Barrack) GetPrivateKeysForDecryption(user ID) []DecryptKey {
+//	panic("not implemented")
+//}
+//
+//func (barrack *Barrack) GetPrivateKeyForSignature(user ID) SignKey {
+//	panic("not implemented")
+//}
+//
+//func (barrack *Barrack) GetPrivateKeyForVisaSignature(user ID) SignKey {
+//	panic("not implemented")
+//}
 
 //-------- IGroupDataSource
 

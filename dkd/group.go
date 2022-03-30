@@ -48,7 +48,6 @@ import (
  */
 type BaseGroupCommand struct {
 	BaseHistoryCommand
-	IGroupCommand
 
 	_member ID
 	_members []ID
@@ -150,7 +149,6 @@ func (cmd *BaseGroupCommand) SetMembers(members []ID) {
  */
 type InviteGroupCommand struct {
 	BaseGroupCommand
-	IInviteCommand
 }
 
 func NewInviteCommand(group ID, members []ID) InviteCommand {
@@ -198,7 +196,6 @@ func (cmd *InviteGroupCommand) InviteMembers() []ID {
  */
 type ExpelGroupCommand struct {
 	BaseGroupCommand
-	IExpelCommand
 }
 
 func NewExpelCommand(group ID, members []ID) ExpelCommand {
@@ -246,7 +243,6 @@ func (cmd *ExpelGroupCommand) ExpelMembers() []ID {
  */
 type JoinGroupCommand struct {
 	BaseGroupCommand
-	IJoinCommand
 }
 
 func NewJoinCommand(group ID) JoinCommand {
@@ -288,7 +284,6 @@ func (cmd *JoinGroupCommand) Ask() string {
  */
 type QuitGroupCommand struct {
 	BaseGroupCommand
-	IQuitCommand
 }
 
 func NewQuitCommand(group ID) QuitCommand {
@@ -330,7 +325,6 @@ func (cmd *QuitGroupCommand) Bye() string {
  */
 type ResetGroupCommand struct {
 	BaseGroupCommand
-	IResetCommand
 }
 
 func NewResetCommand(group ID, members []ID) ResetCommand {
@@ -367,7 +361,6 @@ func (cmd *ResetGroupCommand) AllMembers() []ID {
  */
 type QueryGroupCommand struct {
 	BaseGroupCommand
-	IQueryCommand
 }
 
 func NewQueryCommand(group ID) QueryCommand {

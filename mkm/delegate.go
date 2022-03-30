@@ -58,9 +58,6 @@ import (
  *     meta.key only
  */
 type UserDataSource interface {
-	IUserDataSource
-}
-type IUserDataSource interface {
 
 	/**
 	 *  Get contacts list
@@ -120,9 +117,6 @@ type IUserDataSource interface {
  *  ~~~~~~~~~~~~~~~~~
  */
 type GroupDataSource interface {
-	IGroupDataSource
-}
-type IGroupDataSource interface {
 
 	/**
 	 *  Get group founder
@@ -162,11 +156,8 @@ type IGroupDataSource interface {
  *  ~~~~~~~~~~~~~~~~~~
  */
 type EntityDataSource interface {
-	IEntityDataSource
-	IUserDataSource
-	IGroupDataSource
-}
-type IEntityDataSource interface {
+	UserDataSource
+	GroupDataSource
 
 	/**
 	 *  Get meta for entity ID
@@ -191,9 +182,6 @@ type IEntityDataSource interface {
  *  ~~~~~~~~~~~~~~~
  */
 type EntityDelegate interface {
-	IEntityDelegate
-}
-type IEntityDelegate interface {
 
 	/**
 	 *  Create user with ID

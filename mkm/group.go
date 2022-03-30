@@ -35,10 +35,7 @@ import (
 )
 
 type Group interface {
-	IGroup
 	Entity
-}
-type IGroup interface {
 
 	/**
 	 *  Get document for group name, assistants
@@ -59,7 +56,6 @@ type IGroup interface {
  */
 type BaseGroup struct {
 	BaseEntity
-	IGroup
 
 	_founder ID
 }

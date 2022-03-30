@@ -31,7 +31,6 @@
 package dkd
 
 import (
-	. "github.com/dimchat/core-go/protocol"
 	. "github.com/dimchat/dkd-go/protocol"
 )
 
@@ -47,7 +46,6 @@ import (
  */
 type BaseHistoryCommand struct {
 	BaseCommand
-	IHistoryCommand
 }
 
 func (cmd *BaseHistoryCommand) Init(dict map[string]interface{}) *BaseHistoryCommand {

@@ -39,9 +39,6 @@ import (
  *  ~~~~~~~~~~~~~~~~~
  */
 type Processor interface {
-	IProcessor
-}
-type IProcessor interface {
 
 	/**
 	 *  Process data package

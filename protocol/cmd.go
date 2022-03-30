@@ -53,10 +53,7 @@ const (
  *  }
  */
 type HistoryCommand interface {
-	IHistoryCommand
 	Command
-}
-type IHistoryCommand interface {
 
 	/**
 	 *  Get history event name
@@ -77,10 +74,7 @@ type IHistoryCommand interface {
  *  }
  */
 type MetaCommand interface {
-	IMetaCommand
 	Command
-}
-type IMetaCommand interface {
 
 	ID() ID
 	Meta() Meta
@@ -99,10 +93,7 @@ type IMetaCommand interface {
  *  }
  */
 type DocumentCommand interface {
-	IDocumentCommand
 	MetaCommand
-}
-type IDocumentCommand interface {
 
 	Document() Document
 	Signature() string

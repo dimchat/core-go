@@ -42,10 +42,7 @@ import . "github.com/dimchat/dkd-go/protocol"
  *  }
  */
 type MoneyContent interface {
-	IMoneyContent
 	Content
-}
-type IMoneyContent interface {
 
 	Currency() string
 
@@ -64,10 +61,7 @@ type IMoneyContent interface {
  *  }
  */
 type TransferContent interface {
-	ITransferContent
 	MoneyContent
-}
-type ITransferContent interface {
 
-	Text() string
+	Comment() string
 }

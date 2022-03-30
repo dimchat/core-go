@@ -40,9 +40,6 @@ import (
  *  ~~~~~~~~~~~~~~
  */
 type Packer interface {
-	IPacker
-}
-type IPacker interface {
 
 	/**
 	 *  Get group ID which should be exposed to public network

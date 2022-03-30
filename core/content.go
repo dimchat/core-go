@@ -44,7 +44,6 @@ type ContentParser func(map[string]interface{})Content
  *  ~~~~~~~~~~~~~~~~~~~~~~~
  */
 type GeneralContentFactory struct {
-	IContentFactory
 
 	_parse ContentParser
 }

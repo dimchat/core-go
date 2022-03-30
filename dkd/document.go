@@ -38,7 +38,6 @@ import (
 
 type BaseDocumentCommand struct {
 	BaseMetaCommand
-	IDocumentCommand
 
 	_doc Document
 }

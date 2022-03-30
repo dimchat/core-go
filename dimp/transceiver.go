@@ -38,23 +38,23 @@ import (
 	. "github.com/dimchat/mkm-go/protocol"
 )
 
+type ITransceiver interface {
+	InstantMessageDelegate
+	SecureMessageDelegate
+	ReliableMessageDelegate
+
+	// ref(barrack)
+	EntityDelegate() EntityDelegate
+	SetEntityDelegate(barrack EntityDelegate)
+}
+
 /**
  *  Message Transceiver
  *  ~~~~~~~~~~~~~~~~~~~
  */
 type Transceiver struct {
-	ITransceiver
 
 	_barrack EntityDelegate
-}
-type ITransceiver interface {
-	IInstantMessageDelegate
-	ISecureMessageDelegate
-	IReliableMessageDelegate
-
-	// ref(barrack)
-	EntityDelegate() EntityDelegate
-	SetEntityDelegate(barrack EntityDelegate)
 }
 
 func (transceiver *Transceiver) Init() *Transceiver {

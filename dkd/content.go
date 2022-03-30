@@ -48,7 +48,6 @@ import (
  */
 type SecretContent struct {
 	BaseContent
-	IForwardContent
 
 	_secret ReliableMessage
 }
@@ -94,7 +93,6 @@ func (content *SecretContent) ForwardMessage() ReliableMessage {
 
 type BaseTextContent struct {
 	BaseContent
-	ITextContent
 }
 
 func NewTextContent(text string) TextContent {
@@ -142,7 +140,6 @@ func (content *BaseTextContent) SetText(text string) {
  */
 type WebPageContent struct {
 	BaseContent
-	IPageContent
 
 	_icon []byte
 }

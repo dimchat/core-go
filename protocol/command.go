@@ -54,10 +54,7 @@ const (
  *  }
  */
 type Command interface {
-	ICommand
 	Content
-}
-type ICommand interface {
 
 	/**
 	 *  Get command name
@@ -81,9 +78,6 @@ func CommandGetName(cmd map[string]interface{}) string {
  *  ~~~~~~~~~~~~~~~
  */
 type CommandFactory interface {
-	ICommandFactory
-}
-type ICommandFactory interface {
 
 	/**
 	 *  Parse map object to command
@@ -94,6 +88,9 @@ type ICommandFactory interface {
 	ParseCommand(cmd map[string]interface{}) Command
 }
 
+//
+//  Instances of CommandFactory
+//
 var commandFactories = make(map[string]CommandFactory)
 
 func CommandSetFactory(command string, factory CommandFactory) {

@@ -48,10 +48,7 @@ import (
  *      4. decrypt(data) - decrypt (symmetric key) data
  */
 type User interface {
-	IUser
 	Entity
-}
-type IUser interface {
 
 	/**
 	 *  Get visa document for nickname, avatar, public key
@@ -110,7 +107,6 @@ type IUser interface {
  */
 type BaseUser struct {
 	BaseEntity
-	IUser
 }
 
 func (user *BaseUser) Init(identifier ID) *BaseUser {

@@ -47,7 +47,6 @@ import (
  */
 type BaseCommand struct {
 	BaseContent
-	ICommand
 }
 
 /* designated initializer */

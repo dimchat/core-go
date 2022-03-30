@@ -38,7 +38,6 @@ import (
 
 type BaseMetaCommand struct {
 	BaseCommand
-	IMetaCommand
 
 	_identifier ID
 	_meta Meta

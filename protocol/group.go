@@ -64,10 +64,7 @@ const (
  *  }
  */
 type GroupCommand interface {
-	IGroupCommand
 	HistoryCommand
-}
-type IGroupCommand interface {
 
 	Member() ID
 	SetMember(member ID)
@@ -89,10 +86,7 @@ type IGroupCommand interface {
  *  }
  */
 type InviteCommand interface {
-	IInviteCommand
 	GroupCommand
-}
-type IInviteCommand interface {
 
 	InviteMembers() []ID
 }
@@ -108,10 +102,7 @@ type IInviteCommand interface {
  *  }
  */
 type ExpelCommand interface {
-	IExpelCommand
 	GroupCommand
-}
-type IExpelCommand interface {
 
 	ExpelMembers() []ID
 }
@@ -127,10 +118,7 @@ type IExpelCommand interface {
  *  }
  */
 type JoinCommand interface {
-	IJoinCommand
 	GroupCommand
-}
-type IJoinCommand interface {
 
 	Ask() string
 }
@@ -146,10 +134,7 @@ type IJoinCommand interface {
  *  }
  */
 type QuitCommand interface {
-	IQuitCommand
 	GroupCommand
-}
-type IQuitCommand interface {
 
 	Bye() string
 }
@@ -165,10 +150,7 @@ type IQuitCommand interface {
  *  }
  */
 type ResetCommand interface {
-	IResetCommand
 	GroupCommand
-}
-type IResetCommand interface {
 
 	AllMembers() []ID
 }
@@ -184,13 +166,10 @@ type IResetCommand interface {
  *  }
  */
 type QueryCommand interface {
-	IQueryCommand
+	//  NOTICE:
+	//      This command is just for querying group info,
+	//      should not be saved in group history
 	GroupCommand
-}
-//  NOTICE:
-//      This command is just for querying group info,
-//      should not be saved in group history
-type IQueryCommand interface {
 
 	Text() string
 }
