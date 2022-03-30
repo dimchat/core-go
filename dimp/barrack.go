@@ -39,8 +39,6 @@ import (
 type IBarrack interface {
 	EntityDelegate
 	EntityDataSource
-	UserDataSource
-	GroupDataSource
 }
 
 /**

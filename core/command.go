@@ -129,7 +129,7 @@ func (factory *GroupCommandFactory) ParseContent(content map[string]interface{})
 /**
  *  Register core command parsers
  */
-func BuildCommandFactories() {
+func RegisterCommandFactories() {
 	// Meta Command
 	CommandSetFactory(META, NewGeneralCommandFactory(func(dict map[string]interface{}) Command {
 		return new(BaseMetaCommand).Init(dict)

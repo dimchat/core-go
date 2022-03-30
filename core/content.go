@@ -66,7 +66,7 @@ func (factory *GeneralContentFactory) ParseContent(content map[string]interface{
 /**
  *  Register core content parsers
  */
-func BuildContentFactories() {
+func RegisterContentFactories() {
 	// Top-Secret
 	ContentSetFactory(FORWARD, NewGeneralContentFactory(func(dict map[string]interface{}) Content {
 		return new(SecretContent).Init(dict)
