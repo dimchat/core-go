@@ -40,7 +40,7 @@ import (
 
 type ITransceiver interface {
 	InstantMessageDelegate
-	SecureMessageDelegate
+	//SecureMessageDelegate
 	ReliableMessageDelegate
 
 	// ref(barrack)
