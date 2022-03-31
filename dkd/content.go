@@ -206,9 +206,9 @@ func (content *WebPageContent) SetDescription(desc string) {
 
 func (content *WebPageContent) Icon() []byte {
 	if content._icon == nil {
-		b64, ok := content.Get("icon").(string)
-		if ok {
-			content._icon = Base64Decode(b64)
+		b64 := content.Get("icon")
+		if b64 != nil {
+			content._icon = Base64Decode(b64.(string))
 		}
 	}
 	return content._icon

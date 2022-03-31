@@ -36,6 +36,7 @@ import (
 	. "github.com/dimchat/mkm-go/crypto"
 	. "github.com/dimchat/mkm-go/format"
 	. "github.com/dimchat/mkm-go/protocol"
+	. "github.com/dimchat/mkm-go/types"
 )
 
 type ITransceiver interface {
@@ -123,8 +124,10 @@ func (transceiver *Transceiver) EncodeKey(data []byte, iMsg InstantMessage) stri
 //-------- ISecureMessageDelegate
 
 func (transceiver *Transceiver) DecodeKey(key interface{}, sMsg SecureMessage) []byte {
-	text := key.(string)
-	return Base64Decode(text)
+	if ValueIsNil(key) {
+		return nil
+	}
+	return Base64Decode(key.(string))
 }
 
 func (transceiver *Transceiver) DecryptKey(key []byte, sender ID, receiver ID, sMsg SecureMessage) []byte {
@@ -183,8 +186,11 @@ func (transceiver *Transceiver) EncodeSignature(signature []byte, sMsg SecureMes
 //-------- IReliableMessageDelegate
 
 func (transceiver *Transceiver) DecodeSignature(signature interface{}, rMsg ReliableMessage) []byte {
-	text := signature.(string)
-	return Base64Decode(text)
+	if ValueIsNil(signature) {
+		// should not happen
+		return nil
+	}
+	return Base64Decode(signature.(string))
 }
 
 func (transceiver *Transceiver) VerifyDataSignature(data []byte, signature []byte, sender ID, rMsg ReliableMessage) bool {

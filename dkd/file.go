@@ -99,9 +99,9 @@ func (content *BaseFileContent) SetURL(url string) {
 
 func (content *BaseFileContent) Data() []byte {
 	if content._data == nil {
-		b64, ok := content.Get("data").(string)
-		if ok {
-			content._data = Base64Decode(b64)
+		b64 := content.Get("data")
+		if b64 != nil {
+			content._data = Base64Decode(b64.(string))
 		}
 	}
 	return content._data
@@ -186,9 +186,9 @@ func (content *ImageFileContent) InitWithFilename(filename string, data []byte) 
 
 func (content *ImageFileContent) Thumbnail() []byte {
 	if content._thumbnail == nil {
-		b64, ok := content.Get("thumbnail").(string)
-		if ok {
-			content._thumbnail = Base64Decode(b64)
+		b64 := content.Get("thumbnail")
+		if b64 != nil {
+			content._thumbnail = Base64Decode(b64.(string))
 		}
 	}
 	return content._thumbnail
@@ -289,9 +289,9 @@ func (content *VideoFileContent) InitWithFilename(filename string, data []byte) 
 
 func (content *VideoFileContent) Snapshot() []byte {
 	if content._snapshot == nil {
-		b64, ok := content.Get("snapshot").(string)
-		if ok {
-			content._snapshot = Base64Decode(b64)
+		b64 := content.Get("snapshot")
+		if b64 != nil {
+			content._snapshot = Base64Decode(b64.(string))
 		}
 	}
 	return content._snapshot
