@@ -56,7 +56,7 @@ type BaseFileContent struct {
 	_key SymmetricKey  // symmetric key to decrypt the encrypted data from URL
 }
 
-func NewFileContent(msgType uint8, filename string, data []byte) FileContent {
+func NewFileContent(msgType ContentType, filename string, data []byte) FileContent {
 	return new(BaseFileContent).InitWithType(msgType, filename, data)
 }
 
@@ -71,7 +71,7 @@ func (content *BaseFileContent) Init(dict map[string]interface{}) *BaseFileConte
 }
 
 /* designated initializer */
-func (content *BaseFileContent) InitWithType(msgType uint8, filename string, data []byte) *BaseFileContent {
+func (content *BaseFileContent) InitWithType(msgType ContentType, filename string, data []byte) *BaseFileContent {
 	if msgType == 0 {
 		msgType = FILE
 	}
@@ -237,15 +237,15 @@ func (content *AudioFileContent) InitWithFilename(filename string, data []byte) 
 
 //-------- IAudioContent
 
-func (content *AudioFileContent) Duration() int {
-	duration, ok := content.Get("duration").(int)
+func (content *AudioFileContent) Duration() float64 {
+	duration, ok := content.Get("duration").(float64)
 	if ok {
 		return duration
 	} else {
-		return 0
+		return 0.0
 	}
 }
-func (content *AudioFileContent) SetDuration(duration int) {
+func (content *AudioFileContent) SetDuration(duration float64) {
 	content.Set("duration", duration)
 }
 

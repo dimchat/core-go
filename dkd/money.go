@@ -49,7 +49,7 @@ type BaseMoneyContent struct {
 	BaseContent
 }
 
-func NewMoneyContent(msgType uint8, currency string, amount float64) MoneyContent {
+func NewMoneyContent(msgType ContentType, currency string, amount float64) MoneyContent {
 	return new(BaseMoneyContent).InitWithType(msgType, currency, amount)
 }
 
@@ -61,7 +61,7 @@ func (content *BaseMoneyContent) Init(dict map[string]interface{}) *BaseMoneyCon
 }
 
 /* designated initializer */
-func (content *BaseMoneyContent) InitWithType(msgType uint8, currency string, amount float64) *BaseMoneyContent {
+func (content *BaseMoneyContent) InitWithType(msgType ContentType, currency string, amount float64) *BaseMoneyContent {
 	if msgType == 0 {
 		msgType = MONEY
 	}

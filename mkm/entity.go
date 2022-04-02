@@ -50,7 +50,7 @@ type Entity interface {
 	Object
 
 	ID() ID
-	Type() uint8
+	Type() NetworkType
 
 	Meta() Meta
 	GetDocument(docType string) Document
@@ -112,7 +112,7 @@ func (entity *BaseEntity) ID() ID {
  *
  * @return ID(address) type as entity type
  */
-func (entity *BaseEntity) Type() uint8 {
+func (entity *BaseEntity) Type() NetworkType {
 	return entity.ID().Type()
 }
 

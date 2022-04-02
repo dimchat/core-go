@@ -134,33 +134,36 @@ func (barrack *Barrack) GetPublicKeyForEncryption(user ID) EncryptKey {
 	}
 	// 2. get key from meta
 	metaKey := barrack.getMetaKey(user)
-	key, ok := metaKey.(EncryptKey)
-	if ok {
-		// if profile.key not exists and meta.key is encrypt key,
-		// use it for encryption
-		return key
-	} else {
-		//panic("failed to get encrypt key for user: " + user.String())
-		return nil
+	if metaKey != nil {
+		key, ok := metaKey.(EncryptKey)
+		if ok {
+			// if profile.key not exists and meta.key is encrypt key,
+			// use it for encryption
+			return key
+		}
 	}
+	//panic("failed to get encrypt key for user: " + user.String())
+	return nil
 }
 
 func (barrack *Barrack) GetPublicKeysForVerification(user ID) []VerifyKey {
 	keys := make([]VerifyKey, 0, 2)
 	// 1. get key from visa
 	visaKey := barrack.getVisaKey(user)
-	key, ok := visaKey.(VerifyKey)
-	if ok {
-		// the sender may use communication key to sign message.data,
-		// so try to verify it with visa.key here
-		keys = append(keys, key)
+	if visaKey != nil {
+		key, ok := visaKey.(VerifyKey)
+		if ok && key != nil {
+			// the sender may use communication key to sign message.data,
+			// so try to verify it with visa.key here
+			keys = append(keys, key)
+		}
 	}
 	// 2. get key from meta
 	metaKey := barrack.getMetaKey(user)
 	if metaKey != nil {
 		// the sender may use identity key to sign message.data,
 		// try to verify it with meta.key
-		keys = append(keys, key)
+		keys = append(keys, metaKey)
 	}
 	return keys
 }

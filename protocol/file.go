@@ -93,8 +93,8 @@ type ImageContent interface {
 type AudioContent interface {
 	FileContent
 
-	Duration() int
-	SetDuration(duration int)
+	Duration() float64
+	SetDuration(duration float64)
 }
 
 /**

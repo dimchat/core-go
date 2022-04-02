@@ -57,7 +57,7 @@ func (cmd *BaseCommand) Init(dict map[string]interface{}) *BaseCommand {
 }
 
 /* designated initializer */
-func (cmd *BaseCommand) InitWithType(msgType uint8, command string) *BaseCommand {
+func (cmd *BaseCommand) InitWithType(msgType ContentType, command string) *BaseCommand {
 	if cmd.BaseContent.InitWithType(msgType) != nil {
 		cmd.Set("command", command)
 	}
