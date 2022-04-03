@@ -49,7 +49,9 @@ type GeneralContentFactory struct {
 }
 
 func NewGeneralContentFactory(fn ContentParser) *GeneralContentFactory {
-	return new(GeneralContentFactory).Init(fn)
+	factory := new(GeneralContentFactory)
+	factory.Init(fn)
+	return factory
 }
 
 func (factory *GeneralContentFactory) Init(fn ContentParser) *GeneralContentFactory {
@@ -69,54 +71,78 @@ func (factory *GeneralContentFactory) ParseContent(content map[string]interface{
 func RegisterContentFactories() {
 	// Top-Secret
 	ContentSetFactory(FORWARD, NewGeneralContentFactory(func(dict map[string]interface{}) Content {
-		return new(SecretContent).Init(dict)
+		content := new(SecretContent)
+		content.Init(dict)
+		return content
 	}))
 	// Text
 	ContentSetFactory(TEXT, NewGeneralContentFactory(func(dict map[string]interface{}) Content {
-		return new(BaseTextContent).Init(dict)
+		content := new(BaseTextContent)
+		content.Init(dict)
+		return content
 	}))
 
 	// File
 	ContentSetFactory(FILE, NewGeneralContentFactory(func(dict map[string]interface{}) Content {
-		return new(BaseFileContent).Init(dict)
+		content := new(BaseFileContent)
+		content.Init(dict)
+		return content
 	}))
 	// Image
 	ContentSetFactory(IMAGE, NewGeneralContentFactory(func(dict map[string]interface{}) Content {
-		return new(ImageFileContent).Init(dict)
+		content := new(ImageFileContent)
+		content.Init(dict)
+		return content
 	}))
 	// Audio
 	ContentSetFactory(AUDIO, NewGeneralContentFactory(func(dict map[string]interface{}) Content {
-		return new(AudioFileContent).Init(dict)
+		content := new(AudioFileContent)
+		content.Init(dict)
+		return content
 	}))
 	// Video
 	ContentSetFactory(VIDEO, NewGeneralContentFactory(func(dict map[string]interface{}) Content {
-		return new(VideoFileContent).Init(dict)
+		content := new(VideoFileContent)
+		content.Init(dict)
+		return content
 	}))
 
 	// Web Page
 	ContentSetFactory(PAGE, NewGeneralContentFactory(func(dict map[string]interface{}) Content {
-		return new(WebPageContent).Init(dict)
+		content := new(WebPageContent)
+		content.Init(dict)
+		return content
 	}))
 
 	// Money
 	ContentSetFactory(MONEY, NewGeneralContentFactory(func(dict map[string]interface{}) Content {
-		return new(BaseMoneyContent).Init(dict)
+		content := new(BaseMoneyContent)
+		content.Init(dict)
+		return content
 	}))
 	ContentSetFactory(TRANSFER, NewGeneralContentFactory(func(dict map[string]interface{}) Content {
-		return new(TransferMoneyContent).Init(dict)
+		content := new(TransferMoneyContent)
+		content.Init(dict)
+		return content
 	}))
 
 	// Command
 	ContentSetFactory(COMMAND, NewGeneralCommandFactory(func(dict map[string]interface{}) Command {
-		return new(BaseCommand).Init(dict)
+		content := new(BaseCommand)
+		content.Init(dict)
+		return content
 	}))
 	// History Command
 	ContentSetFactory(HISTORY, NewHistoryCommandFactory(func(dict map[string]interface{}) Command {
-		return new(BaseHistoryCommand).Init(dict)
+		content := new(BaseHistoryCommand)
+		content.Init(dict)
+		return content
 	}))
 
 	// unknown content type
 	ContentSetFactory(0, NewGeneralContentFactory(func(dict map[string]interface{}) Content {
-		return new(BaseContent).Init(dict)
+		content := new(BaseContent)
+		content.Init(dict)
+		return content
 	}))
 }

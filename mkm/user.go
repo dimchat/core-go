@@ -109,11 +109,11 @@ type BaseUser struct {
 	BaseEntity
 }
 
-func (user *BaseUser) Init(identifier ID) *BaseUser {
-	if user.BaseEntity.Init(identifier) != nil {
-	}
-	return user
-}
+//func (user *BaseUser) Init(identifier ID) *BaseUser {
+//	if user.BaseEntity.Init(identifier) != nil {
+//	}
+//	return user
+//}
 
 //-------- IUser
 

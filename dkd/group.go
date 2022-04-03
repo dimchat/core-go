@@ -155,11 +155,11 @@ func NewInviteCommand(group ID, members []ID) InviteCommand {
 	return new(InviteGroupCommand).InitWithMembers(group, members)
 }
 
-func (cmd *InviteGroupCommand) Init(dict map[string]interface{}) *InviteGroupCommand {
-	if cmd.BaseGroupCommand.Init(dict) != nil {
-	}
-	return cmd
-}
+//func (cmd *InviteGroupCommand) Init(dict map[string]interface{}) *InviteGroupCommand {
+//	if cmd.BaseGroupCommand.Init(dict) != nil {
+//	}
+//	return cmd
+//}
 
 func (cmd *InviteGroupCommand) InitWithMember(group ID, member ID) *InviteGroupCommand {
 	if cmd.BaseGroupCommand.InitWithMember(INVITE, group, member) != nil {
@@ -202,11 +202,11 @@ func NewExpelCommand(group ID, members []ID) ExpelCommand {
 	return new(ExpelGroupCommand).InitWithMembers(group, members)
 }
 
-func (cmd *ExpelGroupCommand) Init(dict map[string]interface{}) *ExpelGroupCommand {
-	if cmd.BaseGroupCommand.Init(dict) != nil {
-	}
-	return cmd
-}
+//func (cmd *ExpelGroupCommand) Init(dict map[string]interface{}) *ExpelGroupCommand {
+//	if cmd.BaseGroupCommand.Init(dict) != nil {
+//	}
+//	return cmd
+//}
 
 func (cmd *ExpelGroupCommand) InitWithMember(group ID, member ID) *ExpelGroupCommand {
 	if cmd.BaseGroupCommand.InitWithMember(EXPEL, group, member) != nil {
@@ -249,11 +249,11 @@ func NewJoinCommand(group ID) JoinCommand {
 	return new(JoinGroupCommand).InitWithGroup(group)
 }
 
-func (cmd *JoinGroupCommand) Init(dict map[string]interface{}) *JoinGroupCommand {
-	if cmd.BaseGroupCommand.Init(dict) != nil {
-	}
-	return cmd
-}
+//func (cmd *JoinGroupCommand) Init(dict map[string]interface{}) *JoinGroupCommand {
+//	if cmd.BaseGroupCommand.Init(dict) != nil {
+//	}
+//	return cmd
+//}
 
 func (cmd *JoinGroupCommand) InitWithGroup(group ID) *JoinGroupCommand {
 	if cmd.BaseGroupCommand.InitWithCommand(JOIN, group) != nil {
@@ -289,11 +289,11 @@ func NewQuitCommand(group ID) QuitCommand {
 	return new(QuitGroupCommand).InitWithGroup(group)
 }
 
-func (cmd *QuitGroupCommand) Init(dict map[string]interface{}) *QuitGroupCommand {
-	if cmd.BaseGroupCommand.Init(dict) != nil {
-	}
-	return cmd
-}
+//func (cmd *QuitGroupCommand) Init(dict map[string]interface{}) *QuitGroupCommand {
+//	if cmd.BaseGroupCommand.Init(dict) != nil {
+//	}
+//	return cmd
+//}
 
 func (cmd *QuitGroupCommand) InitWithGroup(group ID) *QuitGroupCommand {
 	if cmd.BaseGroupCommand.InitWithCommand(QUIT, group) != nil {
@@ -329,11 +329,11 @@ func NewResetCommand(group ID, members []ID) ResetCommand {
 	return new(ResetGroupCommand).InitWithMembers(group, members)
 }
 
-func (cmd *ResetGroupCommand) Init(dict map[string]interface{}) *ResetGroupCommand {
-	if cmd.BaseGroupCommand.Init(dict) != nil {
-	}
-	return cmd
-}
+//func (cmd *ResetGroupCommand) Init(dict map[string]interface{}) *ResetGroupCommand {
+//	if cmd.BaseGroupCommand.Init(dict) != nil {
+//	}
+//	return cmd
+//}
 
 func (cmd *ResetGroupCommand) InitWithMembers(group ID, members []ID) *ResetGroupCommand {
 	if cmd.BaseGroupCommand.InitWithMembers(RESET, group, members) != nil {
@@ -365,11 +365,11 @@ func NewQueryCommand(group ID) QueryCommand {
 	return new(QueryGroupCommand).InitWithGroup(group)
 }
 
-func (cmd *QueryGroupCommand) Init(dict map[string]interface{}) *QueryGroupCommand {
-	if cmd.BaseGroupCommand.Init(dict) != nil {
-	}
-	return cmd
-}
+//func (cmd *QueryGroupCommand) Init(dict map[string]interface{}) *QueryGroupCommand {
+//	if cmd.BaseGroupCommand.Init(dict) != nil {
+//	}
+//	return cmd
+//}
 
 func (cmd *QueryGroupCommand) InitWithGroup(group ID) *QueryGroupCommand {
 	if cmd.BaseGroupCommand.InitWithCommand(QUERY, group) != nil {

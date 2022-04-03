@@ -49,12 +49,12 @@ type BaseCommand struct {
 	BaseContent
 }
 
-/* designated initializer */
-func (cmd *BaseCommand) Init(dict map[string]interface{}) *BaseCommand {
-	if cmd.BaseContent.Init(dict) != nil {
-	}
-	return cmd
-}
+///* designated initializer */
+//func (cmd *BaseCommand) Init(dict map[string]interface{}) *BaseCommand {
+//	if cmd.BaseContent.Init(dict) != nil {
+//	}
+//	return cmd
+//}
 
 /* designated initializer */
 func (cmd *BaseCommand) InitWithType(msgType ContentType, command string) *BaseCommand {

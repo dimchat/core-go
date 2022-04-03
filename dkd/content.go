@@ -99,11 +99,11 @@ func NewTextContent(text string) TextContent {
 	return new(BaseTextContent).InitWithText(text)
 }
 
-func (content *BaseTextContent) Init(dict map[string]interface{}) *BaseTextContent {
-	if content.BaseContent.Init(dict) != nil {
-	}
-	return content
-}
+//func (content *BaseTextContent) Init(dict map[string]interface{}) *BaseTextContent {
+//	if content.BaseContent.Init(dict) != nil {
+//	}
+//	return content
+//}
 
 func (content *BaseTextContent) InitWithText(text string) *BaseTextContent {
 	if content.InitWithType(TEXT) != nil {

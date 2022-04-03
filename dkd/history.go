@@ -48,11 +48,11 @@ type BaseHistoryCommand struct {
 	BaseCommand
 }
 
-func (cmd *BaseHistoryCommand) Init(dict map[string]interface{}) *BaseHistoryCommand {
-	if cmd.BaseCommand.Init(dict) != nil {
-	}
-	return cmd
-}
+//func (cmd *BaseHistoryCommand) Init(dict map[string]interface{}) *BaseHistoryCommand {
+//	if cmd.BaseCommand.Init(dict) != nil {
+//	}
+//	return cmd
+//}
 
 func (cmd *BaseHistoryCommand) InitWithCommand(command string) *BaseHistoryCommand {
 	if cmd.BaseCommand.InitWithType(HISTORY, command) != nil {

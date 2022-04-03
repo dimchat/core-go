@@ -221,11 +221,11 @@ func NewAudioContent(filename string, data []byte) AudioContent {
 	return new(AudioFileContent).InitWithFilename(filename, data)
 }
 
-func (content *AudioFileContent) Init(dict map[string]interface{}) *AudioFileContent {
-	if content.BaseFileContent.Init(dict) != nil {
-	}
-	return content
-}
+//func (content *AudioFileContent) Init(dict map[string]interface{}) *AudioFileContent {
+//	if content.BaseFileContent.Init(dict) != nil {
+//	}
+//	return content
+//}
 
 func (content *AudioFileContent) InitWithFilename(filename string, data []byte) *AudioFileContent {
 	if content.BaseFileContent.InitWithType(AUDIO, filename, data) != nil {

@@ -48,7 +48,9 @@ type GeneralCommandFactory struct {
 }
 
 func NewGeneralCommandFactory(fn CommandParser) *GeneralCommandFactory {
-	return new(GeneralCommandFactory).Init(fn)
+	factory := new(GeneralCommandFactory)
+	factory.Init(fn)
+	return factory
 }
 
 func (factory *GeneralCommandFactory) Init(fn CommandParser) *GeneralCommandFactory {
@@ -88,14 +90,16 @@ type HistoryCommandFactory struct {
 }
 
 func NewHistoryCommandFactory(fn CommandParser) *HistoryCommandFactory {
-	return new(HistoryCommandFactory).Init(fn)
-}
-
-func (factory *HistoryCommandFactory) Init(fn CommandParser) *HistoryCommandFactory {
-	if factory.GeneralCommandFactory.Init(fn) != nil {
-	}
+	factory := new(HistoryCommandFactory)
+	factory.Init(fn)
 	return factory
 }
+
+//func (factory *HistoryCommandFactory) Init(fn CommandParser) *HistoryCommandFactory {
+//	if factory.GeneralCommandFactory.Init(fn) != nil {
+//	}
+//	return factory
+//}
 
 /**
  *  Group Command Factory
@@ -105,14 +109,16 @@ type GroupCommandFactory struct {
 }
 
 func NewGroupCommandFactory(fn CommandParser) *GroupCommandFactory {
-	return new(GroupCommandFactory).Init(fn)
-}
-
-func (factory *GroupCommandFactory) Init(fn CommandParser) *GroupCommandFactory {
-	if factory.GeneralCommandFactory.Init(fn) != nil {
-	}
+	factory := new(GroupCommandFactory)
+	factory.Init(fn)
 	return factory
 }
+
+//func (factory *GroupCommandFactory) Init(fn CommandParser) *GroupCommandFactory {
+//	if factory.GeneralCommandFactory.Init(fn) != nil {
+//	}
+//	return factory
+//}
 
 //-------- IContentFactory
 
@@ -132,33 +138,51 @@ func (factory *GroupCommandFactory) ParseContent(content map[string]interface{})
 func RegisterCommandFactories() {
 	// Meta Command
 	CommandSetFactory(META, NewGeneralCommandFactory(func(dict map[string]interface{}) Command {
-		return new(BaseMetaCommand).Init(dict)
+		cmd := new(BaseMetaCommand)
+		cmd.Init(dict)
+		return cmd
 	}))
 	// Document Command
 	CommandSetFactory(DOCUMENT, NewGeneralCommandFactory(func(dict map[string]interface{}) Command {
-		return new(BaseDocumentCommand).Init(dict)
+		cmd := new(BaseDocumentCommand)
+		cmd.Init(dict)
+		return cmd
 	}))
 
 	// Group Commands
 	CommandSetFactory("group", NewGroupCommandFactory(func(dict map[string]interface{}) Command {
-		return new(BaseGroupCommand).Init(dict)
+		cmd := new(BaseGroupCommand)
+		cmd.Init(dict)
+		return cmd
 	}))
 	CommandSetFactory(INVITE, NewGroupCommandFactory(func(dict map[string]interface{}) Command {
-		return new(InviteGroupCommand).Init(dict)
+		cmd := new(InviteGroupCommand)
+		cmd.Init(dict)
+		return cmd
 	}))
 	CommandSetFactory(EXPEL, NewGroupCommandFactory(func(dict map[string]interface{}) Command {
-		return new(ExpelGroupCommand).Init(dict)
+		cmd := new(ExpelGroupCommand)
+		cmd.Init(dict)
+		return cmd
 	}))
 	CommandSetFactory(JOIN, NewGroupCommandFactory(func(dict map[string]interface{}) Command {
-		return new(JoinGroupCommand).Init(dict)
+		cmd := new(JoinGroupCommand)
+		cmd.Init(dict)
+		return cmd
 	}))
 	CommandSetFactory(QUIT, NewGroupCommandFactory(func(dict map[string]interface{}) Command {
-		return new(QuitGroupCommand).Init(dict)
+		cmd := new(QuitGroupCommand)
+		cmd.Init(dict)
+		return cmd
 	}))
 	CommandSetFactory(QUERY, NewGroupCommandFactory(func(dict map[string]interface{}) Command {
-		return new(QueryGroupCommand).Init(dict)
+		cmd := new(QueryGroupCommand)
+		cmd.Init(dict)
+		return cmd
 	}))
 	CommandSetFactory(RESET, NewGroupCommandFactory(func(dict map[string]interface{}) Command {
-		return new(ResetGroupCommand).Init(dict)
+		cmd := new(ResetGroupCommand)
+		cmd.Init(dict)
+		return cmd
 	}))
 }
