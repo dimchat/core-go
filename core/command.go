@@ -135,13 +135,9 @@ func RegisterCommandFactories() {
 		return new(BaseMetaCommand).Init(dict)
 	}))
 	// Document Command
-	factory := NewGeneralCommandFactory(func(dict map[string]interface{}) Command {
+	CommandSetFactory(DOCUMENT, NewGeneralCommandFactory(func(dict map[string]interface{}) Command {
 		return new(BaseDocumentCommand).Init(dict)
-	})
-	CommandSetFactory(DOCUMENT, factory)
-	CommandSetFactory("profile", factory)
-	CommandSetFactory("visa", factory)
-	CommandSetFactory("bulletin", factory)
+	}))
 
 	// Group Commands
 	CommandSetFactory("group", NewGroupCommandFactory(func(dict map[string]interface{}) Command {

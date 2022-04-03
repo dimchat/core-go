@@ -65,12 +65,11 @@ type Command interface {
 }
 
 func CommandGetName(cmd map[string]interface{}) string {
-	text, ok := cmd["command"].(string)
-	if ok {
-		return text
-	} else {
+	text := cmd["command"]
+	if text == nil {
 		return ""
 	}
+	return text.(string)
 }
 
 /**

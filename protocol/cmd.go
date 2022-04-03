@@ -88,8 +88,8 @@ type MetaCommand interface {
  *      command   : "document",  // command name
  *      ID        : "{ID}",      // entity ID
  *      meta      : {...},       // only for handshaking with new friend
- *      profile   : {...},       // when profile is empty, means query for ID
- *      signature : "..."        // old profile's signature for querying
+ *      document  : {...},       // when document is empty, means query for ID
+ *      signature : "..."        // old document's signature for querying
  *  }
  */
 type DocumentCommand interface {

@@ -264,12 +264,11 @@ func (cmd *JoinGroupCommand) InitWithGroup(group ID) *JoinGroupCommand {
 //-------- IJoinCommand
 
 func (cmd *JoinGroupCommand) Ask() string {
-	text, ok := cmd.Get("text").(string)
-	if ok {
-		return text
-	} else {
+	text := cmd.Get("text")
+	if text == nil {
 		return ""
 	}
+	return text.(string)
 }
 
 /**
@@ -305,12 +304,11 @@ func (cmd *QuitGroupCommand) InitWithGroup(group ID) *QuitGroupCommand {
 //-------- IQuitCommand
 
 func (cmd *QuitGroupCommand) Bye() string {
-	text, ok := cmd.Get("text").(string)
-	if ok {
-		return text
-	} else {
+	text := cmd.Get("text")
+	if text == nil {
 		return ""
 	}
+	return text.(string)
 }
 
 /**
@@ -382,10 +380,9 @@ func (cmd *QueryGroupCommand) InitWithGroup(group ID) *QueryGroupCommand {
 //-------- IQueryCommand
 
 func (cmd *QueryGroupCommand) Text() string {
-	text, ok := cmd.Get("text").(string)
-	if ok {
-		return text
-	} else {
+	text := cmd.Get("text")
+	if text == nil {
 		return ""
 	}
+	return text.(string)
 }

@@ -137,7 +137,7 @@ func (barrack *Barrack) GetPublicKeyForEncryption(user ID) EncryptKey {
 	if metaKey != nil {
 		key, ok := metaKey.(EncryptKey)
 		if ok {
-			// if profile.key not exists and meta.key is encrypt key,
+			// if visa.key not exists and meta.key is encrypt key,
 			// use it for encryption
 			return key
 		}

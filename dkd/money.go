@@ -79,21 +79,19 @@ func (content *BaseMoneyContent) setCurrency(currency string) {
 //-------- IMoneyContent
 
 func (content *BaseMoneyContent) Currency() string {
-	text, ok := content.Get("currency").(string)
-	if ok {
-		return text
-	} else {
+	text := content.Get("currency")
+	if text == nil {
 		return ""
 	}
+	return text.(string)
 }
 
 func (content *BaseMoneyContent) Amount() float64 {
-	amount, ok := content.Get("amount").(float64)
-	if ok {
-		return amount
-	} else {
+	amount := content.Get("amount")
+	if amount == nil {
 		return 0.0
 	}
+	return amount.(float64)
 }
 func (content *BaseMoneyContent) SetAmount(amount float64) {
 	content.Set("amount", amount)
@@ -131,10 +129,9 @@ func (content *TransferMoneyContent) InitWithCurrency(currency string, amount fl
 //-------- ITransferContent
 
 func (content *TransferMoneyContent) Comment() string {
-	text, ok := content.Get("text").(string)
-	if ok {
-		return text
-	} else {
+	text := content.Get("text")
+	if text == nil {
 		return ""
 	}
+	return text.(string)
 }

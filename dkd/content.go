@@ -115,12 +115,11 @@ func (content *BaseTextContent) InitWithText(text string) *BaseTextContent {
 //-------- ITextContent
 
 func (content *BaseTextContent) Text() string {
-	text, ok := content.Get("text").(string)
-	if ok {
-		return text
-	} else {
+	text := content.Get("text")
+	if text == nil {
 		return ""
 	}
+	return text.(string)
 }
 
 func (content *BaseTextContent) SetText(text string) {
@@ -169,36 +168,33 @@ func (content *WebPageContent) InitWithURL(url string, title string, desc string
 //-------- IPageContent
 
 func (content *WebPageContent) URL() string {
-	url, ok := content.Get("URL").(string)
-	if ok {
-		return url
-	} else {
+	text := content.Get("URL")
+	if text == nil {
 		return ""
 	}
+	return text.(string)
 }
 func (content *WebPageContent) SetURL(url string) {
 	content.Set("URL", url)
 }
 
 func (content *WebPageContent) Title() string {
-	text, ok := content.Get("title").(string)
-	if ok {
-		return text
-	} else {
+	text := content.Get("title")
+	if text == nil {
 		return ""
 	}
+	return text.(string)
 }
 func (content *WebPageContent) SetTitle(title string) {
 	content.Set("title", title)
 }
 
 func (content *WebPageContent) Description() string {
-	text, ok := content.Get("desc").(string)
-	if ok {
-		return text
-	} else {
+	text := content.Get("desc")
+	if text == nil {
 		return ""
 	}
+	return text.(string)
 }
 func (content *WebPageContent) SetDescription(desc string) {
 	content.Set("desc", desc)

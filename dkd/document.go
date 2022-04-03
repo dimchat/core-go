@@ -96,23 +96,17 @@ func (cmd *BaseDocumentCommand) InitWithSignature(id ID, signature string) *Base
  */
 func (cmd *BaseDocumentCommand) Document() Document {
 	if cmd._doc == nil {
-		document := cmd.Get("document")
-		if document == nil {
-			// compatible with v1.0
-			document = cmd.Get("profile")
-		}
-		cmd._doc = DocumentParse(document)
+		cmd._doc = DocumentParse(cmd.Get("document"))
 	}
 	return cmd._doc
 }
 
 func (cmd *BaseDocumentCommand) Signature() string {
-	text, ok := cmd.Get("signature").(string)
-	if ok {
-		return text
-	} else {
+	b64 := cmd.Get("signature")
+	if b64 == nil {
 		return ""
 	}
+	return b64.(string)
 }
 
 //

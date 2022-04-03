@@ -86,12 +86,11 @@ func (content *BaseFileContent) InitWithType(msgType ContentType, filename strin
 //-------- IFileContent
 
 func (content *BaseFileContent) URL() string {
-	url, ok := content.Get("URL").(string)
-	if ok {
-		return url
-	} else {
+	text := content.Get("URL")
+	if text == nil {
 		return ""
 	}
+	return text.(string)
 }
 func (content *BaseFileContent) SetURL(url string) {
 	content.Set("URL", url)
@@ -117,12 +116,11 @@ func (content *BaseFileContent) SetData(data []byte) {
 }
 
 func (content *BaseFileContent) Filename() string {
-	text, ok := content.Get("filename").(string)
-	if ok {
-		return text
-	} else {
+	text := content.Get("filename")
+	if text == nil {
 		return ""
 	}
+	return text.(string)
 }
 func (content *BaseFileContent) SetFilename(filename string) {
 	content.Set("filename", filename)
@@ -238,12 +236,11 @@ func (content *AudioFileContent) InitWithFilename(filename string, data []byte) 
 //-------- IAudioContent
 
 func (content *AudioFileContent) Duration() float64 {
-	duration, ok := content.Get("duration").(float64)
-	if ok {
-		return duration
-	} else {
+	duration := content.Get("duration")
+	if duration == nil {
 		return 0.0
 	}
+	return duration.(float64)
 }
 func (content *AudioFileContent) SetDuration(duration float64) {
 	content.Set("duration", duration)
