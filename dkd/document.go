@@ -62,7 +62,9 @@ func (cmd *BaseDocumentCommand) InitWithMeta(id ID, meta Meta, doc Document) *Ba
 }
 
 func (cmd *BaseDocumentCommand) InitWithDocument(id ID, doc Document) *BaseDocumentCommand {
-	return cmd.InitWithMeta(id, nil, doc)
+	if cmd.InitWithMeta(id, nil, doc) != nil {
+	}
+	return cmd
 }
 
 /**
@@ -71,7 +73,9 @@ func (cmd *BaseDocumentCommand) InitWithDocument(id ID, doc Document) *BaseDocum
  * @param identifier - entity ID
  */
 func (cmd *BaseDocumentCommand) InitWithID(id ID) *BaseDocumentCommand {
-	return cmd.InitWithMeta(id, nil, nil)
+	if cmd.InitWithMeta(id, nil, nil) != nil {
+	}
+	return cmd
 }
 
 /**
@@ -114,9 +118,13 @@ func (cmd *BaseDocumentCommand) Signature() string {
 //
 
 func DocumentCommandQuery(id ID, signature string) DocumentCommand {
-	return new(BaseDocumentCommand).InitWithSignature(id, signature)
+	cmd := new(BaseDocumentCommand)
+	cmd.InitWithSignature(id, signature)
+	return cmd
 }
 
 func DocumentCommandRespond(id ID, meta Meta, doc Document) DocumentCommand {
-	return new(BaseDocumentCommand).InitWithMeta(id, meta, doc)
+	cmd := new(BaseDocumentCommand)
+	cmd.InitWithMeta(id, meta, doc)
+	return cmd
 }

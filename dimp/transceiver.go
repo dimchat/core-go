@@ -80,14 +80,14 @@ func (transceiver *Transceiver) IsBroadcast(msg Message) bool {
 
 //-------- IInstantMessageDelegate
 
-func (transceiver *Transceiver) SerializeContent(content Content, password SymmetricKey, iMsg InstantMessage) []byte {
+func (transceiver *Transceiver) SerializeContent(content Content, _ SymmetricKey, _ InstantMessage) []byte {
 	// NOTICE: check attachment for File/Image/Audio/Video message content
 	//         before serialize content, this job should be do in subclass
 	dict := content.GetMap(false)
 	return JSONEncodeMap(dict)
 }
 
-func (transceiver *Transceiver) EncryptContent(data []byte, password SymmetricKey, iMsg InstantMessage) []byte {
+func (transceiver *Transceiver) EncryptContent(data []byte, password SymmetricKey, _ InstantMessage) []byte {
 	return password.Encrypt(data)
 }
 
@@ -109,7 +109,7 @@ func (transceiver *Transceiver) SerializeKey(password SymmetricKey, iMsg Instant
 	return JSONEncodeMap(dict)
 }
 
-func (transceiver *Transceiver) EncryptKey(data []byte, receiver ID, iMsg InstantMessage) []byte {
+func (transceiver *Transceiver) EncryptKey(data []byte, receiver ID, _ InstantMessage) []byte {
 	// TODO: make sure the receiver's public key exists
 	barrack := transceiver.EntityDelegate()
 	contact := barrack.GetUser(receiver)
@@ -117,20 +117,20 @@ func (transceiver *Transceiver) EncryptKey(data []byte, receiver ID, iMsg Instan
 	return contact.Encrypt(data)
 }
 
-func (transceiver *Transceiver) EncodeKey(data []byte, iMsg InstantMessage) string {
+func (transceiver *Transceiver) EncodeKey(data []byte, _ InstantMessage) string {
 	return Base64Encode(data)
 }
 
 //-------- ISecureMessageDelegate
 
-func (transceiver *Transceiver) DecodeKey(key interface{}, sMsg SecureMessage) []byte {
+func (transceiver *Transceiver) DecodeKey(key interface{}, _ SecureMessage) []byte {
 	if ValueIsNil(key) {
 		return nil
 	}
 	return Base64Decode(key.(string))
 }
 
-func (transceiver *Transceiver) DecryptKey(key []byte, sender ID, receiver ID, sMsg SecureMessage) []byte {
+func (transceiver *Transceiver) DecryptKey(key []byte, _ ID, _ ID, sMsg SecureMessage) []byte {
 	// NOTICE: the receiver will be group ID in a group message here
 	barrack := transceiver.EntityDelegate()
 	user := barrack.GetUser(sMsg.Receiver())
@@ -138,7 +138,7 @@ func (transceiver *Transceiver) DecryptKey(key []byte, sender ID, receiver ID, s
 	return user.Decrypt(key)
 }
 
-func (transceiver *Transceiver) DeserializeKey(key []byte, sender ID, receiver ID, sMsg SecureMessage) SymmetricKey {
+func (transceiver *Transceiver) DeserializeKey(key []byte, _ ID, _ ID, _ SecureMessage) SymmetricKey {
 	// NOTICE: the receiver will be group ID in a group message here
 	dict := JSONDecodeMap(key)
 	// TODO: translate short keys
@@ -160,11 +160,11 @@ func (transceiver *Transceiver) DecodeData(data interface{}, sMsg SecureMessage)
 	return Base64Decode(text)
 }
 
-func (transceiver *Transceiver) DecryptContent(data []byte, password SymmetricKey, sMsg SecureMessage) []byte {
+func (transceiver *Transceiver) DecryptContent(data []byte, password SymmetricKey, _ SecureMessage) []byte {
 	return password.Decrypt(data)
 }
 
-func (transceiver *Transceiver) DeserializeContent(data []byte, password SymmetricKey, sMsg SecureMessage) Content {
+func (transceiver *Transceiver) DeserializeContent(data []byte, _ SymmetricKey, _ SecureMessage) Content {
 	dict := JSONDecodeMap(data)
 	// TODO: translate short keys
 	//       'T' -> 'type'
@@ -173,19 +173,19 @@ func (transceiver *Transceiver) DeserializeContent(data []byte, password Symmetr
 	return ContentParse(dict)
 }
 
-func (transceiver *Transceiver) SignData(data []byte, sender ID, sMsg SecureMessage) []byte {
+func (transceiver *Transceiver) SignData(data []byte, sender ID, _ SecureMessage) []byte {
 	barrack := transceiver.EntityDelegate()
 	user := barrack.GetUser(sender)
 	return user.Sign(data)
 }
 
-func (transceiver *Transceiver) EncodeSignature(signature []byte, sMsg SecureMessage) string {
+func (transceiver *Transceiver) EncodeSignature(signature []byte, _ SecureMessage) string {
 	return Base64Encode(signature)
 }
 
 //-------- IReliableMessageDelegate
 
-func (transceiver *Transceiver) DecodeSignature(signature interface{}, rMsg ReliableMessage) []byte {
+func (transceiver *Transceiver) DecodeSignature(signature interface{}, _ ReliableMessage) []byte {
 	if ValueIsNil(signature) {
 		// should not happen
 		return nil
@@ -193,7 +193,7 @@ func (transceiver *Transceiver) DecodeSignature(signature interface{}, rMsg Reli
 	return Base64Decode(signature.(string))
 }
 
-func (transceiver *Transceiver) VerifyDataSignature(data []byte, signature []byte, sender ID, rMsg ReliableMessage) bool {
+func (transceiver *Transceiver) VerifyDataSignature(data []byte, signature []byte, sender ID, _ ReliableMessage) bool {
 	barrack := transceiver.EntityDelegate()
 	contact := barrack.GetUser(sender)
 	return contact.Verify(data, signature)

@@ -53,7 +53,9 @@ type SecretContent struct {
 }
 
 func NewForwardContent(msg ReliableMessage) ForwardContent {
-	return new(SecretContent).InitWithMessage(msg)
+	content := new(SecretContent)
+	content.InitWithMessage(msg)
+	return content
 }
 
 func (content *SecretContent) Init(dict map[string]interface{}) *SecretContent {
@@ -96,7 +98,9 @@ type BaseTextContent struct {
 }
 
 func NewTextContent(text string) TextContent {
-	return new(BaseTextContent).InitWithText(text)
+	content := new(BaseTextContent)
+	content.InitWithText(text)
+	return content
 }
 
 //func (content *BaseTextContent) Init(dict map[string]interface{}) *BaseTextContent {
@@ -144,7 +148,9 @@ type WebPageContent struct {
 }
 
 func NewPageContent(url string, title string, desc string, icon []byte) PageContent {
-	return new(WebPageContent).InitWithURL(url, title, desc, icon)
+	content := new(WebPageContent)
+	content.InitWithURL(url, title, desc, icon)
+	return content
 }
 
 func (content *WebPageContent) Init(dict map[string]interface{}) *WebPageContent {

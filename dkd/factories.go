@@ -2,12 +2,12 @@
  *
  *  DIMP : Decentralized Instant Messaging Protocol
  *
- *                                Written in 2021 by Moky <albert.moky@gmail.com>
+ *                                Written in 2022 by Moky <albert.moky@gmail.com>
  *
  * ==============================================================================
  * The MIT License (MIT)
  *
- * Copyright (c) 2021 Albert Moky
+ * Copyright (c) 2022 Albert Moky
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,15 +28,41 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package core
+package dkd
 
 import (
-	. "github.com/dimchat/core-go/dkd"
 	. "github.com/dimchat/core-go/protocol"
 	. "github.com/dimchat/dkd-go/protocol"
 )
 
+type ContentParser func(map[string]interface{})Content
 type CommandParser func(map[string]interface{})Command
+
+/**
+ *  General Content Factory
+ *  ~~~~~~~~~~~~~~~~~~~~~~~
+ */
+type GeneralContentFactory struct {
+
+	_parse ContentParser
+}
+
+func NewGeneralContentFactory(fn ContentParser) *GeneralContentFactory {
+	factory := new(GeneralContentFactory)
+	factory.Init(fn)
+	return factory
+}
+
+func (factory *GeneralContentFactory) Init(fn ContentParser) *GeneralContentFactory {
+	factory._parse = fn
+	return factory
+}
+
+//-------- IContentFactory
+
+func (factory *GeneralContentFactory) ParseContent(content map[string]interface{}) Content {
+	return factory._parse(content)
+}
 
 /**
  *  General Command Factory
@@ -84,6 +110,7 @@ func (factory *GeneralCommandFactory) ParseCommand(cmd map[string]interface{}) C
 
 /**
  *  History Command Factory
+ *  ~~~~~~~~~~~~~~~~~~~~~~~
  */
 type HistoryCommandFactory struct {
 	GeneralCommandFactory
@@ -103,6 +130,7 @@ func NewHistoryCommandFactory(fn CommandParser) *HistoryCommandFactory {
 
 /**
  *  Group Command Factory
+ *  ~~~~~~~~~~~~~~~~~~~~~
  */
 type GroupCommandFactory struct {
 	GeneralCommandFactory
@@ -130,59 +158,4 @@ func (factory *GroupCommandFactory) ParseContent(content map[string]interface{})
 		cmdFactory = factory
 	}
 	return cmdFactory.ParseCommand(content)
-}
-
-/**
- *  Register core command parsers
- */
-func RegisterCommandFactories() {
-	// Meta Command
-	CommandSetFactory(META, NewGeneralCommandFactory(func(dict map[string]interface{}) Command {
-		cmd := new(BaseMetaCommand)
-		cmd.Init(dict)
-		return cmd
-	}))
-	// Document Command
-	CommandSetFactory(DOCUMENT, NewGeneralCommandFactory(func(dict map[string]interface{}) Command {
-		cmd := new(BaseDocumentCommand)
-		cmd.Init(dict)
-		return cmd
-	}))
-
-	// Group Commands
-	CommandSetFactory("group", NewGroupCommandFactory(func(dict map[string]interface{}) Command {
-		cmd := new(BaseGroupCommand)
-		cmd.Init(dict)
-		return cmd
-	}))
-	CommandSetFactory(INVITE, NewGroupCommandFactory(func(dict map[string]interface{}) Command {
-		cmd := new(InviteGroupCommand)
-		cmd.Init(dict)
-		return cmd
-	}))
-	CommandSetFactory(EXPEL, NewGroupCommandFactory(func(dict map[string]interface{}) Command {
-		cmd := new(ExpelGroupCommand)
-		cmd.Init(dict)
-		return cmd
-	}))
-	CommandSetFactory(JOIN, NewGroupCommandFactory(func(dict map[string]interface{}) Command {
-		cmd := new(JoinGroupCommand)
-		cmd.Init(dict)
-		return cmd
-	}))
-	CommandSetFactory(QUIT, NewGroupCommandFactory(func(dict map[string]interface{}) Command {
-		cmd := new(QuitGroupCommand)
-		cmd.Init(dict)
-		return cmd
-	}))
-	CommandSetFactory(QUERY, NewGroupCommandFactory(func(dict map[string]interface{}) Command {
-		cmd := new(QueryGroupCommand)
-		cmd.Init(dict)
-		return cmd
-	}))
-	CommandSetFactory(RESET, NewGroupCommandFactory(func(dict map[string]interface{}) Command {
-		cmd := new(ResetGroupCommand)
-		cmd.Init(dict)
-		return cmd
-	}))
 }

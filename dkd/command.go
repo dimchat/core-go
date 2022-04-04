@@ -65,7 +65,9 @@ func (cmd *BaseCommand) InitWithType(msgType ContentType, command string) *BaseC
 }
 
 func (cmd *BaseCommand) InitWithCommand(command string) *BaseCommand {
-	return cmd.InitWithType(COMMAND, command)
+	if cmd.InitWithType(COMMAND, command) != nil {
+	}
+	return cmd
 }
 
 //-------- ICommand

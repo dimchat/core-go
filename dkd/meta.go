@@ -73,7 +73,9 @@ func (cmd *BaseMetaCommand) InitWithCommand(command string, id ID, meta Meta) *B
  * @param meta - entity Meta
  */
 func (cmd *BaseMetaCommand) InitWithMeta(id ID, meta Meta) *BaseMetaCommand {
-	return cmd.InitWithCommand(META, id, meta)
+	if cmd.InitWithCommand(META, id, meta) != nil {
+	}
+	return cmd
 }
 
 /**
@@ -82,7 +84,9 @@ func (cmd *BaseMetaCommand) InitWithMeta(id ID, meta Meta) *BaseMetaCommand {
  * @param identifier - entity ID
  */
 func (cmd *BaseMetaCommand) InitWithID(id ID) *BaseMetaCommand {
-	return cmd.InitWithCommand(META, id, nil)
+	if cmd.InitWithCommand(META, id, nil) != nil {
+	}
+	return cmd
 }
 
 //-------- IMetaCommand
@@ -106,9 +110,13 @@ func (cmd *BaseMetaCommand) Meta() Meta {
 //
 
 func MetaCommandQuery(id ID) MetaCommand {
-	return new(BaseMetaCommand).InitWithID(id)
+	cmd := new(BaseMetaCommand)
+	cmd.InitWithID(id)
+	return cmd
 }
 
 func MetaCommandRespond(id ID, meta Meta) MetaCommand {
-	return new(BaseMetaCommand).InitWithMeta(id, meta)
+	cmd := new(BaseMetaCommand)
+	cmd.InitWithMeta(id, meta)
+	return cmd
 }
