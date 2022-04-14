@@ -61,7 +61,7 @@ func NewImageContent(filename string, data []byte) ImageContent {
 	return content
 }
 
-func (content *ImageFileContent) Init(dict map[string]interface{}) *ImageFileContent {
+func (content *ImageFileContent) Init(dict map[string]interface{}) ImageContent {
 	if content.BaseFileContent.Init(dict) != nil {
 		// lazy load
 		content._thumbnail = nil
@@ -69,7 +69,7 @@ func (content *ImageFileContent) Init(dict map[string]interface{}) *ImageFileCon
 	return content
 }
 
-func (content *ImageFileContent) InitWithFilename(filename string, data []byte) *ImageFileContent {
+func (content *ImageFileContent) InitWithFilename(filename string, data []byte) ImageContent {
 	if content.BaseFileContent.InitWithType(IMAGE, filename, data) != nil {
 		content._thumbnail = nil
 	}
@@ -80,9 +80,9 @@ func (content *ImageFileContent) InitWithFilename(filename string, data []byte) 
 
 func (content *ImageFileContent) Thumbnail() []byte {
 	if content._thumbnail == nil {
-		b64 := content.Get("thumbnail")
-		if b64 != nil {
-			content._thumbnail = Base64Decode(b64.(string))
+		base64 := content.Get("thumbnail")
+		if base64 != nil {
+			content._thumbnail = Base64Decode(base64.(string))
 		}
 	}
 	return content._thumbnail
@@ -92,8 +92,8 @@ func (content *ImageFileContent) SetThumbnail(thumbnail []byte) {
 	if ValueIsNil(thumbnail) {
 		content.Remove("thumbnail")
 	} else {
-		b64 := Base64Encode(thumbnail)
-		content.Set("thumbnail", b64)
+		base64 := Base64Encode(thumbnail)
+		content.Set("thumbnail", base64)
 	}
 	content._thumbnail = thumbnail
 }
@@ -119,13 +119,13 @@ func NewAudioContent(filename string, data []byte) AudioContent {
 	return content
 }
 
-//func (content *AudioFileContent) Init(dict map[string]interface{}) *AudioFileContent {
+//func (content *AudioFileContent) Init(dict map[string]interface{}) AudioContent {
 //	if content.BaseFileContent.Init(dict) != nil {
 //	}
 //	return content
 //}
 
-func (content *AudioFileContent) InitWithFilename(filename string, data []byte) *AudioFileContent {
+func (content *AudioFileContent) InitWithFilename(filename string, data []byte) AudioContent {
 	if content.BaseFileContent.InitWithType(AUDIO, filename, data) != nil {
 	}
 	return content
@@ -167,7 +167,7 @@ func NewVideoContent(filename string, data []byte) VideoContent {
 	return content
 }
 
-func (content *VideoFileContent) Init(dict map[string]interface{}) *VideoFileContent {
+func (content *VideoFileContent) Init(dict map[string]interface{}) VideoContent {
 	if content.BaseFileContent.Init(dict) != nil {
 		// lazy load
 		content._snapshot = nil
@@ -175,7 +175,7 @@ func (content *VideoFileContent) Init(dict map[string]interface{}) *VideoFileCon
 	return content
 }
 
-func (content *VideoFileContent) InitWithFilename(filename string, data []byte) *VideoFileContent {
+func (content *VideoFileContent) InitWithFilename(filename string, data []byte) VideoContent {
 	if content.BaseFileContent.InitWithType(VIDEO, filename, data) != nil {
 		content._snapshot = nil
 	}
@@ -186,9 +186,9 @@ func (content *VideoFileContent) InitWithFilename(filename string, data []byte) 
 
 func (content *VideoFileContent) Snapshot() []byte {
 	if content._snapshot == nil {
-		b64 := content.Get("snapshot")
-		if b64 != nil {
-			content._snapshot = Base64Decode(b64.(string))
+		base64 := content.Get("snapshot")
+		if base64 != nil {
+			content._snapshot = Base64Decode(base64.(string))
 		}
 	}
 	return content._snapshot
@@ -198,8 +198,8 @@ func (content *VideoFileContent) SetSnapshot(snapshot []byte) {
 	if ValueIsNil(snapshot) {
 		content.Remove("snapshot")
 	} else {
-		b64 := Base64Encode(snapshot)
-		content.Set("snapshot", b64)
+		base64 := Base64Encode(snapshot)
+		content.Set("snapshot", base64)
 	}
 	content._snapshot = snapshot
 }

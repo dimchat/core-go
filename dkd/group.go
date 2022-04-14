@@ -31,6 +31,7 @@
 package dkd
 
 import (
+	. "github.com/dimchat/core-go/protocol"
 	. "github.com/dimchat/mkm-go/protocol"
 	. "github.com/dimchat/mkm-go/types"
 )
@@ -53,7 +54,7 @@ type BaseGroupCommand struct {
 }
 
 /* designated initializer */
-func (cmd *BaseGroupCommand) Init(dict map[string]interface{}) *BaseGroupCommand {
+func (cmd *BaseGroupCommand) Init(dict map[string]interface{}) GroupCommand {
 	if cmd.BaseHistoryCommand.Init(dict) != nil {
 		// lazy load
 		cmd._member = nil
@@ -63,7 +64,7 @@ func (cmd *BaseGroupCommand) Init(dict map[string]interface{}) *BaseGroupCommand
 }
 
 /* designated initializer */
-func (cmd *BaseGroupCommand) InitWithGroupCommand(command string, group ID, member ID, members []ID) *BaseGroupCommand {
+func (cmd *BaseGroupCommand) InitWithGroupCommand(command string, group ID, member ID, members []ID) GroupCommand {
 	if cmd.BaseHistoryCommand.InitWithCommand(command) != nil {
 		cmd.SetGroup(group)
 		cmd.SetMember(member)
@@ -72,19 +73,19 @@ func (cmd *BaseGroupCommand) InitWithGroupCommand(command string, group ID, memb
 	return cmd
 }
 
-func (cmd *BaseGroupCommand) InitWithCommand(command string, group ID) *BaseGroupCommand {
+func (cmd *BaseGroupCommand) InitWithCommand(command string, group ID) GroupCommand {
 	if cmd.InitWithGroupCommand(command, group, nil, nil) != nil {
 	}
 	return cmd
 }
 
-func (cmd *BaseGroupCommand) InitWithMember(command string, group ID, member ID) *BaseGroupCommand {
+func (cmd *BaseGroupCommand) InitWithMember(command string, group ID, member ID) GroupCommand {
 	if cmd.InitWithGroupCommand(command, group, member, nil) != nil {
 	}
 	return cmd
 }
 
-func (cmd *BaseGroupCommand) InitWithMembers(command string, group ID, members []ID) *BaseGroupCommand {
+func (cmd *BaseGroupCommand) InitWithMembers(command string, group ID, members []ID) GroupCommand {
 	if cmd.InitWithGroupCommand(command, group, nil, members) != nil {
 	}
 	return cmd

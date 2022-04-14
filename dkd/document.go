@@ -42,7 +42,7 @@ type BaseDocumentCommand struct {
 	_doc Document
 }
 
-func (cmd *BaseDocumentCommand) Init(dict map[string]interface{}) *BaseDocumentCommand {
+func (cmd *BaseDocumentCommand) Init(dict map[string]interface{}) DocumentCommand {
 	if cmd.BaseMetaCommand.Init(dict) != nil {
 		// lazy load
 		cmd._doc = nil
@@ -50,7 +50,7 @@ func (cmd *BaseDocumentCommand) Init(dict map[string]interface{}) *BaseDocumentC
 	return cmd
 }
 
-func (cmd *BaseDocumentCommand) InitWithMeta(id ID, meta Meta, doc Document) *BaseDocumentCommand {
+func (cmd *BaseDocumentCommand) InitWithMeta(id ID, meta Meta, doc Document) DocumentCommand {
 	if cmd.BaseMetaCommand.InitWithCommand(DOCUMENT, id, meta) != nil {
 		// document
 		if !ValueIsNil(doc) {
@@ -61,7 +61,7 @@ func (cmd *BaseDocumentCommand) InitWithMeta(id ID, meta Meta, doc Document) *Ba
 	return cmd
 }
 
-func (cmd *BaseDocumentCommand) InitWithDocument(id ID, doc Document) *BaseDocumentCommand {
+func (cmd *BaseDocumentCommand) InitWithDocument(id ID, doc Document) DocumentCommand {
 	if cmd.InitWithMeta(id, nil, doc) != nil {
 	}
 	return cmd
@@ -72,7 +72,7 @@ func (cmd *BaseDocumentCommand) InitWithDocument(id ID, doc Document) *BaseDocum
  *
  * @param identifier - entity ID
  */
-func (cmd *BaseDocumentCommand) InitWithID(id ID) *BaseDocumentCommand {
+func (cmd *BaseDocumentCommand) InitWithID(id ID) DocumentCommand {
 	if cmd.InitWithMeta(id, nil, nil) != nil {
 	}
 	return cmd
@@ -84,7 +84,7 @@ func (cmd *BaseDocumentCommand) InitWithID(id ID) *BaseDocumentCommand {
  * @param identifier - entity ID
  * @param signature - document signature
  */
-func (cmd *BaseDocumentCommand) InitWithSignature(id ID, signature string) *BaseDocumentCommand {
+func (cmd *BaseDocumentCommand) InitWithSignature(id ID, signature string) DocumentCommand {
 	if cmd.InitWithID(id) != nil {
 		if signature != "" {
 			cmd.Set("signature", signature)
@@ -100,17 +100,18 @@ func (cmd *BaseDocumentCommand) InitWithSignature(id ID, signature string) *Base
  */
 func (cmd *BaseDocumentCommand) Document() Document {
 	if cmd._doc == nil {
-		cmd._doc = DocumentParse(cmd.Get("document"))
+		dict := cmd.Get("document")
+		cmd._doc = DocumentParse(dict)
 	}
 	return cmd._doc
 }
 
 func (cmd *BaseDocumentCommand) Signature() string {
-	b64 := cmd.Get("signature")
-	if b64 == nil {
+	base64 := cmd.Get("signature")
+	if base64 == nil {
 		return ""
 	}
-	return b64.(string)
+	return base64.(string)
 }
 
 //

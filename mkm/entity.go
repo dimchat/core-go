@@ -71,7 +71,7 @@ type BaseEntity struct {
 	_delegate EntityDataSource
 }
 
-func (entity *BaseEntity) Init(identifier ID) *BaseEntity {
+func (entity *BaseEntity) Init(identifier ID) Entity {
 	entity._identifier = identifier
 	entity._delegate = nil
 	return entity

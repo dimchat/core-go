@@ -64,7 +64,7 @@ type Barrack struct {
 	_source EntityDataSource  // facebook
 }
 
-func (barrack *Barrack) Init() *Barrack {
+func (barrack *Barrack) Init() IBarrack {
 	barrack._source = nil
 	return barrack
 }
@@ -101,29 +101,29 @@ func (barrack *Barrack) getMetaKey(user ID) VerifyKey {
 
 //-------- IEntityDelegate
 
-//func (barrack *Barrack) GetUser(identifier ID) User {
-//	panic("not implemented")
-//}
-//
-//func (barrack *Barrack) GetGroup(identifier ID) Group {
-//	panic("not implemented")
-//}
+func (barrack *Barrack) GetUser(_ ID) User {
+	panic("Barrack::GetUser() > override me!")
+}
+
+func (barrack *Barrack) GetGroup(_ ID) Group {
+	panic("Barrack::GetGroup() > override me!")
+}
 
 //-------- IEntityDataSource
 
-//func (barrack *Barrack) GetMeta(identifier ID) Meta {
-//	panic("not implemented")
-//}
-//
-//func (barrack *Barrack) GetDocument(identifier ID, docType string) Document {
-//	panic("not implemented")
-//}
+func (barrack *Barrack) GetMeta(_ ID) Meta {
+	panic("Barrack::GetMeta() > override me!")
+}
+
+func (barrack *Barrack) GetDocument(_ ID, _ string) Document {
+	panic("Barrack::GetDocument() > override me!")
+}
 
 //-------- IUserDataSource
 
-//func (barrack *Barrack) GetContacts(user ID) []ID {
-//	panic("not implemented")
-//}
+func (barrack *Barrack) GetContacts(_ ID) []ID {
+	panic("Barrack::GetContacts() > override me!")
+}
 
 func (barrack *Barrack) GetPublicKeyForEncryption(user ID) EncryptKey {
 	// 1. get key from visa
@@ -168,17 +168,17 @@ func (barrack *Barrack) GetPublicKeysForVerification(user ID) []VerifyKey {
 	return keys
 }
 
-//func (barrack *Barrack) GetPrivateKeysForDecryption(user ID) []DecryptKey {
-//	panic("not implemented")
-//}
-//
-//func (barrack *Barrack) GetPrivateKeyForSignature(user ID) SignKey {
-//	panic("not implemented")
-//}
-//
-//func (barrack *Barrack) GetPrivateKeyForVisaSignature(user ID) SignKey {
-//	panic("not implemented")
-//}
+func (barrack *Barrack) GetPrivateKeysForDecryption(_ ID) []DecryptKey {
+	panic("Barrack::GetPrivateKeysForDecryption() > override me!")
+}
+
+func (barrack *Barrack) GetPrivateKeyForSignature(_ ID) SignKey {
+	panic("Barrack::GetPrivateKeyForSignature() > override me!")
+}
+
+func (barrack *Barrack) GetPrivateKeyForVisaSignature(_ ID) SignKey {
+	panic("Barrack::GetPrivateKeyForVisaSignature() > override me!")
+}
 
 //-------- IGroupDataSource
 

@@ -58,7 +58,7 @@ func NewForwardContent(msg ReliableMessage) ForwardContent {
 	return content
 }
 
-func (content *SecretContent) Init(dict map[string]interface{}) *SecretContent {
+func (content *SecretContent) Init(dict map[string]interface{}) ForwardContent {
 	if content.BaseContent.Init(dict) != nil {
 		// lazy load
 		content._secret = nil
@@ -66,7 +66,7 @@ func (content *SecretContent) Init(dict map[string]interface{}) *SecretContent {
 	return content
 }
 
-func (content *SecretContent) InitWithMessage(secret ReliableMessage) *SecretContent {
+func (content *SecretContent) InitWithMessage(secret ReliableMessage) ForwardContent {
 	if content.BaseContent.InitWithType(FORWARD) != nil {
 		content.Set("forward", secret.GetMap(false))
 		content._secret = secret
@@ -78,8 +78,8 @@ func (content *SecretContent) InitWithMessage(secret ReliableMessage) *SecretCon
 
 func (content *SecretContent) ForwardMessage() ReliableMessage {
 	if content._secret == nil {
-		forward := content.Get("forward")
-		content._secret = ReliableMessageParse(forward)
+		msg := content.Get("forward")
+		content._secret = ReliableMessageParse(msg)
 	}
 	return content._secret
 }
@@ -103,13 +103,13 @@ func NewTextContent(text string) TextContent {
 	return content
 }
 
-//func (content *BaseTextContent) Init(dict map[string]interface{}) *BaseTextContent {
+//func (content *BaseTextContent) Init(dict map[string]interface{}) TextContent {
 //	if content.BaseContent.Init(dict) != nil {
 //	}
 //	return content
 //}
 
-func (content *BaseTextContent) InitWithText(text string) *BaseTextContent {
+func (content *BaseTextContent) InitWithText(text string) TextContent {
 	if content.InitWithType(TEXT) != nil {
 		content.SetText(text)
 	}
@@ -153,7 +153,7 @@ func NewPageContent(url string, title string, desc string, icon []byte) PageCont
 	return content
 }
 
-func (content *WebPageContent) Init(dict map[string]interface{}) *WebPageContent {
+func (content *WebPageContent) Init(dict map[string]interface{}) PageContent {
 	if content.BaseContent.Init(dict) != nil {
 		// lazy load
 		content._icon = nil
@@ -161,7 +161,7 @@ func (content *WebPageContent) Init(dict map[string]interface{}) *WebPageContent
 	return content
 }
 
-func (content *WebPageContent) InitWithURL(url string, title string, desc string, icon []byte) *WebPageContent {
+func (content *WebPageContent) InitWithURL(url string, title string, desc string, icon []byte) PageContent {
 	if content.BaseContent.InitWithType(PAGE) != nil {
 		content.SetURL(url)
 		content.SetTitle(title)
@@ -208,9 +208,9 @@ func (content *WebPageContent) SetDescription(desc string) {
 
 func (content *WebPageContent) Icon() []byte {
 	if content._icon == nil {
-		b64 := content.Get("icon")
-		if b64 != nil {
-			content._icon = Base64Decode(b64.(string))
+		base64 := content.Get("icon")
+		if base64 != nil {
+			content._icon = Base64Decode(base64.(string))
 		}
 	}
 	return content._icon
@@ -219,8 +219,8 @@ func (content *WebPageContent) SetIcon(icon []byte) {
 	if ValueIsNil(icon) {
 		content.Remove("icon")
 	} else {
-		b64 := Base64Encode(icon)
-		content.Set("icon", b64)
+		base64 := Base64Encode(icon)
+		content.Set("icon", base64)
 	}
 	content._icon = icon
 }

@@ -60,7 +60,7 @@ type BaseGroup struct {
 	_founder ID
 }
 
-func (group *BaseGroup) Init(identifier ID) *BaseGroup {
+func (group *BaseGroup) Init(identifier ID) Group {
 	if group.BaseEntity.Init(identifier) != nil {
 		// lazy load
 		group._founder = nil

@@ -47,13 +47,13 @@ type GeneralContentFactory struct {
 	_parse ContentParser
 }
 
-func NewGeneralContentFactory(fn ContentParser) *GeneralContentFactory {
+func NewGeneralContentFactory(fn ContentParser) ContentFactory {
 	factory := new(GeneralContentFactory)
 	factory.Init(fn)
 	return factory
 }
 
-func (factory *GeneralContentFactory) Init(fn ContentParser) *GeneralContentFactory {
+func (factory *GeneralContentFactory) Init(fn ContentParser) ContentFactory {
 	factory._parse = fn
 	return factory
 }
@@ -73,13 +73,13 @@ type GeneralCommandFactory struct {
 	_parse CommandParser
 }
 
-func NewGeneralCommandFactory(fn CommandParser) *GeneralCommandFactory {
+func NewGeneralCommandFactory(fn CommandParser) CommandFactory {
 	factory := new(GeneralCommandFactory)
 	factory.Init(fn)
 	return factory
 }
 
-func (factory *GeneralCommandFactory) Init(fn CommandParser) *GeneralCommandFactory {
+func (factory *GeneralCommandFactory) Init(fn CommandParser) CommandFactory {
 	factory._parse = fn
 	return factory
 }
@@ -116,13 +116,13 @@ type HistoryCommandFactory struct {
 	GeneralCommandFactory
 }
 
-func NewHistoryCommandFactory(fn CommandParser) *HistoryCommandFactory {
+func NewHistoryCommandFactory(fn CommandParser) CommandFactory {
 	factory := new(HistoryCommandFactory)
 	factory.Init(fn)
 	return factory
 }
 
-//func (factory *HistoryCommandFactory) Init(fn CommandParser) *HistoryCommandFactory {
+//func (factory *HistoryCommandFactory) Init(fn CommandParser) CommandFactory {
 //	if factory.GeneralCommandFactory.Init(fn) != nil {
 //	}
 //	return factory
@@ -136,13 +136,13 @@ type GroupCommandFactory struct {
 	GeneralCommandFactory
 }
 
-func NewGroupCommandFactory(fn CommandParser) *GroupCommandFactory {
+func NewGroupCommandFactory(fn CommandParser) CommandFactory {
 	factory := new(GroupCommandFactory)
 	factory.Init(fn)
 	return factory
 }
 
-//func (factory *GroupCommandFactory) Init(fn CommandParser) *GroupCommandFactory {
+//func (factory *GroupCommandFactory) Init(fn CommandParser) CommandFactory {
 //	if factory.GeneralCommandFactory.Init(fn) != nil {
 //	}
 //	return factory

@@ -63,7 +63,7 @@ func NewFileContent(msgType ContentType, filename string, data []byte) FileConte
 }
 
 /* designated initializer */
-func (content *BaseFileContent) Init(dict map[string]interface{}) *BaseFileContent {
+func (content *BaseFileContent) Init(dict map[string]interface{}) FileContent {
 	if content.BaseContent.Init(dict) != nil {
 		// lazy load
 		content._data = nil
@@ -73,7 +73,7 @@ func (content *BaseFileContent) Init(dict map[string]interface{}) *BaseFileConte
 }
 
 /* designated initializer */
-func (content *BaseFileContent) InitWithType(msgType ContentType, filename string, data []byte) *BaseFileContent {
+func (content *BaseFileContent) InitWithType(msgType ContentType, filename string, data []byte) FileContent {
 	if msgType == 0 {
 		msgType = FILE
 	}
@@ -100,9 +100,9 @@ func (content *BaseFileContent) SetURL(url string) {
 
 func (content *BaseFileContent) Data() []byte {
 	if content._data == nil {
-		b64 := content.Get("data")
-		if b64 != nil {
-			content._data = Base64Decode(b64.(string))
+		base64 := content.Get("data")
+		if base64 != nil {
+			content._data = Base64Decode(base64.(string))
 		}
 	}
 	return content._data
@@ -111,8 +111,8 @@ func (content *BaseFileContent) SetData(data []byte) {
 	if ValueIsNil(data) {
 		content.Remove("data")
 	} else {
-		b64 := Base64Encode(data)
-		content.Set("data", b64)
+		base64 := Base64Encode(data)
+		content.Set("data", base64)
 	}
 	content._data = data
 }

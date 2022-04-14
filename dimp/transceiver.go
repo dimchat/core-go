@@ -58,7 +58,7 @@ type Transceiver struct {
 	_barrack EntityDelegate
 }
 
-func (transceiver *Transceiver) Init() *Transceiver {
+func (transceiver *Transceiver) Init() ITransceiver {
 	transceiver._barrack = nil
 	return transceiver
 }
@@ -84,7 +84,8 @@ func (transceiver *Transceiver) SerializeContent(content Content, _ SymmetricKey
 	// NOTICE: check attachment for File/Image/Audio/Video message content
 	//         before serialize content, this job should be do in subclass
 	dict := content.GetMap(false)
-	return JSONEncodeMap(dict)
+	json := JSONEncodeMap(dict)
+	return UTF8Encode(json)
 }
 
 func (transceiver *Transceiver) EncryptContent(data []byte, password SymmetricKey, _ InstantMessage) []byte {
@@ -106,7 +107,8 @@ func (transceiver *Transceiver) SerializeKey(password SymmetricKey, iMsg Instant
 		return nil
 	}
 	dict := password.GetMap(false)
-	return JSONEncodeMap(dict)
+	json := JSONEncodeMap(dict)
+	return UTF8Encode(json)
 }
 
 func (transceiver *Transceiver) EncryptKey(data []byte, receiver ID, _ InstantMessage) []byte {
@@ -140,7 +142,8 @@ func (transceiver *Transceiver) DecryptKey(key []byte, _ ID, _ ID, sMsg SecureMe
 
 func (transceiver *Transceiver) DeserializeKey(key []byte, _ ID, _ ID, _ SecureMessage) SymmetricKey {
 	// NOTICE: the receiver will be group ID in a group message here
-	dict := JSONDecodeMap(key)
+	json := UTF8Decode(key)
+	dict := JSONDecodeMap(json)
 	// TODO: translate short keys
 	//       'A' -> 'algorithm'
 	//       'D' -> 'data'
@@ -165,7 +168,8 @@ func (transceiver *Transceiver) DecryptContent(data []byte, password SymmetricKe
 }
 
 func (transceiver *Transceiver) DeserializeContent(data []byte, _ SymmetricKey, _ SecureMessage) Content {
-	dict := JSONDecodeMap(data)
+	json := UTF8Decode(data)
+	dict := JSONDecodeMap(json)
 	// TODO: translate short keys
 	//       'T' -> 'type'
 	//       'N' -> 'sn'

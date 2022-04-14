@@ -43,7 +43,7 @@ type BaseMetaCommand struct {
 	_meta Meta
 }
 
-func (cmd *BaseMetaCommand) Init(dict map[string]interface{}) *BaseMetaCommand {
+func (cmd *BaseMetaCommand) Init(dict map[string]interface{}) MetaCommand {
 	if cmd.BaseCommand.Init(dict) != nil {
 		// lazy load
 		cmd._identifier = nil
@@ -52,7 +52,7 @@ func (cmd *BaseMetaCommand) Init(dict map[string]interface{}) *BaseMetaCommand {
 	return cmd
 }
 
-func (cmd *BaseMetaCommand) InitWithCommand(command string, id ID, meta Meta) *BaseMetaCommand {
+func (cmd *BaseMetaCommand) InitWithCommand(command string, id ID, meta Meta) MetaCommand {
 	if cmd.BaseCommand.InitWithCommand(command) != nil {
 		// ID
 		cmd.Set("ID", id.String())
@@ -72,7 +72,7 @@ func (cmd *BaseMetaCommand) InitWithCommand(command string, id ID, meta Meta) *B
  * @param identifier - entity ID
  * @param meta - entity Meta
  */
-func (cmd *BaseMetaCommand) InitWithMeta(id ID, meta Meta) *BaseMetaCommand {
+func (cmd *BaseMetaCommand) InitWithMeta(id ID, meta Meta) MetaCommand {
 	if cmd.InitWithCommand(META, id, meta) != nil {
 	}
 	return cmd
@@ -83,7 +83,7 @@ func (cmd *BaseMetaCommand) InitWithMeta(id ID, meta Meta) *BaseMetaCommand {
  *
  * @param identifier - entity ID
  */
-func (cmd *BaseMetaCommand) InitWithID(id ID) *BaseMetaCommand {
+func (cmd *BaseMetaCommand) InitWithID(id ID) MetaCommand {
 	if cmd.InitWithCommand(META, id, nil) != nil {
 	}
 	return cmd
@@ -100,7 +100,8 @@ func (cmd *BaseMetaCommand) ID() ID {
 
 func (cmd *BaseMetaCommand) Meta() Meta {
 	if cmd._meta == nil {
-		cmd._meta = MetaParse(cmd.Get("meta"))
+		dict := cmd.Get("meta")
+		cmd._meta = MetaParse(dict)
 	}
 	return cmd._meta
 }

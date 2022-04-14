@@ -77,6 +77,7 @@ func CommandGetName(cmd map[string]interface{}) string {
  *  ~~~~~~~~~~~~~~~
  */
 type CommandFactory interface {
+	ContentFactory
 
 	/**
 	 *  Parse map object to command

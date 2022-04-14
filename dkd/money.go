@@ -56,14 +56,14 @@ func NewMoneyContent(msgType ContentType, currency string, amount float64) Money
 }
 
 ///* designated initializer */
-//func (content *BaseMoneyContent) Init(dict map[string]interface{}) *BaseMoneyContent {
+//func (content *BaseMoneyContent) Init(dict map[string]interface{}) MoneyContent {
 //	if content.BaseContent.Init(dict) != nil {
 //	}
 //	return content
 //}
 
 /* designated initializer */
-func (content *BaseMoneyContent) InitWithType(msgType ContentType, currency string, amount float64) *BaseMoneyContent {
+func (content *BaseMoneyContent) InitWithType(msgType ContentType, currency string, amount float64) MoneyContent {
 	if msgType == 0 {
 		msgType = MONEY
 	}
@@ -118,13 +118,13 @@ func NewTransferContent(currency string, amount float64) TransferContent {
 	return content
 }
 
-//func (content *TransferMoneyContent) Init(dict map[string]interface{}) *TransferMoneyContent {
+//func (content *TransferMoneyContent) Init(dict map[string]interface{}) TransferContent {
 //	if content.BaseMoneyContent.Init(dict) != nil {
 //	}
 //	return content
 //}
 
-func (content *TransferMoneyContent) InitWithCurrency(currency string, amount float64) *TransferMoneyContent {
+func (content *TransferMoneyContent) InitWithCurrency(currency string, amount float64) TransferContent {
 	if content.BaseMoneyContent.InitWithType(TRANSFER, currency, amount) != nil {
 	}
 	return content
