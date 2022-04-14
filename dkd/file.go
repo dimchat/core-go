@@ -140,7 +140,7 @@ func (content *BaseFileContent) SetPassword(password SymmetricKey) {
 	if ValueIsNil(password) {
 		content.Remove("password")
 	} else {
-		content.Set("password", password.GetMap(false))
+		content.Set("password", password.Map())
 	}
 	content._key = password
 }

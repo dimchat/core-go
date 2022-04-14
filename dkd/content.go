@@ -68,7 +68,7 @@ func (content *SecretContent) Init(dict map[string]interface{}) ForwardContent {
 
 func (content *SecretContent) InitWithMessage(secret ReliableMessage) ForwardContent {
 	if content.BaseContent.InitWithType(FORWARD) != nil {
-		content.Set("forward", secret.GetMap(false))
+		content.Set("forward", secret.Map())
 		content._secret = secret
 	}
 	return content

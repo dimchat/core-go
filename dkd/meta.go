@@ -59,7 +59,7 @@ func (cmd *BaseMetaCommand) InitWithCommand(command string, id ID, meta Meta) Me
 		cmd._identifier = id
 		// meta
 		if !ValueIsNil(meta) {
-			cmd.Set("meta", meta.GetMap(false))
+			cmd.Set("meta", meta.Map())
 		}
 		cmd._meta = meta
 	}

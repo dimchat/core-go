@@ -54,7 +54,7 @@ func (cmd *BaseDocumentCommand) InitWithMeta(id ID, meta Meta, doc Document) Doc
 	if cmd.BaseMetaCommand.InitWithCommand(DOCUMENT, id, meta) != nil {
 		// document
 		if !ValueIsNil(doc) {
-			cmd.Set("document", doc.GetMap(false))
+			cmd.Set("document", doc.Map())
 		}
 		cmd._doc = doc
 	}

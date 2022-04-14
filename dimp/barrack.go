@@ -102,27 +102,27 @@ func (barrack *Barrack) getMetaKey(user ID) VerifyKey {
 //-------- IEntityDelegate
 
 func (barrack *Barrack) GetUser(_ ID) User {
-	panic("Barrack::GetUser() > override me!")
+	panic("Barrack::GetUser(id) > override me!")
 }
 
 func (barrack *Barrack) GetGroup(_ ID) Group {
-	panic("Barrack::GetGroup() > override me!")
+	panic("Barrack::GetGroup(id) > override me!")
 }
 
 //-------- IEntityDataSource
 
 func (barrack *Barrack) GetMeta(_ ID) Meta {
-	panic("Barrack::GetMeta() > override me!")
+	panic("Barrack::GetMeta(id) > override me!")
 }
 
 func (barrack *Barrack) GetDocument(_ ID, _ string) Document {
-	panic("Barrack::GetDocument() > override me!")
+	panic("Barrack::GetDocument(id, docType) > override me!")
 }
 
 //-------- IUserDataSource
 
 func (barrack *Barrack) GetContacts(_ ID) []ID {
-	panic("Barrack::GetContacts() > override me!")
+	panic("Barrack::GetContacts(user) > override me!")
 }
 
 func (barrack *Barrack) GetPublicKeyForEncryption(user ID) EncryptKey {
@@ -169,15 +169,15 @@ func (barrack *Barrack) GetPublicKeysForVerification(user ID) []VerifyKey {
 }
 
 func (barrack *Barrack) GetPrivateKeysForDecryption(_ ID) []DecryptKey {
-	panic("Barrack::GetPrivateKeysForDecryption() > override me!")
+	panic("Barrack::GetPrivateKeysForDecryption(user) > override me!")
 }
 
 func (barrack *Barrack) GetPrivateKeyForSignature(_ ID) SignKey {
-	panic("Barrack::GetPrivateKeyForSignature() > override me!")
+	panic("Barrack::GetPrivateKeyForSignature(user) > override me!")
 }
 
 func (barrack *Barrack) GetPrivateKeyForVisaSignature(_ ID) SignKey {
-	panic("Barrack::GetPrivateKeyForVisaSignature() > override me!")
+	panic("Barrack::GetPrivateKeyForVisaSignature(user) > override me!")
 }
 
 //-------- IGroupDataSource

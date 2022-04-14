@@ -83,7 +83,7 @@ func (transceiver *Transceiver) IsBroadcast(msg Message) bool {
 func (transceiver *Transceiver) SerializeContent(content Content, _ SymmetricKey, _ InstantMessage) []byte {
 	// NOTICE: check attachment for File/Image/Audio/Video message content
 	//         before serialize content, this job should be do in subclass
-	dict := content.GetMap(false)
+	dict := content.Map()
 	json := JSONEncodeMap(dict)
 	return UTF8Encode(json)
 }
@@ -106,7 +106,7 @@ func (transceiver *Transceiver) SerializeKey(password SymmetricKey, iMsg Instant
 		// broadcast message has no key
 		return nil
 	}
-	dict := password.GetMap(false)
+	dict := password.Map()
 	json := JSONEncodeMap(dict)
 	return UTF8Encode(json)
 }

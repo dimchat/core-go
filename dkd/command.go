@@ -73,5 +73,5 @@ func (cmd *BaseCommand) InitWithCommand(command string) Command {
 //-------- ICommand
 
 func (cmd *BaseCommand) CommandName() string {
-	return CommandGetName(cmd.GetMap(false))
+	return CommandGetName(cmd.Map())
 }
