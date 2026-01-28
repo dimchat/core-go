@@ -31,61 +31,66 @@
 package protocol
 
 import (
-	. "github.com/dimchat/dkd-go/protocol"
+	. "github.com/dimchat/mkm-go/protocol"
+	. "github.com/dimchat/mkm-go/types"
 )
 
 /**
- *  Top-Secret message: {
- *      type : 0xFF,
- *      sn   : 456,
+ *  Meta Command
  *
- *      forward : {...}  // reliable (secure + certified) message
+ *  <blockquote><pre>
+ *  data format: {
+ *      "type" : i2s(0x88),
+ *      "sn"   : 123,
+ *
+ *      "command" : "meta", // command name
+ *      "did"     : "{ID}", // contact's ID
+ *      "meta"    : {...}   // when meta is null, means query meta for ID
  *  }
+ *  </pre></blockquote>
  */
-type ForwardContent interface {
-	Content
+type MetaCommand interface {
+	Command
 
-	ForwardMessage() ReliableMessage
+	/**
+	 *  Entity ID
+	 */
+	ID() ID
+
+	/**
+	 *  Entity Meta
+	 */
+	Meta() Meta
 }
 
 /**
- *  Text message: {
- *      type : 0x01,
- *      sn   : 123,
+ *  Document Command
  *
- *      text : "..."
- *  }
- */
-type TextContent interface {
-	Content
-
-	Text() string
-	SetText(text string)
-}
-
-/**
- *  Web Page message: {
- *      type : 0x20,
- *      sn   : 123,
+ *  <blockquote><pre>
+ *  data format: {
+ *      "type" : i2s(0x88),
+ *      "sn"   : 123,
  *
- *      URL   : "https://github.com/moky/dimp", // Page URL
- *      icon  : "...",                          // base64_encode(icon)
- *      title : "...",
- *      desc  : "..."
+ *      "command"   : "documents", // command name
+ *      "did"       : "{ID}",      // entity ID
+ *      "meta"      : {...},       // only for handshaking with new friend
+ *      "documents" : [...],       // when this is null, means to query
+ *      "last_time" : 12345        // old document time for querying
  *  }
+ *  </pre></blockquote>
  */
-type PageContent interface {
-	Content
+type DocumentCommand interface {
+	MetaCommand
 
-	URL() string
-	SetURL(url string)
+	/**
+	 *  Entity Documents
+	 */
+	Documents() []Document
 
-	Title() string
-	SetTitle(title string)
-
-	Description() string
-	SetDescription(desc string)
-
-	Icon() []byte
-	SetIcon(icon []byte)
+	/**
+	 *  Last document time for querying
+	 *
+	 * @return time of last document from sender
+	 */
+	LastTime() Time
 }

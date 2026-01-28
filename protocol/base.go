@@ -31,70 +31,72 @@
 package protocol
 
 import (
-	. "github.com/dimchat/mkm-go/protocol"
+	. "github.com/dimchat/dkd-go/protocol"
+	. "github.com/dimchat/mkm-go/types"
 )
 
 const (
-	//-------- history command names begin --------
-	// account
-	REGISTER = "register"
-	SUICIDE  = "suicide"
-	//-------- history command names end --------
+	//-------- command names begin --------
+	META      = "meta"
+	DOCUMENTS = "documents"
+	RECEIPT   = "receipt"
+	//-------- command names end --------
 )
 
 /**
- *  History command: {
- *      type : 0x89,
- *      sn   : 123,
+ *  Command Content
  *
- *      command : "...", // command name
- *      time    : 0,     // command timestamp
- *      // extra info
+ *  <blockquote><pre>
+ *  data format: {
+ *      "type" : i2s(0x88),
+ *      "sn"   : 123,
+ *
+ *      "command" : "...", // command name
+ *      "extra"   : info   // command parameters
  *  }
+ *  </pre></blockquote>
  */
-type HistoryCommand interface {
-	Command
+type Command interface {
+	Content
 
 	/**
-	 *  Get history event name
+	 *  Get command name
 	 *
-	 * @return history event name string
+	 * @return command/method/declaration
 	 */
-	HistoryEvent() string
+	CMD() string
 }
 
 /**
- *  Meta command message: {
- *      type : 0x88,
- *      sn   : 123,
- *
- *      command : "meta", // command name
- *      ID      : "{ID}", // contact's ID
- *      meta    : {...}   // when meta is empty, means query meta for ID
- *  }
+ *  Command Factory
+ *  ~~~~~~~~~~~~~~~
  */
-type MetaCommand interface {
-	Command
+type CommandFactory interface {
 
-	ID() ID
-	Meta() Meta
+	/**
+	 *  Parse map object to command
+	 *
+	 * @param content - command content
+	 * @return Command
+	 */
+	ParseCommand(content StringKeyMap) Command
 }
 
-/**
- *  Document Command message: {
- *      type : 0x88,
- *      sn   : 123,
- *
- *      command   : "document",  // command name
- *      ID        : "{ID}",      // entity ID
- *      meta      : {...},       // only for handshaking with new friend
- *      document  : {...},       // when document is empty, means query for ID
- *      signature : "..."        // old document's signature for querying
- *  }
- */
-type DocumentCommand interface {
-	MetaCommand
+//
+//  Factory method
+//
 
-	Document() Document
-	Signature() string
+func ParseCommand(content interface{}) Command {
+	helper := GetCommandHelper()
+	return helper.ParseCommand(content)
+}
+
+func GetCommandFactory(cmd string) CommandFactory {
+	helper := GetCommandHelper()
+	return helper.GetCommandFactory(cmd)
+}
+
+func SetCommandFactory(cmd string, factory CommandFactory) {
+	helper := GetCommandHelper()
+	helper.SetCommandFactory(cmd, factory)
 }

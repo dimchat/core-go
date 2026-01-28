@@ -31,86 +31,91 @@
 package protocol
 
 import (
+	"net/url"
+
 	. "github.com/dimchat/dkd-go/protocol"
-	. "github.com/dimchat/mkm-go/crypto"
+	. "github.com/dimchat/mkm-go/protocol"
 )
 
 /**
- *  File message: {
- *      type : 0x10,
- *      sn   : 123,
+ *  Text Content
  *
- *      URL      : "http://", // upload to CDN
- *      data     : "...",     // if (!URL) base64_encode(fileContent)
- *      filename : "..."
+ *  <blockquote><pre>
+ *  data format: {
+ *      "type" : i2s(0x01),
+ *      "sn"   : 123,
+ *
+ *      "text" : "..."
  *  }
+ *  </pre></blockquote>
  */
-type FileContent interface {
+type TextContent interface {
 	Content
 
-	URL() string
-	SetURL(url string)
-
-	Data() []byte
-	SetData(data []byte)
-
-	Filename() string
-	SetFilename(filename string)
-
-	Password() SymmetricKey
-	SetPassword(password SymmetricKey)
+	Text() string
 }
 
 /**
- *  Image message: {
- *      type : 0x12,
- *      sn   : 123,
+ *  Web Page
  *
- *      URL       : "http://", // upload to CDN
- *      data      : "...",     // if (!URL) base64_encode(image)
- *      thumbnail : "...",     // base64_encode(smallImage)
- *      filename  : "..."
+ *  <blockquote><pre>
+ *  data format: {
+ *      "type" : i2s(0x20),
+ *      "sn"   : 123,
+ *
+ *      "title" : "...",                // Web title
+ *      "desc"  : "...",
+ *      "icon"  : "data:image/x-icon;base64,...",
+ *
+ *      "URL"   : "https://github.com/moky/dimp",
+ *
+ *      "HTML"      : "...",            // Web content
+ *      "mime_type" : "text/html",      // Content-Type
+ *      "encoding"  : "utf8",
+ *      "base"      : "about:blank"     // Base URL
  *  }
+ *  </pre></blockquote>
  */
-type ImageContent interface {
-	FileContent
+type PageContent interface {
+	Content
 
-	Thumbnail() []byte
-	SetThumbnail(thumbnail []byte)
+	Title() string
+	SetTitle(title string)
+
+	Icon() TransportableFile
+	SetIcon(img TransportableFile)
+
+	Description() string
+	SetDescription(desc string)
+
+	URL() url.URL
+	SetURL(url url.URL)
+
+	HTML() string
+	SetHTML(html string)
 }
 
 /**
- *  Audio message: {
- *      type : 0x14,
- *      sn   : 123,
+ *  Name Card
  *
- *      URL      : "http://", // upload to CDN
- *      data     : "...",     // if (!URL) base64_encode(audio)
- *      text     : "...",     // Automatic Speech Recognition
- *      filename : "..."
- *  }
- */
-type AudioContent interface {
-	FileContent
-
-	Duration() float64
-	SetDuration(duration float64)
-}
-
-/**
- *  Video message: {
- *      type : 0x16,
- *      sn   : 123,
+ *  <blockquote><pre>
+ *  data format: {
+ *      "type" : i2s(0x33),
+ *      "sn"   : 123,
  *
- *      URL      : "http://", // upload to CDN
- *      data     : "...",     // if (!URL) base64_encode(video)
- *      snapshot : "...",     // base64_encode(smallImage)
- *      filename : "..."
+ *      "did"    : "{ID}",        // contact's ID
+ *      "name"   : "{nickname}",  // contact's name
+ *      "avatar" : "{URL}",       // avatar - PNF(URL)
+ *      ...
  *  }
+ *  </pre></blockquote>
  */
-type VideoContent interface {
-	FileContent
+type NameCard interface {
+	Content
 
-	Snapshot() []byte
-	SetSnapshot(snapshot []byte)
+	ID() ID
+
+	Name() string
+
+	Avatar() TransportableFile
 }

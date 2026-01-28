@@ -35,39 +35,68 @@ import (
 )
 
 const (
+	//-------- history command names begin --------
+	// account
+	REGISTER = "register"
+	SUICIDE  = "suicide"
+	//-------- history command names end --------
+)
+
+/**
+ *  History Command
+ *
+ *  <blockquote><pre>
+ *  data format: {
+ *      "type" : i2s(0x89),
+ *      "sn"   : 123,
+ *
+ *      "command" : "...", // command name
+ *      "time"    : 0,     // command timestamp
+ *      "extra"   : info   // command parameters
+ *  }
+ *  </pre></blockquote>
+ */
+type HistoryCommand interface {
+	Command
+}
+
+const (
 	//-------- group command names begin --------
 	// founder/owner
 	FOUND    = "found"
 	ABDICATE = "abdicate"
 	// member
-	INVITE   = "invite"
-	EXPEL    = "expel"
-	JOIN     = "join"
-	QUIT     = "quit"
-	QUERY    = "query"
-	RESET    = "reset"
+	INVITE = "invite"
+	EXPEL  = "expel"
+	JOIN   = "join"
+	QUIT   = "quit"
+	//QUERY  = "query"
+	RESET = "reset"
 	// administrator/assistant
-	HIRE     = "hire"
-	FIRE     = "fire"
-	RESIGN   = "resign"
+	HIRE   = "hire"
+	FIRE   = "fire"
+	RESIGN = "resign"
 	//-------- group command names end --------
 )
 
 /**
- *  Group history command: {
- *      type : 0x89,
- *      sn   : 123,
+ *  Group History
  *
- *      command : "{NAME}",      // join, quit, ...
- *      group   : "{GROUP_ID}",
- *      // extra info: member or members
+ *  <blockquote><pre>
+ *  data format: {
+ *      "type" : i2s(0x89),
+ *      "sn"   : 123,
+ *
+ *      "command" : "reset",   // "invite", "quit", ...
+ *      "time"    : 123.456,   // command timestamp
+ *
+ *      "group"   : "{GROUP_ID}",
+ *      "members" : ["{MEMBER_ID}",]
  *  }
+ *  </pre></blockquote>
  */
 type GroupCommand interface {
 	HistoryCommand
-
-	Member() ID
-	SetMember(member ID)
 
 	Members() []ID
 	SetMembers(members []ID)
@@ -75,46 +104,25 @@ type GroupCommand interface {
 
 //-------- Group Commands
 
-/**
- *  Group history command: {
- *      type : 0x89,
- *      sn   : 123,
- *
- *      command : "invite",
- *      group   : "{GROUP_ID}",
- *      members : [],            // member ID list
- *  }
- */
 type InviteCommand interface {
 	GroupCommand
-
-	InviteMembers() []ID
 }
 
-/**
- *  Group history command: {
- *      type : 0x89,
- *      sn   : 123,
- *
- *      command : "expel",
- *      group   : "{GROUP_ID}",
- *      members : [],            // member ID list
- *  }
- */
+// Deprecated (use 'reset' instead)
 type ExpelCommand interface {
 	GroupCommand
-
-	ExpelMembers() []ID
 }
 
 /**
  *  Group history command: {
- *      type : 0x89,
- *      sn   : 123,
+ *      "type" : i2s(0x89),
+ *      "sn"   : 123,
  *
- *      command : "join",
- *      group   : "{GROUP_ID}",
- *      text    : "May I?",
+ *      "command" : "join",
+ *      "time"    : 123.456,
+ *
+ *      "group"   : "{GROUP_ID}",
+ *      "text"    : "May I?",
  *  }
  */
 type JoinCommand interface {
@@ -125,12 +133,14 @@ type JoinCommand interface {
 
 /**
  *  Group history command: {
- *      type : 0x89,
- *      sn   : 123,
+ *      "type" : i2s(0x89),
+ *      "sn"   : 123,
  *
- *      command : "quit",
- *      group   : "{GROUP_ID}",
- *      text    : "Good bye!",
+ *      "command" : "quit",
+ *      "time"    : 123.456,
+ *
+ *      "group"   : "{GROUP_ID}",
+ *      "text"    : "Good bye!",
  *  }
  */
 type QuitCommand interface {
@@ -139,37 +149,6 @@ type QuitCommand interface {
 	Bye() string
 }
 
-/**
- *  Group history command: {
- *      type : 0x89,
- *      sn   : 123,
- *
- *      command : "reset",
- *      group   : "{GROUP_ID}",
- *      members : [],            // member ID list
- *  }
- */
 type ResetCommand interface {
 	GroupCommand
-
-	AllMembers() []ID
-}
-
-/**
- *  Group command: {
- *      type : 0x89,
- *      sn   : 123,
- *
- *      command : "query",
- *      group   : "{GROUP_ID}",
- *      text    : "May I?",
- *  }
- */
-type QueryCommand interface {
-	//  NOTICE:
-	//      This command is just for querying group info,
-	//      should not be saved in group history
-	GroupCommand
-
-	Text() string
 }

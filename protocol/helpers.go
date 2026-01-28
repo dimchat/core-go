@@ -2,12 +2,12 @@
  *
  *  DIMP : Decentralized Instant Messaging Protocol
  *
- *                                Written in 2020 by Moky <albert.moky@gmail.com>
+ *                                Written in 2026 by Moky <albert.moky@gmail.com>
  *
  * ==============================================================================
  * The MIT License (MIT)
  *
- * Copyright (c) 2020 Albert Moky
+ * Copyright (c) 2026 Albert Moky
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -30,73 +30,22 @@
  */
 package protocol
 
-import (
-	. "github.com/dimchat/dkd-go/protocol"
-)
-
-const (
-	//-------- command names begin --------
-	META      = "meta"
-	DOCUMENT  = "document"
-	RECEIPT   = "receipt"
-	HANDSHAKE = "handshake"
-	LOGIN     = "login"
-	//-------- command names end --------
-)
-
 /**
- *  Command message: {
- *      type : 0x88,
- *      sn   : 123,
- *
- *      command : "...", // command name
- *      // extra info
- *  }
+ *  Command Helper
  */
-type Command interface {
-	Content
+type CommandHelper interface {
+	SetCommandFactory(cmd string, factory CommandFactory)
+	GetCommandFactory(cmd string) CommandFactory
 
-	/**
-	 *  Get command name
-	 *
-	 * @return command name string
-	 */
-	CommandName() string
+	ParseCommand(content interface{}) Command
 }
 
-func CommandGetName(cmd map[string]interface{}) string {
-	text := cmd["command"]
-	if text == nil {
-		return ""
-	}
-	return text.(string)
+var sharedCommandHelper CommandHelper = nil
+
+func SetCommandHelper(helper CommandHelper) {
+	sharedCommandHelper = helper
 }
 
-/**
- *  Command Factory
- *  ~~~~~~~~~~~~~~~
- */
-type CommandFactory interface {
-	ContentFactory
-
-	/**
-	 *  Parse map object to command
-	 *
-	 * @param cmd - command info
-	 * @return Command
-	 */
-	ParseCommand(cmd map[string]interface{}) Command
-}
-
-//
-//  Instances of CommandFactory
-//
-var commandFactories = make(map[string]CommandFactory)
-
-func CommandSetFactory(command string, factory CommandFactory) {
-	commandFactories[command] = factory
-}
-
-func CommandGetFactory(command string) CommandFactory {
-	return commandFactories[command]
+func GetCommandHelper() CommandHelper {
+	return sharedCommandHelper
 }

@@ -2,12 +2,12 @@
  *
  *  DIMP : Decentralized Instant Messaging Protocol
  *
- *                                Written in 2021 by Moky <albert.moky@gmail.com>
+ *                                Written in 2026 by Moky <albert.moky@gmail.com>
  *
  * ==============================================================================
  * The MIT License (MIT)
  *
- * Copyright (c) 2021 Albert Moky
+ * Copyright (c) 2026 Albert Moky
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -30,38 +30,18 @@
  */
 package protocol
 
-import . "github.com/dimchat/dkd-go/protocol"
+// AsymmetricAlgorithms: Algorithms for Asymmetric Key
+const (
+	RSA = "RSA" //-- "RSA/ECB/PKCS1Padding", "SHA256withRSA"
+	ECC = "ECC"
+)
 
-/**
- *  Money message: {
- *      type : 0x40,
- *      sn   : 123,
- *
- *      currency : "RMB", // USD, USDT, ...
- *      amount   : 100.00
- *  }
- */
-type MoneyContent interface {
-	Content
+// SymmetricAlgorithms: Algorithms for Symmetric Key
+const (
+	AES = "AES" //-- "AES/CBC/PKCS7Padding"
+	DES = "DES"
 
-	Currency() string
-
-	Amount() float64
-	SetAmount(amount float64)
-}
-
-/**
- *  Transfer money message: {
- *      type : 0x41,
- *      sn   : 123,
- *
- *      currency : "RMB", // USD, USDT, ...
- *      amount   : 100.00,
- *      text     : "Congrats!"
- *  }
- */
-type TransferContent interface {
-	MoneyContent
-
-	Comment() string
-}
+	// Symmetric key algorithm for broadcast message,
+	// which will do nothing when en/decoding message data
+	PLAIN = "PLAIN"
+)
