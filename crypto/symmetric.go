@@ -2,12 +2,12 @@
  *
  *  DIMP : Decentralized Instant Messaging Protocol
  *
- *                                Written in 2021 by Moky <albert.moky@gmail.com>
+ *                                Written in 2026 by Moky <albert.moky@gmail.com>
  *
  * ==============================================================================
  * The MIT License (MIT)
  *
- * Copyright (c) 2021 Albert Moky
+ * Copyright (c) 2026 Albert Moky
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,58 +28,57 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package dimp
+package crypto
 
 import (
-	. "github.com/dimchat/dkd-go/protocol"
+	. "github.com/dimchat/mkm-go/types"
 )
 
-/**
- *  Message Processor
- *  ~~~~~~~~~~~~~~~~~
- */
-type Processor interface {
-
-	/**
-	 *  Process data package
-	 *
-	 * @param data - data to be processed
-	 * @return response data
-	 */
-	ProcessPackage(data []byte) [][]byte
-
-	/**
-	 *  Process network message
-	 *
-	 * @param rMsg - message to be processed
-	 * @return response message
-	 */
-	ProcessReliableMessage(rMsg ReliableMessage) []ReliableMessage
-
-	/**
-	 *  Process encrypted message
-	 *
-	 * @param sMsg - message to be processed
-	 * @param rMsg - message received
-	 * @return response message
-	 */
-	ProcessSecureMessage(sMsg SecureMessage, rMsg ReliableMessage) []SecureMessage
-
-	/**
-	 *  Process plain message
-	 *
-	 * @param iMsg - message to be processed
-	 * @param rMsg - message received
-	 * @return response message
-	 */
-	ProcessInstantMessage(iMsg InstantMessage, rMsg ReliableMessage) []InstantMessage
-
-	/**
-	 *  Process message content
-	 *
-	 * @param content - content to be processed
-	 * @param rMsg - message received
-	 * @return response content
-	 */
-	ProcessContent(content Content, rMsg ReliableMessage) []Content
+type BaseSymmetricKey struct {
+	Dictionary
 }
+
+func (key *BaseSymmetricKey) Init(dict StringKeyMap) {
+	key.Dictionary.Init(dict)
+}
+
+//// Override
+//func (key *BaseSymmetricKey) Equal(other interface{}) bool {
+//	if other == nil {
+//		return key.IsEmpty()
+//	} else if other == key {
+//		// same object
+//		return true
+//	}
+//	// check targeted value
+//	target := ObjectTargetValue(other)
+//	if target == nil {
+//		return key.IsEmpty()
+//	}
+//	// check value types
+//	switch v := target.(type) {
+//	case SymmetricKey:
+//		self := ObjectTargetValue(key).(SymmetricKey)
+//		return SymmetricKeysEqual(v, self)
+//	case Mapper:
+//		other = v.Map()
+//	case StringKeyMap:
+//		other = v
+//	default:
+//		// other types
+//		other = FetchMap(v)
+//	}
+//	return reflect.DeepEqual(other, key.Map())
+//}
+
+// Override
+func (key *BaseSymmetricKey) Algorithm() string {
+	info := key.Map()
+	return GetKeyAlgorithm(info)
+}
+
+//// Override
+//func (key *BaseSymmetricKey) MatchEncryptKey(pKey EncryptKey) bool {
+//	self := ObjectTargetValue(key).(SymmetricKey)
+//	return MatchEncryptKey(pKey, self)
+//}
