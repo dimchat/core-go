@@ -31,12 +31,11 @@
 package protocol
 
 import (
-	"net/url"
-
 	. "github.com/dimchat/dkd-go/protocol"
 	. "github.com/dimchat/mkm-go/crypto"
 	. "github.com/dimchat/mkm-go/format"
 	. "github.com/dimchat/mkm-go/protocol"
+	. "github.com/dimchat/mkm-go/types"
 )
 
 /**
@@ -70,8 +69,8 @@ type FileContent interface {
 	Filename() string
 	SetFilename(filename string)
 
-	URL() url.URL
-	SetURL(url url.URL)
+	URL() URL
+	SetURL(url URL)
 
 	Password() DecryptKey
 	SetPassword(key DecryptKey)

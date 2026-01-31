@@ -47,8 +47,8 @@ import (
  *      DKDContentType_Text indicates this is a normal message with plaintext.
  *
  *      DKDContentType_File indicates this is a file, it may include filename
- *      and file data, but usually the file data will encrypted and upload to
- *      somewhere and here is just a URL to retrieve it.
+ *      and file data, but usually the file data will be encrypted and uploaded
+ *      to somewhere and here is just a URL to retrieve it.
  *
  *      DKDContentType_Image indicates this is an image, it may send the image
  *      data directly(encrypt the image data with Base64), but we suggest to
@@ -83,51 +83,52 @@ import (
  *
  *      (All above are just some advices to help choosing numbers :P)
  */
-var MessageType = struct {
-	ANY ContentType
+//goland:noinspection GoSnakeCaseUsage
+var ContentType = struct {
+	ANY MessageType
 
-	TEXT ContentType
+	TEXT MessageType
 
-	FILE  ContentType
-	IMAGE ContentType
-	AUDIO ContentType
-	VIDEO ContentType
+	FILE  MessageType
+	IMAGE MessageType
+	AUDIO MessageType
+	VIDEO MessageType
 
 	// Web Page
-	PAGE ContentType
+	PAGE MessageType
 
 	// Name Card
-	NAME_CARD ContentType
+	NAME_CARD MessageType
 
 	// Quote a message before and reply it with text
-	QUOTE ContentType
+	QUOTE MessageType
 
-	MONEY         ContentType
-	TRANSFER      ContentType
-	LUCK_MONEY    ContentType
-	CLAIM_PAYMENT ContentType
-	SPLIT_BILL    ContentType
+	MONEY         MessageType
+	TRANSFER      MessageType
+	LUCK_MONEY    MessageType
+	CLAIM_PAYMENT MessageType
+	SPLIT_BILL    MessageType
 
-	COMMON  ContentType
-	HISTORY ContentType
+	COMMON  MessageType
+	HISTORY MessageType
 
 	// Application Customized
-	APPLICATION ContentType
-	//APPLICATION_1 ContentType
+	APPLICATION MessageType
+	//APPLICATION_1 MessageType
 	//...
-	//APPLICATION_15 ContentType
+	//APPLICATION_15 MessageType
 
-	//CUSTOMIZED_0 ContentType
-	//CUSTOMIZED_1 ContentType
+	//CUSTOMIZED_0 MessageType
+	//CUSTOMIZED_1 MessageType
 	//...
-	ARRAY ContentType
+	ARRAY MessageType
 	//...
-	CUSTOMIZED ContentType
+	CUSTOMIZED MessageType
 	//...
-	COMBINE_FORWARD ContentType
+	COMBINE_FORWARD MessageType
 
 	// Top-Secret message forward by proxy (MTA)
-	FORWARD ContentType
+	FORWARD MessageType
 }{
 	ANY: i2a(0x00), // 0000 0000 (Undefined)
 

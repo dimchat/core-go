@@ -1,6 +1,6 @@
 /* license: https://mit-license.org
  *
- *  DIMP : Decentralized Instant Messaging Protocol
+ *  Dao-Ke-Dao: Universal Message Module
  *
  *                                Written in 2020 by Moky <albert.moky@gmail.com>
  *
@@ -28,93 +28,63 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package protocol
+package dkd
 
 import (
 	. "github.com/dimchat/dkd-go/protocol"
-	. "github.com/dimchat/mkm-go/protocol"
+	. "github.com/dimchat/mkm-go/format"
 	. "github.com/dimchat/mkm-go/types"
 )
 
 /**
- *  Text Content
+ *  Reliable Message signed by an asymmetric key
+ *  <p>
+ *      This class is used to sign the SecureMessage
+ *      It contains a 'signature' field which signed with sender's private key
+ *  </p>
  *
  *  <blockquote><pre>
  *  data format: {
- *      "type" : i2s(0x01),
- *      "sn"   : 123,
+ *      //-- envelope
+ *      "sender"   : "moki@xxx",
+ *      "receiver" : "hulk@yyy",
+ *      "time"     : 123,
  *
- *      "text" : "..."
+ *      //-- content data and key/keys
+ *      "data"     : "...",  // base64_encode( symmetric_encrypt(content))
+ *      "keys"     : {
+ *          "{ID}"   : "...",  // base64_encode(asymmetric_encrypt(pwd))
+ *          "digest" : "..."   // hash(pwd.data)
+ *      },
+ *      //-- signature
+ *      "signature": "..."   // base64_encode(asymmetric_sign(data))
  *  }
  *  </pre></blockquote>
  */
-type TextContent interface {
-	Content
+type RelayMessage struct {
+	//ReliableMessage
+	EncryptedMessage
 
-	Text() string
+	_signature TransportableData
 }
 
-/**
- *  Web Page
- *
- *  <blockquote><pre>
- *  data format: {
- *      "type" : i2s(0x20),
- *      "sn"   : 123,
- *
- *      "title" : "...",                // Web title
- *      "desc"  : "...",
- *      "icon"  : "data:image/x-icon;base64,...",
- *
- *      "URL"   : "https://github.com/moky/dimp",
- *
- *      "HTML"      : "...",            // Web content
- *      "mime_type" : "text/html",      // Content-Type
- *      "encoding"  : "utf8",
- *      "base"      : "about:blank"     // Base URL
- *  }
- *  </pre></blockquote>
- */
-type PageContent interface {
-	Content
-
-	Title() string
-	SetTitle(title string)
-
-	Icon() TransportableFile
-	SetIcon(img TransportableFile)
-
-	Description() string
-	SetDescription(desc string)
-
-	URL() URL
-	SetURL(url URL)
-
-	HTML() string
-	SetHTML(html string)
+func (msg *RelayMessage) Init(dict StringKeyMap) ReliableMessage {
+	if msg.EncryptedMessage.Init(dict) != nil {
+		// lazy load
+		msg._signature = nil
+	}
+	return msg
 }
 
-/**
- *  Name Card
- *
- *  <blockquote><pre>
- *  data format: {
- *      "type" : i2s(0x33),
- *      "sn"   : 123,
- *
- *      "did"    : "{ID}",        // contact's ID
- *      "name"   : "{nickname}",  // contact's name
- *      "avatar" : "{URL}",       // avatar - PNF(URL)
- *      ...
- *  }
- *  </pre></blockquote>
- */
-type NameCard interface {
-	Content
+//-------- IReliableMessage
 
-	ID() ID
-
-	Name() string
-
-	Avatar() TransportableFile
+// Override
+func (msg *RelayMessage) Signature() TransportableData {
+	ted := msg._signature
+	if ted == nil {
+		base64 := msg.Get("signature")
+		ted = ParseTransportableData(base64)
+		msg._signature = ted
+	}
+	return ted
 }
