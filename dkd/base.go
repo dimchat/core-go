@@ -31,6 +31,8 @@
 package dkd
 
 import (
+	. "github.com/dimchat/core-go/ext"
+	. "github.com/dimchat/core-go/protocol"
 	. "github.com/dimchat/dkd-go/ext"
 	. "github.com/dimchat/dkd-go/protocol"
 	. "github.com/dimchat/mkm-go/protocol"
@@ -73,8 +75,8 @@ type BaseContent struct {
 }
 
 /* designated initializer */
-func (content *BaseContent) Init(dict StringKeyMap) Content {
-	if content.Dictionary.Init(dict) != nil {
+func (content *BaseContent) InitWithMap(dict StringKeyMap) Content {
+	if content.Dictionary.InitWithMap(dict) != nil {
 		// lazy load
 		content._type = ""
 		content._sn = 0
@@ -87,21 +89,16 @@ func (content *BaseContent) Init(dict StringKeyMap) Content {
 func (content *BaseContent) InitWithType(msgType MessageType) Content {
 	now := TimeNow()
 	sn := GenerateSerialNumber(msgType, now)
-	// build content info
-	dict := NewMap()
-	dict["type"] = msgType
-	dict["sn"] = sn
-	dict["time"] = TimeToFloat64(now)
-	// initialize with dictionary
-	if content.Dictionary.Init(dict) != nil {
+	if content.Dictionary.Init() != nil {
 		content._type = msgType
 		content._sn = sn
 		content._time = now
+		content.Set("type", msgType)
+		content.Set("sn", sn)
+		content.SetTime("time", now)
 	}
 	return content
 }
-
-//-------- IContent
 
 // Override
 func (content *BaseContent) Type() MessageType {
@@ -146,4 +143,40 @@ func (content *BaseContent) Group() ID {
 // Override
 func (content *BaseContent) SetGroup(group ID) {
 	content.SetStringer("group", group)
+}
+
+/**
+ *  Base Command Content
+ *
+ *  <blockquote><pre>
+ *  data format: {
+ *      "type" : i2s(0x88),
+ *      "sn"   : 123,
+ *
+ *      "command" : "...", // command name
+ *      "extra"   : info   // command parameters
+ *  }
+ *  </pre></blockquote>
+ */
+type BaseCommand struct {
+	//Command
+	BaseContent
+}
+
+/* designated initializer */
+func (content *BaseCommand) InitWithType(msgType MessageType, cmd string) Command {
+	if content.BaseContent.InitWithType(msgType) != nil {
+		content.Set("command", cmd)
+	}
+	return content
+}
+
+func (content *BaseCommand) Init(cmd string) Command {
+	return content.InitWithType(ContentType.COMMON, cmd)
+}
+
+// Override
+func (content *BaseCommand) CMD() string {
+	helper := GetGeneralCommandHelper()
+	return helper.GetCMD(content.Map(), "")
 }

@@ -31,8 +31,8 @@
 package dkd
 
 import (
+	. "github.com/dimchat/core-go/format"
 	. "github.com/dimchat/core-go/protocol"
-	. "github.com/dimchat/dkd-go/dkd"
 	. "github.com/dimchat/dkd-go/protocol"
 	. "github.com/dimchat/mkm-go/crypto"
 	. "github.com/dimchat/mkm-go/format"
@@ -40,107 +40,192 @@ import (
 )
 
 /**
- *  File message: {
- *      type : 0x10,
- *      sn   : 123,
+ *  Base File Content
  *
- *      URL      : "http://", // upload to CDN
- *      data     : "...",     // if (!URL) base64_encode(fileContent)
- *      filename : "..."
+ *  <blockquote><pre>
+ *  data format: {
+ *      "type" : i2s(0x10),
+ *      "sn"   : 123,
+ *
+ *      "data"     : "...",        // base64_encode(fileContent)
+ *      "filename" : "photo.png",
+ *
+ *      "URL"      : "http://...", // download from CDN
+ *      // before fileContent uploaded to a public CDN,
+ *      // it should be encrypted by a symmetric key
+ *      "key"      : {             // symmetric key to decrypt file data
+ *          "algorithm" : "AES",   // "DES", ...
+ *          "data"      : "{BASE64_ENCODE}",
+ *          ...
+ *      }
  *  }
+ *  </pre></blockquote>
  */
 type BaseFileContent struct {
+	//FileContent
 	BaseContent
 
-	_data []byte       // file data (plaintext)
-	_key SymmetricKey  // symmetric key to decrypt the encrypted data from URL
+	_wrapper TransportableFileWrapper
 }
 
-func NewFileContent(msgType ContentType, filename string, data []byte) FileContent {
-	content := new(BaseFileContent)
-	content.InitWithType(msgType, filename, data)
-	return content
+func (content *BaseFileContent) createWrapper() TransportableFileWrapper {
+	dict := content.Map()
+	factory := GetTransportableFileWrapperFactory()
+	return factory.CreateTransportableFileWrapper(dict)
 }
 
-/* designated initializer */
-func (content *BaseFileContent) Init(dict map[string]interface{}) FileContent {
-	if content.BaseContent.Init(dict) != nil {
-		// lazy load
-		content._data = nil
-		content._key = nil
+func (content *BaseFileContent) InitWithMap(dict StringKeyMap) FileContent {
+	if content.BaseContent.InitWithMap(dict) != nil {
+		content._wrapper = content.createWrapper()
 	}
 	return content
 }
 
-/* designated initializer */
-func (content *BaseFileContent) InitWithType(msgType ContentType, filename string, data []byte) FileContent {
-	if msgType == 0 {
-		msgType = FILE
-	}
+func (content *BaseFileContent) InitWithType(msgType MessageType,
+	data TransportableData, filename string,
+	url URL, key DecryptKey,
+) FileContent {
 	if content.BaseContent.InitWithType(msgType) != nil {
-		content.SetFilename(filename)
-		content.SetData(data)
-		content._key = nil
-	}
-	return content
-}
-
-//-------- IFileContent
-
-func (content *BaseFileContent) URL() string {
-	text := content.Get("URL")
-	if text == nil {
-		return ""
-	}
-	return text.(string)
-}
-func (content *BaseFileContent) SetURL(url string) {
-	content.Set("URL", url)
-}
-
-func (content *BaseFileContent) Data() []byte {
-	if content._data == nil {
-		base64 := content.Get("data")
-		if base64 != nil {
-			content._data = Base64Decode(base64.(string))
+		wrapper := content.createWrapper()
+		content._wrapper = wrapper
+		// file data
+		if data != nil {
+			wrapper.SetData(data)
+		}
+		// file name
+		if filename != "" {
+			wrapper.SetFilename(filename)
+		}
+		// download URL
+		if url != nil {
+			wrapper.SetURL(url)
+		}
+		// decrypt key
+		if key != nil {
+			wrapper.SetPassword(key)
 		}
 	}
-	return content._data
-}
-func (content *BaseFileContent) SetData(data []byte) {
-	if ValueIsNil(data) {
-		content.Remove("data")
-	} else {
-		base64 := Base64Encode(data)
-		content.Set("data", base64)
-	}
-	content._data = data
+	return content
 }
 
+// Override
+func (content *BaseFileContent) Map() StringKeyMap {
+	// call wrapper to serialize 'data' & 'key'
+	return content._wrapper.Map()
+}
+
+/**
+ *  file data
+ */
+
+// Override
+func (content *BaseFileContent) Data() TransportableData {
+	return content._wrapper.Data()
+}
+
+// Override
+func (content *BaseFileContent) SetData(data TransportableData) {
+	content._wrapper.SetData(data)
+}
+
+/**
+ *  file name
+ */
+
+// Override
 func (content *BaseFileContent) Filename() string {
-	text := content.Get("filename")
-	if text == nil {
-		return ""
-	}
-	return text.(string)
+	return content._wrapper.Filename()
 }
+
+// Override
 func (content *BaseFileContent) SetFilename(filename string) {
-	content.Set("filename", filename)
+	content._wrapper.SetFilename(filename)
 }
 
-func (content *BaseFileContent) Password() SymmetricKey {
-	if content._key == nil {
-		dict := content.Get("password")
-		content._key = SymmetricKeyParse(dict)
-	}
-	return content._key
+/**
+ *  download URL
+ */
+
+// Override
+func (content *BaseFileContent) URL() URL {
+	return content._wrapper.URL()
 }
 
-func (content *BaseFileContent) SetPassword(password SymmetricKey) {
-	if ValueIsNil(password) {
-		content.Remove("password")
-	} else {
-		content.Set("password", password.Map())
-	}
-	content._key = password
+// Override
+func (content *BaseFileContent) SetURL(url URL) {
+	content._wrapper.SetURL(url)
+}
+
+/**
+ *  decrypt key
+ */
+
+// Override
+func (content *BaseFileContent) Password() DecryptKey {
+	return content._wrapper.Password()
+}
+
+// Override
+func (content *BaseFileContent) SetPassword(password DecryptKey) {
+	content._wrapper.SetPassword(password)
+}
+
+//
+//  Factories
+//
+
+/**
+ *  File Content
+ */
+func NewFileContent(data TransportableData, filename string, url URL, key DecryptKey) FileContent {
+	content := &BaseFileContent{}
+	return content.InitWithType(ContentType.FILE, data, filename, url, key)
+}
+func NewFileContentWithData(data TransportableData, filename string) FileContent {
+	return NewFileContent(data, filename, nil, nil)
+}
+func NewFileContentWithURL(url URL, key DecryptKey) FileContent {
+	return NewFileContent(nil, "", url, key)
+}
+
+/**
+ *  Image Content
+ */
+func NewImageContent(data TransportableData, filename string, url URL, key DecryptKey) ImageContent {
+	content := &ImageFileContent{}
+	return content.Init(data, filename, url, key)
+}
+func NewImageContentWithData(data TransportableData, filename string) ImageContent {
+	return NewImageContent(data, filename, nil, nil)
+}
+func NewImageContentWithURL(url URL, key DecryptKey) ImageContent {
+	return NewImageContent(nil, "", url, key)
+}
+
+/**
+ *  Audio Content
+ */
+func NewAudioContent(data TransportableData, filename string, url URL, key DecryptKey) AudioContent {
+	content := &AudioFileContent{}
+	return content.Init(data, filename, url, key)
+}
+func NewAudioContentWithData(data TransportableData, filename string) AudioContent {
+	return NewAudioContent(data, filename, nil, nil)
+}
+func NewAudioContentWithURL(url URL, key DecryptKey) AudioContent {
+	return NewAudioContent(nil, "", url, key)
+}
+
+/**
+ *  Video Content
+ */
+func NewVideoContent(data TransportableData, filename string, url URL, key DecryptKey) VideoContent {
+	content := &VideoFileContent{}
+	return content.Init(data, filename, url, key)
+}
+func NewVideoContentWithData(data TransportableData, filename string) VideoContent {
+	return NewVideoContent(data, filename, nil, nil)
+}
+func NewVideoContentWithURL(url URL, key DecryptKey) VideoContent {
+	return NewVideoContent(nil, "", url, key)
 }

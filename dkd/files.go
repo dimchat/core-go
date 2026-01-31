@@ -32,174 +32,230 @@ package dkd
 
 import (
 	. "github.com/dimchat/core-go/protocol"
-	. "github.com/dimchat/dkd-go/protocol"
+	. "github.com/dimchat/mkm-go/crypto"
 	. "github.com/dimchat/mkm-go/format"
+	. "github.com/dimchat/mkm-go/protocol"
 	. "github.com/dimchat/mkm-go/types"
 )
 
 /**
- *  Image message: {
- *      type : 0x12,
- *      sn   : 123,
+ *  Image File Content
  *
- *      URL       : "http://", // upload to CDN
- *      data      : "...",     // if (!URL) base64_encode(image)
- *      thumbnail : "...",     // base64_encode(smallImage)
- *      filename  : "..."
+ *  <blockquote><pre>
+ *  data format: {
+ *      "type" : i2s(0x12),
+ *      "sn"   : 123,
+ *
+ *      "data"     : "...",        // base64_encode(fileContent)
+ *      "filename" : "photo.png",
+ *
+ *      "URL"      : "http://...", // download from CDN
+ *      // before fileContent uploaded to a public CDN,
+ *      // it should be encrypted by a symmetric key
+ *      "key"      : {             // symmetric key to decrypt file data
+ *          "algorithm" : "AES",   // "DES", ...
+ *          "data"      : "{BASE64_ENCODE}",
+ *          ...
+ *      },
+ *      "thumbnail" : "data:image/jpeg;base64,..."
  *  }
+ *  </pre></blockquote>
  */
-
 type ImageFileContent struct {
+	//ImageContent
 	BaseFileContent
 
-	_thumbnail []byte
+	_thumbnail TransportableFile
 }
 
-func NewImageContent(filename string, data []byte) ImageContent {
-	content := new(ImageFileContent)
-	content.InitWithFilename(filename, data)
-	return content
-}
-
-func (content *ImageFileContent) Init(dict map[string]interface{}) ImageContent {
-	if content.BaseFileContent.Init(dict) != nil {
+func (content *ImageFileContent) InitWithMap(dict StringKeyMap) ImageContent {
+	if content.BaseFileContent.InitWithMap(dict) != nil {
 		// lazy load
 		content._thumbnail = nil
 	}
 	return content
 }
 
-func (content *ImageFileContent) InitWithFilename(filename string, data []byte) ImageContent {
-	if content.BaseFileContent.InitWithType(IMAGE, filename, data) != nil {
+func (content *ImageFileContent) Init(
+	data TransportableData, filename string,
+	url URL, key DecryptKey,
+) ImageContent {
+	if content.BaseFileContent.InitWithType(ContentType.IMAGE, data, filename, url, key) != nil {
 		content._thumbnail = nil
 	}
 	return content
 }
 
-//-------- IImageContent
-
-func (content *ImageFileContent) Thumbnail() []byte {
-	if content._thumbnail == nil {
-		base64 := content.Get("thumbnail")
-		if base64 != nil {
-			content._thumbnail = Base64Decode(base64.(string))
-		}
+// Override
+func (content *ImageFileContent) Map() StringKeyMap {
+	// serialize 'thumbnail'
+	img := content._thumbnail
+	if img != nil && !content.Contains("thumbnail") {
+		content.Set("thumbnail", img.Serialize())
 	}
-	return content._thumbnail
+	// OK
+	return content.BaseFileContent.Map()
 }
 
-func (content *ImageFileContent) SetThumbnail(thumbnail []byte) {
-	if ValueIsNil(thumbnail) {
-		content.Remove("thumbnail")
-	} else {
-		base64 := Base64Encode(thumbnail)
-		content.Set("thumbnail", base64)
+// Override
+func (content *ImageFileContent) Thumbnail() TransportableFile {
+	img := content._thumbnail
+	if img == nil {
+		uri := content.Get("thumbnail")
+		img = ParseTransportableFile(uri)
+		content._thumbnail = img
 	}
+	return img
+}
+
+// Override
+func (content *ImageFileContent) SetThumbnail(thumbnail TransportableFile) {
+	content.Remove("thumbnail")
+	//content.SetMapper("thumbnail", thumbnail)
 	content._thumbnail = thumbnail
 }
 
 /**
- *  Audio message: {
- *      type : 0x14,
- *      sn   : 123,
+ *  Audio File Content
  *
- *      URL      : "http://", // upload to CDN
- *      data     : "...",     // if (!URL) base64_encode(audio)
- *      text     : "...",     // Automatic Speech Recognition
- *      filename : "..."
+ *  <blockquote><pre>
+ *  data format: {
+ *      "type" : i2s(0x14),
+ *      "sn"   : 123,
+ *
+ *      "data"     : "...",        // base64_encode(fileContent)
+ *      "filename" : "voice.mp4",
+ *
+ *      "URL"      : "http://...", // download from CDN
+ *      // before fileContent uploaded to a public CDN,
+ *      // it should be encrypted by a symmetric key
+ *      "key"      : {             // symmetric key to decrypt file data
+ *          "algorithm" : "AES",   // "DES", ...
+ *          "data"      : "{BASE64_ENCODE}",
+ *          ...
+ *      },
+ *      "duration" : 123.45,
+ *      "text"     : "..."         // Automatic Speech Recognition
  *  }
+ *  </pre></blockquote>
  */
 type AudioFileContent struct {
+	//AudioContent
 	BaseFileContent
 }
 
-func NewAudioContent(filename string, data []byte) AudioContent {
-	content := new(AudioFileContent)
-	content.InitWithFilename(filename, data)
-	return content
-}
-
-//func (content *AudioFileContent) Init(dict map[string]interface{}) AudioContent {
-//	if content.BaseFileContent.Init(dict) != nil {
+//func (content *AudioFileContent) InitWithMap(dict StringKeyMap) AudioContent {
+//	if content.BaseFileContent.InitWithMap(dict) != nil {
 //	}
 //	return content
 //}
 
-func (content *AudioFileContent) InitWithFilename(filename string, data []byte) AudioContent {
-	if content.BaseFileContent.InitWithType(AUDIO, filename, data) != nil {
+func (content *AudioFileContent) Init(
+	data TransportableData, filename string,
+	url URL, key DecryptKey,
+) AudioContent {
+	if content.BaseFileContent.InitWithType(ContentType.AUDIO, data, filename, url, key) != nil {
 	}
 	return content
 }
 
-//-------- IAudioContent
-
+// Override
 func (content *AudioFileContent) Duration() float64 {
-	duration := content.Get("duration")
-	if duration == nil {
-		return 0.0
-	}
-	return duration.(float64)
+	return content.GetFloat64("duration", 0)
 }
+
+// Override
 func (content *AudioFileContent) SetDuration(duration float64) {
 	content.Set("duration", duration)
 }
 
+// Override
+func (content *AudioFileContent) Text() string {
+	return content.GetString("text", "")
+}
+
+// Override
+func (content *AudioFileContent) SetText(text string) {
+	if text == "" {
+		content.Remove("text")
+	} else {
+		content.Set("text", text)
+	}
+}
+
 /**
- *  Video message: {
- *      type : 0x16,
- *      sn   : 123,
+ *  Video File Content
  *
- *      URL      : "http://", // upload to CDN
- *      data     : "...",     // if (!URL) base64_encode(video)
- *      snapshot : "...",     // base64_encode(smallImage)
- *      filename : "..."
+ *  <blockquote><pre>
+ *  data format: {
+ *      "type" : i2s(0x16),
+ *      "sn"   : 123,
+ *
+ *      "data"     : "...",        // base64_encode(fileContent)
+ *      "filename" : "movie.mp4",
+ *
+ *      "URL"      : "http://...", // download from CDN
+ *      // before fileContent uploaded to a public CDN,
+ *      // it should be encrypted by a symmetric key
+ *      "key"      : {             // symmetric key to decrypt file data
+ *          "algorithm" : "AES",   // "DES", ...
+ *          "data"      : "{BASE64_ENCODE}",
+ *          ...
+ *      },
+ *      "snapshot" : "data:image/jpeg;base64,..."
  *  }
+ *  </pre></blockquote>
  */
 type VideoFileContent struct {
+	//VideoContent
 	BaseFileContent
 
-	_snapshot []byte
+	_snapshot TransportableFile
 }
 
-func NewVideoContent(filename string, data []byte) VideoContent {
-	content := new(VideoFileContent)
-	content.InitWithFilename(filename, data)
-	return content
-}
-
-func (content *VideoFileContent) Init(dict map[string]interface{}) VideoContent {
-	if content.BaseFileContent.Init(dict) != nil {
+func (content *VideoFileContent) InitWithMap(dict StringKeyMap) VideoContent {
+	if content.BaseFileContent.InitWithMap(dict) != nil {
 		// lazy load
 		content._snapshot = nil
 	}
 	return content
 }
 
-func (content *VideoFileContent) InitWithFilename(filename string, data []byte) VideoContent {
-	if content.BaseFileContent.InitWithType(VIDEO, filename, data) != nil {
+func (content *VideoFileContent) Init(
+	data TransportableData, filename string,
+	url URL, key DecryptKey,
+) VideoContent {
+	if content.BaseFileContent.InitWithType(ContentType.VIDEO, data, filename, url, key) != nil {
 		content._snapshot = nil
 	}
 	return content
 }
 
-//-------- IVideoContent
-
-func (content *VideoFileContent) Snapshot() []byte {
-	if content._snapshot == nil {
-		base64 := content.Get("snapshot")
-		if base64 != nil {
-			content._snapshot = Base64Decode(base64.(string))
-		}
+// Override
+func (content *VideoFileContent) Map() StringKeyMap {
+	// serialize 'snapshot'
+	img := content._snapshot
+	if img != nil && !content.Contains("snapshot") {
+		content.Set("snapshot", img.Serialize())
 	}
-	return content._snapshot
+	// OK
+	return content.BaseFileContent.Map()
 }
 
-func (content *VideoFileContent) SetSnapshot(snapshot []byte) {
-	if ValueIsNil(snapshot) {
-		content.Remove("snapshot")
-	} else {
-		base64 := Base64Encode(snapshot)
-		content.Set("snapshot", base64)
+// Override
+func (content *VideoFileContent) Snapshot() TransportableFile {
+	img := content._snapshot
+	if img == nil {
+		uri := content.Get("snapshot")
+		img = ParseTransportableFile(uri)
+		content._snapshot = img
 	}
+	return img
+}
+
+// Override
+func (content *VideoFileContent) SetSnapshot(snapshot TransportableFile) {
+	content.Remove("snapshot")
+	//content.SetMapper("snapshot", snapshot)
 	content._snapshot = snapshot
 }

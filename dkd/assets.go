@@ -32,110 +32,113 @@ package dkd
 
 import (
 	. "github.com/dimchat/core-go/protocol"
-	. "github.com/dimchat/dkd-go/dkd"
 	. "github.com/dimchat/dkd-go/protocol"
+	. "github.com/dimchat/mkm-go/protocol"
 )
 
 /**
- *  Money message: {
- *      type : 0x40,
- *      sn   : 123,
+ *  Money Content
  *
- *      currency : "RMB", // USD, USDT, ...
- *      amount   : 100.00
+ *  <blockquote><pre>
+ *  data format: {
+ *      "type" : i2s(0x40),
+ *      "sn"   : 123,
+ *
+ *      "currency" : "RMB", // USD, USDT, ...
+ *      "amount"   : 100.00
  *  }
+ *  </pre></blockquote>
  */
 type BaseMoneyContent struct {
+	//MoneyContent
 	BaseContent
 }
 
-func NewMoneyContent(msgType ContentType, currency string, amount float64) MoneyContent {
-	content := new(BaseMoneyContent)
-	content.InitWithType(msgType, currency, amount)
-	return content
-}
-
-///* designated initializer */
-//func (content *BaseMoneyContent) Init(dict map[string]interface{}) MoneyContent {
-//	if content.BaseContent.Init(dict) != nil {
-//	}
-//	return content
-//}
-
-/* designated initializer */
-func (content *BaseMoneyContent) InitWithType(msgType ContentType, currency string, amount float64) MoneyContent {
-	if msgType == 0 {
-		msgType = MONEY
-	}
+func (content *BaseMoneyContent) InitWithType(msgType MessageType, currency string, amount float64) MoneyContent {
 	if content.BaseContent.InitWithType(msgType) != nil {
-		content.setCurrency(currency)
-		content.SetAmount(amount)
+		content.Set("currency", currency)
+		content.Set("amount", amount)
 	}
 	return content
 }
 
-func (content *BaseMoneyContent) setCurrency(currency string) {
-	content.Set("currency", currency)
+func (content *BaseMoneyContent) Init(currency string, amount float64) MoneyContent {
+	return content.InitWithType(ContentType.MONEY, currency, amount)
 }
 
-//-------- IMoneyContent
-
+// Override
 func (content *BaseMoneyContent) Currency() string {
-	text := content.Get("currency")
-	if text == nil {
-		return ""
-	}
-	return text.(string)
+	return content.GetString("currency", "")
 }
 
+// Override
 func (content *BaseMoneyContent) Amount() float64 {
-	amount := content.Get("amount")
-	if amount == nil {
-		return 0.0
-	}
-	return amount.(float64)
+	return content.GetFloat64("amount", 0)
 }
+
+// Override
 func (content *BaseMoneyContent) SetAmount(amount float64) {
 	content.Set("amount", amount)
 }
 
 /**
- *  Transfer money message: {
- *      type : 0x41,
- *      sn   : 123,
+ *  Transfer Money
  *
- *      currency : "RMB", // USD, USDT, ...
- *      amount   : 100.00
+ *  <blockquote><pre>
+ *  data format: {
+ *      "type" : i2s(0x41),
+ *      "sn"   : 123,
+ *
+ *      "currency" : "RMB",    // USD, USDT, ...
+ *      "amount"   : 100.00,
+ *      "remitter" : "{FROM}", // sender ID
+ *      "remittee" : "{TO}"    // receiver ID
  *  }
+ *  </pre></blockquote>
  */
 type TransferMoneyContent struct {
+	//TransferContent
 	BaseMoneyContent
 }
 
+func (content *TransferMoneyContent) Init(currency string, amount float64) TransferContent {
+	if content.BaseMoneyContent.InitWithType(ContentType.TRANSFER, currency, amount) != nil {
+	}
+	return content
+}
+
+// Override
+func (content *TransferMoneyContent) Remitter() ID {
+	sender := content.Get("remitter")
+	return ParseID(sender)
+}
+
+// Override
+func (content *TransferMoneyContent) SetRemitter(sender ID) {
+	content.SetStringer("remitter", sender)
+}
+
+// Override
+func (content *TransferMoneyContent) Remittee() ID {
+	receiver := content.Get("remittee")
+	return ParseID(receiver)
+}
+
+// Override
+func (content *TransferMoneyContent) SetRemittee(receiver ID) {
+	content.SetStringer("remittee", receiver)
+}
+
+//
+//  Factories
+//
+
+func NewMoneyContent(currency string, amount float64) MoneyContent {
+	content := &BaseMoneyContent{}
+	return content.Init(currency, amount)
+}
+
 func NewTransferContent(currency string, amount float64) TransferContent {
-	content := new(TransferMoneyContent)
-	content.InitWithCurrency(currency, amount)
-	return content
-}
-
-//func (content *TransferMoneyContent) Init(dict map[string]interface{}) TransferContent {
-//	if content.BaseMoneyContent.Init(dict) != nil {
-//	}
-//	return content
-//}
-
-func (content *TransferMoneyContent) InitWithCurrency(currency string, amount float64) TransferContent {
-	if content.BaseMoneyContent.InitWithType(TRANSFER, currency, amount) != nil {
-	}
-	return content
-}
-
-//-------- ITransferContent
-
-func (content *TransferMoneyContent) Comment() string {
-	text := content.Get("text")
-	if text == nil {
-		return ""
-	}
-	return text.(string)
+	content := &TransferMoneyContent{}
+	return content.Init(currency, amount)
 }
