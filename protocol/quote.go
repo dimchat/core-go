@@ -30,7 +30,10 @@
  */
 package protocol
 
-import . "github.com/dimchat/dkd-go/protocol"
+import (
+	. "github.com/dimchat/dkd-go/protocol"
+	. "github.com/dimchat/mkm-go/types"
+)
 
 /**
  *  Quote Content
@@ -58,4 +61,21 @@ type QuoteContent interface {
 
 	OriginalEnvelope() Envelope
 	OriginalSerialNumber() SerialNumberType
+}
+
+func PurifyForQuote(head Envelope, body Content) StringKeyMap {
+	from := head.Sender()
+	to := body.Group()
+	if to == nil {
+		to = head.Receiver()
+	}
+	msgType := body.Type()
+	sn := body.SN()
+	// build origin info
+	info := NewMap()
+	info["sender"] = from.String()
+	info["receiver"] = to.String()
+	info["type"] = msgType
+	info["sn"] = sn
+	return info
 }

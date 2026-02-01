@@ -128,17 +128,3 @@ func (content *TransferMoneyContent) Remittee() ID {
 func (content *TransferMoneyContent) SetRemittee(receiver ID) {
 	content.SetStringer("remittee", receiver)
 }
-
-//
-//  Factories
-//
-
-func NewMoneyContent(currency string, amount float64) MoneyContent {
-	content := &BaseMoneyContent{}
-	return content.Init(currency, amount)
-}
-
-func NewTransferContent(currency string, amount float64) TransferContent {
-	content := &TransferMoneyContent{}
-	return content.Init(currency, amount)
-}

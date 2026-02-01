@@ -264,27 +264,3 @@ func (content *ListContent) Contents() []Content {
 	}
 	return contents
 }
-
-//
-//  Factories
-//
-
-func NewForwardMessage(msg ReliableMessage) ForwardContent {
-	content := &SecretContent{}
-	return content.InitWithMessage(msg)
-}
-
-func NewForwardMessages(messages []ReliableMessage) ForwardContent {
-	content := &SecretContent{}
-	return content.InitWithMessages(messages)
-}
-
-func NewCombineMessages(title string, messages []InstantMessage) CombineContent {
-	content := &CombineForwardContent{}
-	return content.Init(title, messages)
-}
-
-func NewArrayContent(contents []Content) ArrayContent {
-	content := &ListContent{}
-	return content.Init(contents)
-}

@@ -277,37 +277,3 @@ func (content *NameCardContent) Avatar() TransportableFile {
 	}
 	return img
 }
-
-//
-//  Factories
-//
-
-func NewTextContent(text string) TextContent {
-	content := &BaseTextContent{}
-	return content.Init(text)
-}
-
-func NewNameCard(did ID, name string, avatar TransportableFile) NameCard {
-	content := &NameCardContent{}
-	return content.Init(did, name, avatar)
-}
-
-func NewPageContentWithURL(url URL, title string, icon TransportableFile, desc string) PageContent {
-	content := &WebPageContent{}
-	content.InitWithMap(NewMap())
-	content.SetURL(url)
-	content.SetTitle(title)
-	content.SetIcon(icon)
-	content.SetDescription(desc)
-	return content
-}
-
-func NewPageContentWithHTML(html string, title string, icon TransportableFile, desc string) PageContent {
-	content := &WebPageContent{}
-	content.InitWithMap(NewMap())
-	content.SetHTML(html)
-	content.SetTitle(title)
-	content.SetIcon(icon)
-	content.SetDescription(desc)
-	return content
-}

@@ -30,7 +30,10 @@
  */
 package protocol
 
-import . "github.com/dimchat/dkd-go/protocol"
+import (
+	. "github.com/dimchat/dkd-go/protocol"
+	. "github.com/dimchat/mkm-go/types"
+)
 
 /**
  *  Receipt Command
@@ -61,4 +64,23 @@ type ReceiptCommand interface {
 	OriginalEnvelope() Envelope
 	OriginalSerialNumber() SerialNumberType
 	OriginalSignature() string
+}
+
+func PurifyForReceipt(head Envelope, body Content) StringKeyMap {
+	if head == nil {
+		return nil
+	}
+	info := head.CopyMap(false)
+	if _, exists := info["data"]; exists {
+		delete(info, "data")
+		delete(info, "key")
+		delete(info, "keys")
+		delete(info, "meta")
+		delete(info, "visa")
+	}
+	if body != nil {
+		sn := body.SN()
+		info["sn"] = sn
+	}
+	return info
 }

@@ -122,12 +122,3 @@ func (content *BaseQuoteContent) OriginalSerialNumber() SerialNumberType {
 	sn := origin["sn"]
 	return ConvertUInt64(sn, 0)
 }
-
-//
-//  Factory
-//
-
-func NewQuoteContent(text string, origin StringKeyMap) QuoteContent {
-	content := &BaseQuoteContent{}
-	return content.Init(text, origin)
-}

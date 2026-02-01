@@ -82,12 +82,3 @@ func (content *AppCustomizedContent) Module() string {
 func (content *AppCustomizedContent) Action() string {
 	return content.GetString("act", "")
 }
-
-//
-//  Factory
-//
-
-func NewAppCustomizedContent(app, mod, act string) CustomizedContent {
-	content := &AppCustomizedContent{}
-	return content.Init(app, mod, act)
-}
