@@ -2,12 +2,12 @@
  *
  *  DIMP : Decentralized Instant Messaging Protocol
  *
- *                                Written in 2021 by Moky <albert.moky@gmail.com>
+ *                                Written in 2026 by Moky <albert.moky@gmail.com>
  *
  * ==============================================================================
  * The MIT License (MIT)
  *
- * Copyright (c) 2021 Albert Moky
+ * Copyright (c) 2026 Albert Moky
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,50 +28,28 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package dkd
+package ext
 
-import (
-	. "github.com/dimchat/core-go/protocol"
-	. "github.com/dimchat/dkd-go/dkd"
-	. "github.com/dimchat/dkd-go/protocol"
-)
+import . "github.com/dimchat/mkm-go/types"
 
 /**
- *  Command message: {
- *      type : 0x88,
- *      sn   : 123,
- *
- *      command : "...", // command name
- *      // extra info
- *  }
+ *  Command GeneralFactory
  */
-type BaseCommand struct {
-	BaseContent
+type GeneralCommandHelper interface {
+	//CommandHelper
+
+	//
+	//  CMD
+	//
+	GetCMD(content StringKeyMap, defaultValue string) string
 }
 
-///* designated initializer */
-//func (cmd *BaseCommand) Init(dict map[string]interface{}) Command {
-//	if cmd.BaseContent.Init(dict) != nil {
-//	}
-//	return cmd
-//}
+var sharedGeneralCommandHelper GeneralCommandHelper = nil
 
-/* designated initializer */
-func (cmd *BaseCommand) InitWithType(msgType ContentType, command string) Command {
-	if cmd.BaseContent.InitWithType(msgType) != nil {
-		cmd.Set("command", command)
-	}
-	return cmd
+func SetGeneralCommandHelper(helper GeneralCommandHelper) {
+	sharedGeneralCommandHelper = helper
 }
 
-func (cmd *BaseCommand) InitWithCommand(command string) Command {
-	if cmd.InitWithType(COMMAND, command) != nil {
-	}
-	return cmd
-}
-
-//-------- ICommand
-
-func (cmd *BaseCommand) CommandName() string {
-	return CommandGetName(cmd.Map())
+func GetGeneralCommandHelper() GeneralCommandHelper {
+	return sharedGeneralCommandHelper
 }

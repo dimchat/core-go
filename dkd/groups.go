@@ -36,263 +36,151 @@ import (
 )
 
 /**
- *  Group history command: {
- *      type : 0x89,
- *      sn   : 123,
+ *  History Command Content
  *
- *      command : "invite",
- *      group   : "{GROUP_ID}",
- *      members : [],            // member ID list
+ *  <blockquote><pre>
+ *  data format: {
+ *      "type" : i2s(0x89),
+ *      "sn"   : 123,
+ *
+ *      "command" : "...", // command name
+ *      "time"    : 0,     // command timestamp
+ *      "extra"   : info   // command parameters
  *  }
+ *  </pre></blockquote>
  */
-type InviteGroupCommand struct {
-	BaseGroupCommand
+type BaseHistoryCommand struct {
+	//HistoryCommand
+	BaseCommand
 }
 
-func NewInviteCommand(group ID, members []ID) InviteCommand {
-	cmd := new(InviteGroupCommand)
-	cmd.InitWithMembers(group, members)
-	return cmd
-}
-
-//func (cmd *InviteGroupCommand) Init(dict map[string]interface{}) InviteCommand {
-//	if cmd.BaseGroupCommand.Init(dict) != nil {
-//	}
-//	return cmd
-//}
-
-func (cmd *InviteGroupCommand) InitWithMember(group ID, member ID) InviteCommand {
-	if cmd.BaseGroupCommand.InitWithMember(INVITE, group, member) != nil {
+func (content *BaseHistoryCommand) Init(cmd string) HistoryCommand {
+	if content.BaseCommand.InitWithType(ContentType.HISTORY, cmd) != nil {
 	}
-	return cmd
-}
-
-func (cmd *InviteGroupCommand) InitWithMembers(group ID, members []ID) InviteCommand {
-	if cmd.BaseGroupCommand.InitWithMembers(INVITE, group, members) != nil {
-	}
-	return cmd
-}
-
-//-------- IInviteCommand
-
-func (cmd *InviteGroupCommand) InviteMembers() []ID {
-	member := cmd.Member()
-	if member != nil {
-		return []ID{member}
-	} else {
-		return cmd.Members()
-	}
+	return content
 }
 
 /**
- *  Group history command: {
- *      type : 0x89,
- *      sn   : 123,
+ *  Group History
  *
- *      command : "expel",
- *      group   : "{GROUP_ID}",
- *      members : [],            // member ID list
+ *  <blockquote><pre>
+ *  data format: {
+ *      "type" : i2s(0x89),
+ *      "sn"   : 123,
+ *
+ *      "command" : "reset",   // "invite", "quit", ...
+ *      "time"    : 123.456,   // command timestamp
+ *
+ *      "group"   : "{GROUP_ID}",
+ *      "members" : ["{MEMBER_ID}",]
  *  }
+ *  </pre></blockquote>
+ */
+type BaseGroupCommand struct {
+	//GroupCommand
+	BaseHistoryCommand
+}
+
+func (content *BaseGroupCommand) Init(cmd string, group ID, members []ID) GroupCommand {
+	if content.BaseHistoryCommand.Init(cmd) != nil {
+		content.SetGroup(group)
+		if members != nil {
+			content.SetMembers(members)
+		}
+	}
+	return content
+}
+
+// Override
+func (content *BaseGroupCommand) Members() []ID {
+	members := content.Get("members")
+	if members != nil {
+		return IDConvert(members)
+	}
+	// get from 'member'
+	single := ParseID(content.Get("member"))
+	if single != nil {
+		array := make([]ID, 1)
+		array[0] = single
+		return array
+	}
+	// failed to get group members
+	return nil
+}
+
+func (content *BaseGroupCommand) SetMembers(members []ID) {
+	if members == nil {
+		content.Remove("members")
+	} else {
+		content.Set("members", IDRevert(members))
+	}
+	content.Remove("member")
+}
+
+type InviteGroupCommand struct {
+	//InviteCommand
+	BaseGroupCommand
+}
+
+func (content *InviteGroupCommand) Init(group ID, members []ID) InviteCommand {
+	if content.BaseGroupCommand.Init(INVITE, group, members) != nil {
+	}
+	return content
+}
+
+/**
+ *  Deprecated, use 'reset' instead
  */
 type ExpelGroupCommand struct {
+	//ExpelCommand
 	BaseGroupCommand
 }
 
-func NewExpelCommand(group ID, members []ID) ExpelCommand {
-	cmd := new(ExpelGroupCommand)
-	cmd.InitWithMembers(group, members)
-	return cmd
-}
-
-//func (cmd *ExpelGroupCommand) Init(dict map[string]interface{}) ExpelCommand {
-//	if cmd.BaseGroupCommand.Init(dict) != nil {
-//	}
-//	return cmd
-//}
-
-func (cmd *ExpelGroupCommand) InitWithMember(group ID, member ID) ExpelCommand {
-	if cmd.BaseGroupCommand.InitWithMember(EXPEL, group, member) != nil {
+func (content *ExpelGroupCommand) Init(group ID, members []ID) ExpelCommand {
+	if content.BaseGroupCommand.Init(EXPEL, group, members) != nil {
 	}
-	return cmd
+	return content
 }
 
-func (cmd *ExpelGroupCommand) InitWithMembers(group ID, members []ID) ExpelCommand {
-	if cmd.BaseGroupCommand.InitWithMembers(EXPEL, group, members) != nil {
-	}
-	return cmd
-}
-
-//-------- IExpelCommand
-
-func (cmd *ExpelGroupCommand) ExpelMembers() []ID {
-	member := cmd.Member()
-	if member != nil {
-		return []ID{member}
-	} else {
-		return cmd.Members()
-	}
-}
-
-/**
- *  Group history command: {
- *      type : 0x89,
- *      sn   : 123,
- *
- *      command : "join",
- *      group   : "{GROUP_ID}",
- *      text    : "May I?",
- *  }
- */
 type JoinGroupCommand struct {
+	//JoinCommand
 	BaseGroupCommand
 }
 
-func NewJoinCommand(group ID) JoinCommand {
-	cmd := new(JoinGroupCommand)
-	cmd.InitWithGroup(group)
-	return cmd
-}
-
-//func (cmd *JoinGroupCommand) Init(dict map[string]interface{}) JoinCommand {
-//	if cmd.BaseGroupCommand.Init(dict) != nil {
-//	}
-//	return cmd
-//}
-
-func (cmd *JoinGroupCommand) InitWithGroup(group ID) JoinCommand {
-	if cmd.BaseGroupCommand.InitWithCommand(JOIN, group) != nil {
+func (content *JoinGroupCommand) Init(group ID) JoinCommand {
+	if content.BaseGroupCommand.Init(JOIN, group, nil) != nil {
 	}
-	return cmd
+	return content
 }
 
-//-------- IJoinCommand
-
-func (cmd *JoinGroupCommand) Ask() string {
-	text := cmd.Get("text")
-	if text == nil {
-		return ""
-	}
-	return text.(string)
+// Override
+func (content *JoinGroupCommand) Ask() string {
+	return content.GetString("text", "")
 }
 
-/**
- *  Group history command: {
- *      type : 0x89,
- *      sn   : 123,
- *
- *      command : "quit",
- *      group   : "{GROUP_ID}",
- *      text    : "Good bye!",
- *  }
- */
 type QuitGroupCommand struct {
+	//QuitCommand
 	BaseGroupCommand
 }
 
-func NewQuitCommand(group ID) QuitCommand {
-	cmd := new(QuitGroupCommand)
-	cmd.InitWithGroup(group)
-	return cmd
-}
-
-//func (cmd *QuitGroupCommand) Init(dict map[string]interface{}) QuitCommand {
-//	if cmd.BaseGroupCommand.Init(dict) != nil {
-//	}
-//	return cmd
-//}
-
-func (cmd *QuitGroupCommand) InitWithGroup(group ID) QuitCommand {
-	if cmd.BaseGroupCommand.InitWithCommand(QUIT, group) != nil {
+func (content *QuitGroupCommand) Init(group ID) QuitCommand {
+	if content.BaseGroupCommand.Init(QUIT, group, nil) != nil {
 	}
-	return cmd
+	return content
 }
 
-//-------- IQuitCommand
-
-func (cmd *QuitGroupCommand) Bye() string {
-	text := cmd.Get("text")
-	if text == nil {
-		return ""
-	}
-	return text.(string)
+// Override
+func (content *QuitGroupCommand) Bye() string {
+	return content.GetString("text", "")
 }
 
-/**
- *  Group history command: {
- *      type : 0x89,
- *      sn   : 123,
- *
- *      command : "reset",
- *      group   : "{GROUP_ID}",
- *      members : [],            // member ID list
- *  }
- */
 type ResetGroupCommand struct {
+	//ResetCommand
 	BaseGroupCommand
 }
 
-func NewResetCommand(group ID, members []ID) ResetCommand {
-	cmd := new(ResetGroupCommand)
-	cmd.InitWithMembers(group, members)
-	return cmd
-}
-
-//func (cmd *ResetGroupCommand) Init(dict map[string]interface{}) ResetCommand {
-//	if cmd.BaseGroupCommand.Init(dict) != nil {
-//	}
-//	return cmd
-//}
-
-func (cmd *ResetGroupCommand) InitWithMembers(group ID, members []ID) ResetCommand {
-	if cmd.BaseGroupCommand.InitWithMembers(RESET, group, members) != nil {
+func (content *ResetGroupCommand) Init(group ID, members []ID) ResetCommand {
+	if content.BaseGroupCommand.Init(RESET, group, members) != nil {
 	}
-	return cmd
-}
-
-//-------- IResetCommand
-
-func (cmd *ResetGroupCommand) AllMembers() []ID {
-	return cmd.Members()
-}
-
-/**
- *  Group command: {
- *      type : 0x89,
- *      sn   : 123,
- *
- *      command : "query",
- *      group   : "{GROUP_ID}",
- *      text    : "May I?",
- *  }
- */
-type QueryGroupCommand struct {
-	BaseGroupCommand
-}
-
-func NewQueryCommand(group ID) QueryCommand {
-	cmd := new(QueryGroupCommand)
-	cmd.InitWithGroup(group)
-	return cmd
-}
-
-//func (cmd *QueryGroupCommand) Init(dict map[string]interface{}) QueryCommand {
-//	if cmd.BaseGroupCommand.Init(dict) != nil {
-//	}
-//	return cmd
-//}
-
-func (cmd *QueryGroupCommand) InitWithGroup(group ID) QueryCommand {
-	if cmd.BaseGroupCommand.InitWithCommand(QUERY, group) != nil {
-	}
-	return cmd
-}
-
-//-------- IQueryCommand
-
-func (cmd *QueryGroupCommand) Text() string {
-	text := cmd.Get("text")
-	if text == nil {
-		return ""
-	}
-	return text.(string)
+	return content
 }
