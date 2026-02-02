@@ -58,10 +58,18 @@ type PlainMessage struct {
 	_content Content
 }
 
-func (msg *PlainMessage) Init(dict StringKeyMap) InstantMessage {
-	if msg.BaseMessage.Init(dict) != nil {
+func (msg *PlainMessage) InitWithMap(dict StringKeyMap) InstantMessage {
+	if msg.BaseMessage.InitWithMap(dict) != nil {
 		// lazy load
 		msg._content = nil
+	}
+	return msg
+}
+
+func (msg *PlainMessage) Init(head Envelope, body Content) InstantMessage {
+	if msg.BaseMessage.InitWithEnvelope(head) != nil {
+		msg.SetContent(body)
+		//msg._content = body
 	}
 	return msg
 }
@@ -132,7 +140,7 @@ func (msg *PlainMessage) SetContent(content Content) {
 func (msg *PlainMessage) Map() StringKeyMap {
 	// serialize 'content'
 	body := msg._content
-	if body != nil && msg.Contains("content") {
+	if body != nil && !msg.Contains("content") {
 		msg.Set("content", body.Map())
 	}
 	// OK
@@ -145,9 +153,5 @@ func (msg *PlainMessage) Map() StringKeyMap {
 
 func NewInstantMessage(head Envelope, body Content) InstantMessage {
 	msg := &PlainMessage{}
-	if msg.Init(head.Map()) != nil {
-		msg._env = head
-		msg._content = body
-	}
-	return msg
+	return msg.Init(head, body)
 }

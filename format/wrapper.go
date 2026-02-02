@@ -90,10 +90,9 @@ type PortableNetworkFileWrapperFactory struct {
 	//TransportableFileWrapperFactory
 }
 
-func (factory *PortableNetworkFileWrapperFactory) CreateTransportableFileWrapper(content StringKeyMap) TransportableFileWrapper {
+func (factory PortableNetworkFileWrapperFactory) CreateTransportableFileWrapper(content StringKeyMap) TransportableFileWrapper {
 	wrapper := &PortableNetworkFileWrapper{}
-	wrapper.Init(content)
-	return wrapper
+	return wrapper.InitWithMap(content)
 }
 
 /**
@@ -129,7 +128,7 @@ type PortableNetworkFileWrapper struct {
 	_password DecryptKey
 }
 
-func (wrapper *PortableNetworkFileWrapper) Init(dictionary StringKeyMap) TransportableFileWrapper {
+func (wrapper *PortableNetworkFileWrapper) InitWithMap(dictionary StringKeyMap) TransportableFileWrapper {
 	if ValueIsNil(dictionary) {
 		// create empty map
 		dictionary = NewMap()

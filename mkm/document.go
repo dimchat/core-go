@@ -43,6 +43,7 @@ import (
  *  ~~~~~~~~~~~~~
  */
 type BaseDocument struct {
+	//Document
 	Dictionary
 
 	_data      string            // JSONEncode(properties)
@@ -57,8 +58,8 @@ type BaseDocument struct {
  *
  *  @param dict - info
  */
-func (doc *BaseDocument) Init(dict StringKeyMap) Document {
-	if doc.Dictionary.Init(dict) != nil {
+func (doc *BaseDocument) InitWithMap(dict StringKeyMap) Document {
+	if doc.Dictionary.InitWithMap(dict) != nil {
 		// lazy load
 		doc._data = ""
 		doc._signature = nil
@@ -76,11 +77,7 @@ func (doc *BaseDocument) Init(dict StringKeyMap) Document {
  * @param signature - signature of document data in Base64 format
  */
 func (doc *BaseDocument) InitWithType(docType DocumentType, data string, signature TransportableData) Document {
-	if data == "" || signature == nil || signature.IsEmpty() {
-		panic("data or signature is nil")
-		return nil
-	}
-	if doc.Dictionary.Init(NewMap()) != nil {
+	if doc.Dictionary.Init() != nil {
 		// document type
 		doc.Set("type", docType)
 
@@ -105,8 +102,8 @@ func (doc *BaseDocument) InitWithType(docType DocumentType, data string, signatu
  *
  * @param type - document type
  */
-func (doc *BaseDocument) InitEmptyDocument(docType DocumentType) Document {
-	if doc.Dictionary.Init(NewMap()) != nil {
+func (doc *BaseDocument) Init(docType DocumentType) Document {
+	if doc.Dictionary.Init() != nil {
 		// document type
 		doc.Set("type", docType)
 
@@ -209,7 +206,7 @@ func (doc *BaseDocument) Sign(privateKey SignKey) []byte {
 	}
 	data := JSONEncodeMap(info)
 	signature := privateKey.Sign(UTF8Encode(data))
-	ted := CreateBase64DataWithBytes(signature)
+	ted := NewBase64DataWithBytes(signature)
 	// 3. update 'data' & 'signature' fields
 	doc.Set("data", data)
 	doc.Set("signature", ted.Serialize())
@@ -280,5 +277,4 @@ func (doc *BaseDocument) SetProperty(name string, value interface{}) {
 func (doc *BaseDocument) Time() Time {
 	timestamp := doc.GetProperty("time")
 	return ConvertTime(timestamp, nil)
-	//return TimeParse(timestamp)
 }

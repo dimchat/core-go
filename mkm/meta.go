@@ -60,6 +60,7 @@ import (
  *  </pre></blockquote>
  */
 type BaseMeta struct {
+	//Meta
 	Dictionary
 
 	/**
@@ -106,8 +107,8 @@ type BaseMeta struct {
 	HasSeed bool
 }
 
-func (meta *BaseMeta) Init(dict StringKeyMap) Meta {
-	if meta.Dictionary.Init(dict) != nil {
+func (meta *BaseMeta) InitWithMap(dict StringKeyMap) Meta {
+	if meta.Dictionary.InitWithMap(dict) != nil {
 		// meta info from network, waiting to verify.
 		meta._status = 0
 		// lazy load
@@ -120,7 +121,7 @@ func (meta *BaseMeta) Init(dict StringKeyMap) Meta {
 }
 
 func (meta *BaseMeta) InitWithType(version MetaType, key VerifyKey, seed string, fingerprint TransportableData) Meta {
-	if meta.Dictionary.Init(NewMap()) != nil {
+	if meta.Dictionary.Init() != nil {
 		// meta type
 		meta.Set("type", version)
 		meta._type = version

@@ -61,15 +61,15 @@ import (
  *  }
  *  </pre></blockquote>
  */
-type RelayMessage struct {
+type NetworkMessage struct {
 	//ReliableMessage
 	EncryptedMessage
 
 	_signature TransportableData
 }
 
-func (msg *RelayMessage) Init(dict StringKeyMap) ReliableMessage {
-	if msg.EncryptedMessage.Init(dict) != nil {
+func (msg *NetworkMessage) InitWithMap(dict StringKeyMap) ReliableMessage {
+	if msg.EncryptedMessage.InitWithMap(dict) != nil {
 		// lazy load
 		msg._signature = nil
 	}
@@ -79,7 +79,7 @@ func (msg *RelayMessage) Init(dict StringKeyMap) ReliableMessage {
 //-------- IReliableMessage
 
 // Override
-func (msg *RelayMessage) Signature() TransportableData {
+func (msg *NetworkMessage) Signature() TransportableData {
 	ted := msg._signature
 	if ted == nil {
 		base64 := msg.Get("signature")

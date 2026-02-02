@@ -34,6 +34,7 @@ import (
 	. "github.com/dimchat/core-go/rfc"
 	. "github.com/dimchat/mkm-go/crypto"
 	. "github.com/dimchat/mkm-go/format"
+	. "github.com/dimchat/mkm-go/protocol"
 	. "github.com/dimchat/mkm-go/types"
 )
 
@@ -44,38 +45,41 @@ type PortableNetworkFile struct {
 	_wrapper TransportableFileWrapper
 }
 
-func (pnf *PortableNetworkFile) Init(dict StringKeyMap) {
-	pnf.Dictionary.Init(dict)
-	pnf._wrapper = pnf.createWrapper()
-}
-
-func (pnf *PortableNetworkFile) InitWithData(data TransportableData, filename string, url URL, key DecryptKey) {
-	dict := NewMap()
-	pnf.Dictionary.Init(dict)
-	wrapper := pnf.createWrapper()
-	pnf._wrapper = wrapper
-	// file data
-	if data != nil {
-		wrapper.SetData(data)
-	}
-	// file name
-	if filename != "" {
-		wrapper.SetFilename(filename)
-	}
-	// download URL
-	if url != nil {
-		wrapper.SetURL(url)
-	}
-	// decrypt key
-	if key != nil {
-		wrapper.SetPassword(key)
-	}
-}
-
 func (pnf *PortableNetworkFile) createWrapper() TransportableFileWrapper {
 	dict := pnf.Map()
 	factory := GetTransportableFileWrapperFactory()
 	return factory.CreateTransportableFileWrapper(dict)
+}
+
+func (pnf *PortableNetworkFile) InitWithMap(dict StringKeyMap) TransportableFile {
+	if pnf.Dictionary.InitWithMap(dict) != nil {
+		pnf._wrapper = pnf.createWrapper()
+	}
+	return pnf
+}
+
+func (pnf *PortableNetworkFile) Init(data TransportableData, filename string, url URL, key DecryptKey) TransportableFile {
+	if pnf.Dictionary.Init() != nil {
+		wrapper := pnf.createWrapper()
+		pnf._wrapper = wrapper
+		// file data
+		if data != nil {
+			wrapper.SetData(data)
+		}
+		// file name
+		if filename != "" {
+			wrapper.SetFilename(filename)
+		}
+		// download URL
+		if url != nil {
+			wrapper.SetURL(url)
+		}
+		// decrypt key
+		if key != nil {
+			wrapper.SetPassword(key)
+		}
+	}
+	return pnf
 }
 
 func (pnf *PortableNetworkFile) getURIString() string {
@@ -165,7 +169,7 @@ func (pnf *PortableNetworkFile) String() string {
 		// this PNF can be simplified to a URI string
 		return uri
 	}
-	// return JSON string
+	// return JsON string
 	dict := pnf._wrapper.Map()
 	return JSONEncodeMap(dict)
 }

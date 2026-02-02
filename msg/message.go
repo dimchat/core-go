@@ -85,10 +85,17 @@ type BaseMessage struct {
 	_env Envelope
 }
 
-func (msg *BaseMessage) Init(dict StringKeyMap) Message {
-	if msg.Dictionary.Init(dict) != nil {
+func (msg *BaseMessage) InitWithMap(dict StringKeyMap) Message {
+	if msg.Dictionary.InitWithMap(dict) != nil {
 		// lazy load
 		msg._env = nil
+	}
+	return msg
+}
+
+func (msg *BaseMessage) InitWithEnvelope(head Envelope) Message {
+	if msg.Dictionary.InitWithMap(head.Map()) != nil {
+		msg._env = head
 	}
 	return msg
 }

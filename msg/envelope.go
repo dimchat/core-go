@@ -61,12 +61,30 @@ type MessageEnvelope struct {
 	_time     Time
 }
 
-func (env *MessageEnvelope) Init(dict StringKeyMap) Envelope {
-	if env.Dictionary.Init(dict) != nil {
+func (env *MessageEnvelope) InitWithMap(dict StringKeyMap) Envelope {
+	if env.Dictionary.InitWithMap(dict) != nil {
 		// lazy load
 		env._sender = nil
 		env._receiver = nil
 		env._time = nil
+	}
+	return env
+}
+
+func (env *MessageEnvelope) Init(from, to ID, when Time) Envelope {
+	if to == nil {
+		to = ANYONE
+	}
+	if TimeIsNil(when) {
+		when = TimeNow()
+	}
+	if env.Dictionary.Init() != nil {
+		env._sender = from
+		env._receiver = to
+		env._time = when
+		env.SetStringer("sender", from)
+		env.SetStringer("receiver", to)
+		env.SetTime("time", when)
 	}
 	return env
 }
@@ -152,22 +170,6 @@ func (env *MessageEnvelope) SetType(msgType MessageType) {
 //
 
 func NewEnvelope(from, to ID, when Time) Envelope {
-	if to == nil {
-		to = ANYONE
-	}
-	if TimeIsNil(when) {
-		when = TimeNow()
-	}
-	dict := NewMap()
-	dict["sender"] = from.String()
-	dict["receiver"] = to.String()
-	dict["time"] = TimeToFloat64(when)
-	// create with dictionary
 	env := &MessageEnvelope{}
-	if env.Init(dict) != nil {
-		env._sender = from
-		env._receiver = to
-		env._time = when
-	}
-	return env
+	return env.Init(from, to, when)
 }

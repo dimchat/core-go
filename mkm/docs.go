@@ -46,6 +46,7 @@ import (
  *  which can generate a temporary asymmetric key pair for messaging.
  */
 type BaseVisa struct {
+	//Visa
 	BaseDocument
 
 	// Public Key for encryption
@@ -58,8 +59,8 @@ type BaseVisa struct {
 	_image TransportableFile
 }
 
-func (doc *BaseVisa) Init(dict StringKeyMap) Visa {
-	if doc.BaseDocument.Init(dict) != nil {
+func (doc *BaseVisa) InitWithMap(dict StringKeyMap) Visa {
+	if doc.BaseDocument.InitWithMap(dict) != nil {
 		// lazy load
 		doc._key = nil
 		doc._image = nil
@@ -78,8 +79,8 @@ func (doc *BaseVisa) InitWithData(data string, signature TransportableData) Visa
 }
 
 // create empty visa
-func (doc *BaseVisa) InitEmptyVisa() Visa {
-	if doc.BaseDocument.InitEmptyDocument(VISA) != nil {
+func (doc *BaseVisa) Init() Visa {
+	if doc.BaseDocument.Init(VISA) != nil {
 		doc._key = nil
 		doc._image = nil
 	}
@@ -154,13 +155,8 @@ func (doc *BaseVisa) SetAvatar(img TransportableFile) {
  *  ~~~~~~~~~~~~~~
  */
 type BaseBulletin struct {
+	//Bulletin
 	BaseDocument
-}
-
-func (doc *BaseBulletin) Init(dict StringKeyMap) Bulletin {
-	if doc.BaseDocument.Init(dict) != nil {
-	}
-	return doc
 }
 
 func (doc *BaseBulletin) InitWithData(data string, signature TransportableData) Bulletin {
@@ -169,8 +165,8 @@ func (doc *BaseBulletin) InitWithData(data string, signature TransportableData) 
 	return doc
 }
 
-func (doc *BaseBulletin) InitEmptyBulletin() Bulletin {
-	if doc.BaseDocument.InitEmptyDocument(BULLETIN) != nil {
+func (doc *BaseBulletin) Init() Bulletin {
+	if doc.BaseDocument.Init(BULLETIN) != nil {
 	}
 	return doc
 }

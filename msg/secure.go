@@ -66,8 +66,8 @@ type EncryptedMessage struct {
 	_data TransportableData
 }
 
-func (msg *EncryptedMessage) Init(dict StringKeyMap) SecureMessage {
-	if msg.BaseMessage.Init(dict) != nil {
+func (msg *EncryptedMessage) InitWithMap(dict StringKeyMap) SecureMessage {
+	if msg.BaseMessage.InitWithMap(dict) != nil {
 		// lazy load
 		msg._data = nil
 	}
@@ -88,7 +88,7 @@ func (msg *EncryptedMessage) Data() TransportableData {
 			// so the data should be encoded here (with algorithm 'base64' as default).
 			ted = ParseTransportableData(text)
 		} else if str, ok := text.(string); ok {
-			ted = CreatePlainDataWithString(str)
+			ted = NewPlainDataWithString(str)
 		} else {
 			//panic(fmt.Sprintf("content data error: %v", text))
 		}

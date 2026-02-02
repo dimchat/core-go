@@ -144,12 +144,6 @@ type AudioFileContent struct {
 	BaseFileContent
 }
 
-//func (content *AudioFileContent) InitWithMap(dict StringKeyMap) AudioContent {
-//	if content.BaseFileContent.InitWithMap(dict) != nil {
-//	}
-//	return content
-//}
-
 func (content *AudioFileContent) Init(
 	data TransportableData, filename string,
 	url URL, key DecryptKey,
