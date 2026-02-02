@@ -106,25 +106,25 @@ func (content *WebPageContent) InitWithMap(dict StringKeyMap) PageContent {
 	return content
 }
 
-//func (content *WebPageContent) Init(
-//	title string,
-//	icon TransportableFile,
-//	desc string,
-//	url URL,
-//	html string,
-//) PageContent {
-//	if content.BaseContent.InitWithType(ContentType.PAGE) != nil {
-//
-//		content.SetTitle(title)
-//		content.SetIcon(icon)
-//
-//		content.SetDescription(desc)
-//
-//		content.SetURL(url)
-//		content.SetHTML(html)
-//	}
-//	return content
-//}
+func (content *WebPageContent) Init(
+	title string,
+	icon TransportableFile,
+	desc string,
+	url URL,
+	html string,
+) PageContent {
+	if content.BaseContent.InitWithType(ContentType.PAGE) != nil {
+
+		content.SetTitle(title)
+		content.SetIcon(icon)
+
+		content.SetDescription(desc)
+
+		content.SetURL(url)
+		content.SetHTML(html)
+	}
+	return content
+}
 
 // Override
 func (content *WebPageContent) Map() StringKeyMap {

@@ -38,22 +38,25 @@ import (
 )
 
 type EmbedData struct {
+	//TransportableData
 	BaseData
 
 	_dataURI  DataURI
 	_dataHead DataHeader
 }
 
-func (ted *EmbedData) InitWithURI(uri DataURI) {
+func (ted *EmbedData) InitWithURI(uri DataURI) TransportableData {
 	ted.BaseData.InitWithString(uri.String())
 	ted._dataURI = uri
 	ted._dataHead = uri.Head()
+	return ted
 }
 
-func (ted *EmbedData) InitWithBytes(body []byte, head DataHeader) {
+func (ted *EmbedData) InitWithBytes(body []byte, head DataHeader) TransportableData {
 	ted.BaseData.InitWithBytes(body)
 	ted._dataURI = nil
 	ted._dataHead = head
+	return ted
 }
 
 // protected
@@ -151,20 +154,16 @@ func (ted *EmbedData) Equal(other interface{}) bool {
 //      "data:audio/mp4;base64,{BASE64_ENCODE}"
 //
 
-func CreateImageData(jpeg []byte) TransportableData {
-	return CreateEmbedData(MIMEType.IMAGE_JPG, jpeg)
+func NewImageData(jpeg []byte) TransportableData {
+	return NewEmbedData(MIMEType.IMAGE_JPG, jpeg)
 }
 
-func CreateAudioData(mp4 []byte) TransportableData {
-	return CreateEmbedData(MIMEType.AUDIO_MP4, mp4)
+func NewAudioData(mp4 []byte) TransportableData {
+	return NewEmbedData(MIMEType.AUDIO_MP4, mp4)
 }
 
-func CreateEmbedData(mimeType string, body []byte) TransportableData {
+func NewEmbedData(mimeType string, body []byte) TransportableData {
 	head := NewDataHeader(mimeType, BASE_64, nil)
-	return NewEmbedData(head, body)
-}
-
-func NewEmbedData(head DataHeader, body []byte) TransportableData {
 	return &EmbedData{
 		BaseData: BaseData{
 			_string: "",

@@ -36,15 +36,18 @@ import . "github.com/dimchat/mkm-go/format"
  *  UTF-8 encoding
  */
 type PlainData struct {
+	//TransportableData
 	BaseData
 }
 
-func (ted *PlainData) InitWithString(str string) {
+func (ted *PlainData) InitWithString(str string) TransportableData {
 	ted.BaseData.InitWithString(str)
+	return ted
 }
 
-func (ted *PlainData) InitWithBytes(bin []byte) {
+func (ted *PlainData) InitWithBytes(bin []byte) TransportableData {
 	ted.BaseData.InitWithBytes(bin)
+	return ted
 }
 
 //
@@ -102,7 +105,7 @@ func (ted *PlainData) Equal(other interface{}) bool {
 //  Factory methods
 //
 
-func CreatePlainDataWithBytes(bin []byte) TransportableData {
+func NewPlainDataWithBytes(bin []byte) TransportableData {
 	return &PlainData{
 		BaseData: BaseData{
 			_string: "",
@@ -111,7 +114,7 @@ func CreatePlainDataWithBytes(bin []byte) TransportableData {
 	}
 }
 
-func CreatePlainDataWithString(str string) TransportableData {
+func NewPlainDataWithString(str string) TransportableData {
 	return &PlainData{
 		BaseData: BaseData{
 			_string: str,

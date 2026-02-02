@@ -36,15 +36,18 @@ import . "github.com/dimchat/mkm-go/format"
  *  Base-64 encoding
  */
 type Base64Data struct {
+	//TransportableData
 	BaseData
 }
 
-func (ted *Base64Data) InitWithString(str string) {
+func (ted *Base64Data) InitWithString(str string) TransportableData {
 	ted.BaseData.InitWithString(str)
+	return ted
 }
 
-func (ted *Base64Data) InitWithBytes(bin []byte) {
+func (ted *Base64Data) InitWithBytes(bin []byte) TransportableData {
 	ted.BaseData.InitWithBytes(bin)
+	return ted
 }
 
 //
@@ -102,7 +105,7 @@ func (ted *Base64Data) Equal(other interface{}) bool {
 //  Factory methods
 //
 
-func CreateBase64DataWithBytes(bin []byte) TransportableData {
+func NewBase64DataWithBytes(bin []byte) TransportableData {
 	return &Base64Data{
 		BaseData: BaseData{
 			_string: "",
@@ -111,7 +114,7 @@ func CreateBase64DataWithBytes(bin []byte) TransportableData {
 	}
 }
 
-func CreateBase64DataWithString(str string) TransportableData {
+func NewBase64DataWithString(str string) TransportableData {
 	return &Base64Data{
 		BaseData: BaseData{
 			_string: str,

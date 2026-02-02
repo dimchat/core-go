@@ -99,22 +99,12 @@ func NewNameCard(did ID, name string, avatar TransportableFile) NameCard {
  */
 func NewPageContentWithURL(url URL, title string, icon TransportableFile, desc string) PageContent {
 	content := &WebPageContent{}
-	content.InitWithMap(NewMap())
-	content.SetURL(url)
-	content.SetTitle(title)
-	content.SetIcon(icon)
-	content.SetDescription(desc)
-	return content
+	return content.Init(title, icon, desc, url, "")
 }
 
 func NewPageContentWithHTML(html string, title string, icon TransportableFile, desc string) PageContent {
 	content := &WebPageContent{}
-	content.InitWithMap(NewMap())
-	content.SetHTML(html)
-	content.SetTitle(title)
-	content.SetIcon(icon)
-	content.SetDescription(desc)
-	return content
+	return content.Init(title, icon, desc, nil, html)
 }
 
 /**
