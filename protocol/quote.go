@@ -64,18 +64,6 @@ type QuoteContent interface {
 }
 
 func PurifyForQuote(head Envelope, body Content) StringKeyMap {
-	from := head.Sender()
-	to := body.Group()
-	if to == nil {
-		to = head.Receiver()
-	}
-	msgType := body.Type()
-	sn := body.SN()
-	// build origin info
-	info := NewMap()
-	info["sender"] = from.String()
-	info["receiver"] = to.String()
-	info["type"] = msgType
-	info["sn"] = sn
-	return info
+	helper := GetQuoteHelper()
+	return helper.PurifyForQuote(head, body)
 }

@@ -76,7 +76,7 @@ type TransportableFileWrapperFactory interface {
 	CreateTransportableFileWrapper(content StringKeyMap) TransportableFileWrapper
 }
 
-var sharedTransportableFileWrapperFactory TransportableFileWrapperFactory = &PortableNetworkFileWrapperFactory{}
+var sharedTransportableFileWrapperFactory TransportableFileWrapperFactory = &pnfWrapperFactory{}
 
 func SetTransportableFileWrapperFactory(factory TransportableFileWrapperFactory) {
 	sharedTransportableFileWrapperFactory = factory
@@ -86,11 +86,11 @@ func GetTransportableFileWrapperFactory() TransportableFileWrapperFactory {
 	return sharedTransportableFileWrapperFactory
 }
 
-type PortableNetworkFileWrapperFactory struct {
+type pnfWrapperFactory struct {
 	//TransportableFileWrapperFactory
 }
 
-func (factory PortableNetworkFileWrapperFactory) CreateTransportableFileWrapper(content StringKeyMap) TransportableFileWrapper {
+func (factory pnfWrapperFactory) CreateTransportableFileWrapper(content StringKeyMap) TransportableFileWrapper {
 	wrapper := &PortableNetworkFileWrapper{}
 	return wrapper.InitWithMap(content)
 }

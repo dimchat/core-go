@@ -51,12 +51,12 @@ type base64Coder struct {
 }
 
 // Override
-func (coder *base64Coder) Encode(data []byte) string {
+func (coder base64Coder) Encode(data []byte) string {
 	return Base64Encode(data)
 }
 
 // Override
-func (coder *base64Coder) Decode(data string) []byte {
+func (coder base64Coder) Decode(data string) []byte {
 	return Base64Decode(data)
 }
 

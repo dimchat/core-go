@@ -145,7 +145,7 @@ func (content *BaseDocumentCommand) Documents() []Document {
 		if array != nil {
 			docs = DocumentConvert(array)
 		} else {
-			docs = make([]Document, 0)
+			//docs = []Document{}
 		}
 		content._docs = docs
 	}

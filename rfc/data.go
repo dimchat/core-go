@@ -41,11 +41,12 @@ type BaseURI struct {
 	_uriString string // built string
 }
 
-func (uri *BaseURI) Init(head DataHeader, body string) {
+func (uri *BaseURI) Init(head DataHeader, body string) DataURI {
 	uri._head = head
 	uri._body = body
 	// lazy load
 	uri._uriString = ""
+	return uri
 }
 
 // Override
@@ -114,7 +115,7 @@ func (uri *BaseURI) String() string {
  */
 type BaseHeader struct {
 	//DataHeader
-	
+
 	_mimeType string
 	_encoding string
 
@@ -123,12 +124,13 @@ type BaseHeader struct {
 	_headerString string // built string
 }
 
-func (header *BaseHeader) Init(mimeType string, encoding string, extra StringKeyMap) {
+func (header *BaseHeader) Init(mimeType string, encoding string, extra StringKeyMap) DataHeader {
 	header._mimeType = mimeType
 	header._encoding = encoding
 	header._extra = extra
 	// lazy load
 	header._headerString = ""
+	return header
 }
 
 // Override

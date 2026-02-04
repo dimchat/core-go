@@ -30,6 +30,11 @@
  */
 package protocol
 
+import (
+	. "github.com/dimchat/dkd-go/protocol"
+	. "github.com/dimchat/mkm-go/types"
+)
+
 /**
  *  Command Helper
  */
@@ -48,4 +53,64 @@ func SetCommandHelper(helper CommandHelper) {
 
 func GetCommandHelper() CommandHelper {
 	return sharedCommandHelper
+}
+
+/**
+ *  Helper for QuoteContent & ReceiptCommand
+ */
+type QuoteHelper interface {
+	PurifyForQuote(head Envelope, body Content) StringKeyMap
+	PurifyForReceipt(head Envelope, body Content) StringKeyMap
+}
+
+var sharedQuoteHelper QuoteHelper = &QuotePurifier{}
+
+func SetQuoteHelper(helper QuoteHelper) {
+	sharedQuoteHelper = helper
+}
+
+func GetQuoteHelper() QuoteHelper {
+	return sharedQuoteHelper
+}
+
+type QuotePurifier struct {
+	//QuoteHelper
+}
+
+// Override
+func (helper QuotePurifier) PurifyForQuote(head Envelope, body Content) StringKeyMap {
+	from := head.Sender()
+	to := body.Group()
+	if to == nil {
+		to = head.Receiver()
+	}
+	msgType := body.Type()
+	sn := body.SN()
+	// build origin info
+	info := NewMap()
+	info["sender"] = from.String()
+	info["receiver"] = to.String()
+	info["type"] = msgType
+	info["sn"] = sn
+	return info
+}
+
+// Override
+func (helper QuotePurifier) PurifyForReceipt(head Envelope, body Content) StringKeyMap {
+	if head == nil {
+		return nil
+	}
+	info := head.CopyMap(false)
+	if _, exists := info["data"]; exists {
+		delete(info, "data")
+		delete(info, "key")
+		delete(info, "keys")
+		delete(info, "meta")
+		delete(info, "visa")
+	}
+	if body != nil {
+		sn := body.SN()
+		info["sn"] = sn
+	}
+	return info
 }
