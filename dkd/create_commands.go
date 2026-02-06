@@ -79,8 +79,9 @@ func NewCommandForRespondMeta(did ID, meta Meta) MetaCommand {
  */
 func NewCommandForQueryDocuments(did ID, lastTime Time) DocumentCommand {
 	content := &BaseDocumentCommand{}
-	content.Init(did, nil, nil)
-	content.SetLastTime(lastTime)
+	if content.Init(did, nil, nil) != nil {
+		content.SetLastTime(lastTime)
+	}
 	return content
 }
 
@@ -90,8 +91,9 @@ func NewCommandForRespondDocuments(did ID, meta Meta, docs []Document) DocumentC
 }
 
 func NewCommandForRespondDocument(did ID, meta Meta, document Document) DocumentCommand {
-	docs := make([]Document, 1)
-	docs[0] = document
+	docs := []Document{
+		document,
+	}
 	return NewCommandForRespondDocuments(did, meta, docs)
 }
 

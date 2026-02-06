@@ -109,7 +109,7 @@ var ContentType = struct {
 	CLAIM_PAYMENT MessageType
 	SPLIT_BILL    MessageType
 
-	COMMON  MessageType
+	COMMAND MessageType
 	HISTORY MessageType
 
 	// Application Customized
@@ -154,7 +154,7 @@ var ContentType = struct {
 	CLAIM_PAYMENT: i2a(0x48), // 0100 1000 (Claim for Payment)
 	SPLIT_BILL:    i2a(0x49), // 0100 1001 (Split the Bill)
 
-	COMMON:  i2a(0x88), // 1000 1000
+	COMMAND: i2a(0x88), // 1000 1000
 	HISTORY: i2a(0x89), // 1000 1001 (Entity History Command)
 
 	// Application Customized

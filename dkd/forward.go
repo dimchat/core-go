@@ -124,10 +124,11 @@ func (content *SecretContent) SecretMessages() []ReliableMessage {
 			messages = ReliableMessageConvert(info)
 		} else {
 			// get from 'forward'
-			messages = make([]ReliableMessage, 0, 1)
 			msg := content.ForwardMessage()
 			if msg != nil {
-				messages = append(messages, msg)
+				messages = []ReliableMessage{msg}
+			} else {
+				messages = []ReliableMessage{}
 			}
 		}
 		content._secrets = messages
@@ -197,7 +198,7 @@ func (content *CombineForwardContent) Messages() []InstantMessage {
 		if array != nil {
 			messages = InstantMessageConvert(array)
 		} else {
-			messages = make([]InstantMessage, 0)
+			messages = []InstantMessage{}
 		}
 		content._history = messages
 	}
@@ -258,7 +259,7 @@ func (content *ListContent) Contents() []Content {
 		if array != nil {
 			contents = ContentConvert(array)
 		} else {
-			contents = make([]Content, 0)
+			contents = []Content{}
 		}
 		content._list = contents
 	}

@@ -100,9 +100,9 @@ func (content *BaseGroupCommand) Members() []ID {
 	// get from 'member'
 	single := ParseID(content.Get("member"))
 	if single != nil {
-		array := make([]ID, 1)
-		array[0] = single
-		return array
+		return []ID{
+			single,
+		}
 	}
 	// failed to get group members
 	return nil

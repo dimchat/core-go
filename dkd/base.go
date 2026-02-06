@@ -172,7 +172,7 @@ func (content *BaseCommand) InitWithType(msgType MessageType, cmd string) Comman
 }
 
 func (content *BaseCommand) Init(cmd string) Command {
-	return content.InitWithType(ContentType.COMMON, cmd)
+	return content.InitWithType(ContentType.COMMAND, cmd)
 }
 
 // Override
