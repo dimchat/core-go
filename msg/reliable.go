@@ -88,3 +88,12 @@ func (msg *NetworkMessage) Signature() TransportableData {
 	}
 	return ted
 }
+
+//
+//  Factory
+//
+
+func NewReliableMessageWithMap(dict StringKeyMap) ReliableMessage {
+	msg := &NetworkMessage{}
+	return msg.InitWithMap(dict)
+}

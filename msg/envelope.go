@@ -166,10 +166,15 @@ func (env *MessageEnvelope) SetType(msgType MessageType) {
 }
 
 //
-//  Factory
+//  Factories
 //
 
 func NewEnvelope(from, to ID, when Time) Envelope {
 	env := &MessageEnvelope{}
 	return env.Init(from, to, when)
+}
+
+func NewEnvelopeWithMap(dict StringKeyMap) Envelope {
+	env := &MessageEnvelope{}
+	return env.InitWithMap(dict)
 }

@@ -106,3 +106,12 @@ func (msg *EncryptedMessage) EncryptedKeys() StringKeyMap {
 	// TODO: get from 'key'
 	return nil
 }
+
+//
+//  Factory
+//
+
+func NewSecureMessageWithMap(dict StringKeyMap) SecureMessage {
+	msg := &EncryptedMessage{}
+	return msg.InitWithMap(dict)
+}

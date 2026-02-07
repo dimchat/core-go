@@ -148,10 +148,15 @@ func (msg *PlainMessage) Map() StringKeyMap {
 }
 
 //
-//  Factory
+//  Factories
 //
 
 func NewInstantMessage(head Envelope, body Content) InstantMessage {
 	msg := &PlainMessage{}
 	return msg.Init(head, body)
+}
+
+func NewInstantMessageWithMap(dict StringKeyMap) InstantMessage {
+	msg := &PlainMessage{}
+	return msg.InitWithMap(dict)
 }
