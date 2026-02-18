@@ -37,6 +37,18 @@ import (
 	. "github.com/dimchat/mkm-go/types"
 )
 
+func NewCommandWithMap(dict StringKeyMap) Command {
+	content := &BaseCommand{}
+	content.InitWithMap(dict)
+	return content
+}
+
+func NewHistoryCommandWithMap(dict StringKeyMap) HistoryCommand {
+	content := &BaseHistoryCommand{}
+	content.InitWithMap(dict)
+	return content
+}
+
 /**
  *  Meta Command
  *
@@ -59,6 +71,11 @@ func NewCommandForQueryMeta(did ID) MetaCommand {
 func NewCommandForRespondMeta(did ID, meta Meta) MetaCommand {
 	content := &BaseMetaCommand{}
 	return content.Init(META, did, meta)
+}
+
+func NewMetaCommandWithMap(dict StringKeyMap) MetaCommand {
+	content := &BaseMetaCommand{}
+	return content.InitWithMap(dict)
 }
 
 /**
@@ -97,6 +114,11 @@ func NewCommandForRespondDocument(did ID, meta Meta, document Document) Document
 	return NewCommandForRespondDocuments(did, meta, docs)
 }
 
+func NewDocumentCommandWithMap(dict StringKeyMap) DocumentCommand {
+	content := &BaseDocumentCommand{}
+	return content.InitWithMap(dict)
+}
+
 /**
  *  Receipt Command
  *
@@ -124,6 +146,11 @@ func NewReceiptCommand(text string, head Envelope, body Content) ReceiptCommand 
 	return content.Init(text, origin)
 }
 
+func NewReceiptCommandWithMap(dict StringKeyMap) ReceiptCommand {
+	content := &BaseReceiptCommand{}
+	return content.InitWithMap(dict)
+}
+
 /**
  *  Group History
  *
@@ -145,27 +172,73 @@ func NewGroupCommand(cmd string, group ID, members []ID) GroupCommand {
 	return content.Init(cmd, group, members)
 }
 
+func NewGroupCommandWithMap(dict StringKeyMap) GroupCommand {
+	content := &BaseGroupCommand{}
+	content.InitWithMap(dict)
+	return content
+}
+
+// Invite
+
 func NewInviteCommand(group ID, members []ID) InviteCommand {
 	content := &InviteGroupCommand{}
 	return content.Init(group, members)
 }
+
+func NewInviteCommandWithMap(dict StringKeyMap) InviteCommand {
+	content := &InviteGroupCommand{}
+	content.InitWithMap(dict)
+	return content
+}
+
+// Expel
 
 func NewExpelCommand(group ID, members []ID) ExpelCommand {
 	content := &ExpelGroupCommand{}
 	return content.Init(group, members)
 }
 
+func NewExpelCommandWithMap(dict StringKeyMap) ExpelCommand {
+	content := &ExpelGroupCommand{}
+	content.InitWithMap(dict)
+	return content
+}
+
+// Join
+
 func NewJoinCommand(group ID) JoinCommand {
 	content := &JoinGroupCommand{}
 	return content.Init(group)
 }
+
+func NewJoinCommandWithMap(dict StringKeyMap) JoinCommand {
+	content := &JoinGroupCommand{}
+	content.InitWithMap(dict)
+	return content
+}
+
+// Quit
 
 func NewQuitCommand(group ID) QuitCommand {
 	content := &QuitGroupCommand{}
 	return content.Init(group)
 }
 
+func NewQuitCommandWithMap(dict StringKeyMap) QuitCommand {
+	content := &QuitGroupCommand{}
+	content.InitWithMap(dict)
+	return content
+}
+
+// Reset
+
 func NewResetCommand(group ID, members []ID) ResetCommand {
 	content := &ResetGroupCommand{}
 	return content.Init(group, members)
+}
+
+func NewResetCommandWithMap(dict StringKeyMap) ResetCommand {
+	content := &ResetGroupCommand{}
+	content.InitWithMap(dict)
+	return content
 }

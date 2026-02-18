@@ -39,6 +39,11 @@ import (
 	. "github.com/dimchat/mkm-go/types"
 )
 
+func NewContentWithMap(dict StringKeyMap) Content {
+	content := &BaseContent{}
+	return content.InitWithMap(dict)
+}
+
 /**
  *  Text Content
  *
@@ -54,6 +59,12 @@ import (
 func NewTextContent(text string) TextContent {
 	content := &BaseTextContent{}
 	return content.Init(text)
+}
+
+func NewTextContentWithMap(dict StringKeyMap) TextContent {
+	content := &BaseTextContent{}
+	content.InitWithMap(dict)
+	return content
 }
 
 /**
@@ -74,6 +85,11 @@ func NewTextContent(text string) TextContent {
 func NewNameCard(did ID, name string, avatar TransportableFile) NameCard {
 	content := &NameCardContent{}
 	return content.Init(did, name, avatar)
+}
+
+func NewNameCardWithMap(dict StringKeyMap) NameCard {
+	content := &NameCardContent{}
+	return content.InitWithMap(dict)
 }
 
 /**
@@ -101,10 +117,14 @@ func NewPageContentWithURL(url URL, title string, icon TransportableFile, desc s
 	content := &WebPageContent{}
 	return content.Init(title, icon, desc, url, "")
 }
-
 func NewPageContentWithHTML(html string, title string, icon TransportableFile, desc string) PageContent {
 	content := &WebPageContent{}
 	return content.Init(title, icon, desc, nil, html)
+}
+
+func NewPageContentWithMap(dict StringKeyMap) PageContent {
+	content := &WebPageContent{}
+	return content.InitWithMap(dict)
 }
 
 /**
@@ -130,6 +150,11 @@ func NewForwardMessages(messages []ReliableMessage) ForwardContent {
 	return content.InitWithMessages(messages)
 }
 
+func NewForwardContentWithMap(dict StringKeyMap) ForwardContent {
+	content := &SecretContent{}
+	return content.InitWithMap(dict)
+}
+
 /**
  *  Combine Forward Content
  *
@@ -148,6 +173,11 @@ func NewCombineMessages(title string, messages []InstantMessage) CombineContent 
 	return content.Init(title, messages)
 }
 
+func NewCombineContentWithMap(dict StringKeyMap) CombineContent {
+	content := &CombineForwardContent{}
+	return content.InitWithMap(dict)
+}
+
 /**
  *  Array Content
  *
@@ -163,6 +193,11 @@ func NewCombineMessages(title string, messages []InstantMessage) CombineContent 
 func NewArrayContent(contents []Content) ArrayContent {
 	content := &ListContent{}
 	return content.Init(contents)
+}
+
+func NewArrayContentWithMap(dict StringKeyMap) ArrayContent {
+	content := &ListContent{}
+	return content.InitWithMap(dict)
 }
 
 /**
@@ -198,6 +233,11 @@ func NewFileContentWithURL(url URL, key DecryptKey) FileContent {
 	return NewFileContent(nil, "", url, key)
 }
 
+func NewFileContentWithMap(dict StringKeyMap) FileContent {
+	content := &BaseFileContent{}
+	return content.InitWithMap(dict)
+}
+
 /**
  *  Image Content
  */
@@ -210,6 +250,11 @@ func NewImageContentWithData(data TransportableData, filename string) ImageConte
 }
 func NewImageContentWithURL(url URL, key DecryptKey) ImageContent {
 	return NewImageContent(nil, "", url, key)
+}
+
+func NewImageContentWithMap(dict StringKeyMap) ImageContent {
+	content := &ImageFileContent{}
+	return content.InitWithMap(dict)
 }
 
 /**
@@ -226,6 +271,12 @@ func NewAudioContentWithURL(url URL, key DecryptKey) AudioContent {
 	return NewAudioContent(nil, "", url, key)
 }
 
+func NewAudioContentWithMap(dict StringKeyMap) AudioContent {
+	content := &AudioFileContent{}
+	content.InitWithMap(dict)
+	return content
+}
+
 /**
  *  Video Content
  */
@@ -238,6 +289,11 @@ func NewVideoContentWithData(data TransportableData, filename string) VideoConte
 }
 func NewVideoContentWithURL(url URL, key DecryptKey) VideoContent {
 	return NewVideoContent(nil, "", url, key)
+}
+
+func NewVideoContentWithMap(dict StringKeyMap) VideoContent {
+	content := &VideoFileContent{}
+	return content.InitWithMap(dict)
 }
 
 /**
@@ -258,9 +314,21 @@ func NewMoneyContent(currency string, amount float64) MoneyContent {
 	return content.Init(currency, amount)
 }
 
+func NewMoneyContentWithMap(dict StringKeyMap) MoneyContent {
+	content := &BaseMoneyContent{}
+	content.InitWithMap(dict)
+	return content
+}
+
 func NewTransferContent(currency string, amount float64) TransferContent {
 	content := &TransferMoneyContent{}
 	return content.Init(currency, amount)
+}
+
+func NewTransferContentWithMap(dict StringKeyMap) TransferContent {
+	content := &TransferMoneyContent{}
+	content.InitWithMap(dict)
+	return content
 }
 
 /**
@@ -288,6 +356,11 @@ func NewQuoteContent(text string, head Envelope, body Content) QuoteContent {
 	return content.Init(text, origin)
 }
 
+func NewQuoteContentWithMap(dict StringKeyMap) QuoteContent {
+	content := &BaseQuoteContent{}
+	return content.InitWithMap(dict)
+}
+
 /**
  *  Application Customized message
  *
@@ -306,4 +379,10 @@ func NewQuoteContent(text string, head Envelope, body Content) QuoteContent {
 func NewCustomizedContent(app, mod, act string) CustomizedContent {
 	content := &AppCustomizedContent{}
 	return content.Init(app, mod, act)
+}
+
+func NewCustomizedContentWithMap(dict StringKeyMap) CustomizedContent {
+	content := &AppCustomizedContent{}
+	content.InitWithMap(dict)
+	return content
 }
