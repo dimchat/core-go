@@ -34,57 +34,26 @@ import (
 	. "github.com/dimchat/core-go/rfc"
 	. "github.com/dimchat/mkm-go/crypto"
 	. "github.com/dimchat/mkm-go/format"
-	. "github.com/dimchat/mkm-go/protocol"
 	. "github.com/dimchat/mkm-go/types"
 )
 
 type PortableNetworkFile struct {
 	//TransportableFile
-	Dictionary
+	*Dictionary
 
-	_wrapper TransportableFileWrapper
+	wrapper TransportableFileWrapper
 }
 
-func (pnf *PortableNetworkFile) createWrapper() TransportableFileWrapper {
-	dict := pnf.Map()
-	factory := GetTransportableFileWrapperFactory()
-	return factory.CreateTransportableFileWrapper(dict)
-}
-
-func (pnf *PortableNetworkFile) InitWithMap(dict StringKeyMap) TransportableFile {
-	if pnf.Dictionary.InitWithMap(dict) != nil {
-		pnf._wrapper = pnf.createWrapper()
+func NewPortableNetworkFile(dict StringKeyMap, wrapper TransportableFileWrapper) *PortableNetworkFile {
+	return &PortableNetworkFile{
+		Dictionary: NewDictionary(dict),
+		wrapper:    wrapper,
 	}
-	return pnf
-}
-
-func (pnf *PortableNetworkFile) Init(data TransportableData, filename string, url URL, key DecryptKey) TransportableFile {
-	if pnf.Dictionary.Init() != nil {
-		wrapper := pnf.createWrapper()
-		pnf._wrapper = wrapper
-		// file data
-		if data != nil {
-			wrapper.SetData(data)
-		}
-		// file name
-		if filename != "" {
-			wrapper.SetFilename(filename)
-		}
-		// download URL
-		if url != nil {
-			wrapper.SetURL(url)
-		}
-		// decrypt key
-		if key != nil {
-			wrapper.SetPassword(key)
-		}
-	}
-	return pnf
 }
 
 func (pnf *PortableNetworkFile) getURIString() string {
 	// serialize
-	dict := pnf._wrapper.Map()
+	dict := pnf.wrapper.Map()
 	// check 'URL'
 	url := pnf.URL()
 	if url != nil {
@@ -170,14 +139,14 @@ func (pnf *PortableNetworkFile) String() string {
 		return uri
 	}
 	// return JsON string
-	dict := pnf._wrapper.Map()
+	dict := pnf.wrapper.Map()
 	return JSONEncodeMap(dict)
 }
 
 // Override
 func (pnf *PortableNetworkFile) Map() StringKeyMap {
 	// call wrapper to serialize 'data' & 'key'
-	return pnf._wrapper.Map()
+	return pnf.wrapper.Map()
 }
 
 // Override
@@ -188,7 +157,7 @@ func (pnf *PortableNetworkFile) Serialize() interface{} {
 		return uri
 	}
 	// return inner map
-	return pnf._wrapper.Map()
+	return pnf.wrapper.Map()
 }
 
 /**
@@ -197,12 +166,12 @@ func (pnf *PortableNetworkFile) Serialize() interface{} {
 
 // Override
 func (pnf *PortableNetworkFile) Data() TransportableData {
-	return pnf._wrapper.Data()
+	return pnf.wrapper.Data()
 }
 
 // Override
 func (pnf *PortableNetworkFile) SetData(data TransportableData) {
-	pnf._wrapper.SetData(data)
+	pnf.wrapper.SetData(data)
 }
 
 /**
@@ -211,12 +180,12 @@ func (pnf *PortableNetworkFile) SetData(data TransportableData) {
 
 // Override
 func (pnf *PortableNetworkFile) Filename() string {
-	return pnf._wrapper.Filename()
+	return pnf.wrapper.Filename()
 }
 
 // Override
 func (pnf *PortableNetworkFile) SetFilename(filename string) {
-	pnf._wrapper.SetFilename(filename)
+	pnf.wrapper.SetFilename(filename)
 }
 
 /**
@@ -225,12 +194,12 @@ func (pnf *PortableNetworkFile) SetFilename(filename string) {
 
 // Override
 func (pnf *PortableNetworkFile) URL() URL {
-	return pnf._wrapper.URL()
+	return pnf.wrapper.URL()
 }
 
 // Override
 func (pnf *PortableNetworkFile) SetURL(url URL) {
-	pnf._wrapper.SetURL(url)
+	pnf.wrapper.SetURL(url)
 }
 
 /**
@@ -239,10 +208,10 @@ func (pnf *PortableNetworkFile) SetURL(url URL) {
 
 // Override
 func (pnf *PortableNetworkFile) Password() DecryptKey {
-	return pnf._wrapper.Password()
+	return pnf.wrapper.Password()
 }
 
 // Override
 func (pnf *PortableNetworkFile) SetPassword(password DecryptKey) {
-	pnf._wrapper.SetPassword(password)
+	pnf.wrapper.SetPassword(password)
 }

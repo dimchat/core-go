@@ -39,24 +39,18 @@ import (
 
 type EmbedData struct {
 	//TransportableData
-	BaseData
+	*BaseData
 
-	_dataURI  DataURI
-	_dataHead DataHeader
+	dataURI  DataURI
+	dataHead DataHeader
 }
 
-func (ted *EmbedData) InitWithURI(uri DataURI) TransportableData {
-	ted.BaseData.InitWithString(uri.String())
-	ted._dataURI = uri
-	ted._dataHead = uri.Head()
-	return ted
-}
-
-func (ted *EmbedData) InitWithBytes(body []byte, head DataHeader) TransportableData {
-	ted.BaseData.InitWithBytes(body)
-	ted._dataURI = nil
-	ted._dataHead = head
-	return ted
+func NewEmbedData(encoded string, bytes []byte, uri DataURI, head DataHeader) *EmbedData {
+	return &EmbedData{
+		BaseData: NewBaseData(encoded, bytes),
+		dataURI:  uri,
+		dataHead: head,
+	}
 }
 
 // protected
@@ -67,17 +61,17 @@ func (ted *EmbedData) DataCoder() DataCoder {
 
 // protected
 func (ted *EmbedData) encodeDataURI() DataURI {
-	uri := ted._dataURI
+	uri := ted.dataURI
 	if uri == nil {
 		coder := ted.DataCoder()
-		data := ted._binary
-		if coder == nil || data == nil || len(data) == 0 {
+		data := ted.bytes
+		if coder == nil || len(data) == 0 {
 			// cannot encode data
 			return nil
 		}
 		base64 := coder.Encode(data)
-		uri = NewDataURI(ted._dataHead, base64)
-		ted._dataURI = uri
+		uri = NewDataURI(ted.dataHead, base64)
+		ted.dataURI = uri
 	}
 	return uri
 }
@@ -88,14 +82,14 @@ func (ted *EmbedData) encodeDataURI() DataURI {
 
 // Override
 func (ted *EmbedData) Encoding() string {
-	return ted._dataHead.Encoding() // "base64"
+	return ted.dataHead.Encoding() // "base64"
 }
 
 // Override
 func (ted *EmbedData) Bytes() []byte {
-	bin := ted._binary
+	bin := ted.bytes
 	if bin == nil {
-		uri := ted._dataURI
+		uri := ted.dataURI
 		if uri == nil || uri.IsEmpty() {
 			panic(fmt.Sprintf("data URI error: %v", uri))
 			return nil
@@ -107,19 +101,19 @@ func (ted *EmbedData) Bytes() []byte {
 			return nil
 		}
 		bin = coder.Decode(base64)
-		ted._binary = bin
+		ted.bytes = bin
 	}
 	return bin
 }
 
 // Override
 func (ted *EmbedData) String() string {
-	base64 := ted._string
+	base64 := ted.encoded
 	if base64 == "" {
 		uri := ted.encodeDataURI()
 		if uri != nil {
 			base64 = uri.String()
-			ted._string = base64
+			ted.encoded = base64
 		}
 	}
 	return base64
@@ -145,31 +139,4 @@ func (ted *EmbedData) Serialize() interface{} {
 
 func (ted *EmbedData) Equal(other interface{}) bool {
 	return equals(ted, other)
-}
-
-//
-//  Factories:
-//
-//      "data:image/jpg;base64,{BASE64_ENCODE}"
-//      "data:audio/mp4;base64,{BASE64_ENCODE}"
-//
-
-func NewImageData(jpeg []byte) TransportableData {
-	return NewEmbedData(MIMEType.IMAGE_JPG, jpeg)
-}
-
-func NewAudioData(mp4 []byte) TransportableData {
-	return NewEmbedData(MIMEType.AUDIO_MP4, mp4)
-}
-
-func NewEmbedData(mimeType string, body []byte) TransportableData {
-	head := NewDataHeader(mimeType, BASE_64, nil)
-	return &EmbedData{
-		BaseData: BaseData{
-			_string: "",
-			_binary: body,
-		},
-		_dataURI:  nil,
-		_dataHead: head,
-	}
 }

@@ -73,7 +73,11 @@ type TransportableFileWrapper interface {
  *  Wrapper Factory
  */
 type TransportableFileWrapperFactory interface {
-	CreateTransportableFileWrapper(content StringKeyMap) TransportableFileWrapper
+
+	// Create PNF Wrapper
+	CreateTransportableFileWrapper(content StringKeyMap,
+		data TransportableData, filename string, url URL, key DecryptKey,
+	) TransportableFileWrapper
 }
 
 var sharedTransportableFileWrapperFactory TransportableFileWrapperFactory = &pnfWrapperFactory{}
@@ -90,9 +94,10 @@ type pnfWrapperFactory struct {
 	//TransportableFileWrapperFactory
 }
 
-func (factory pnfWrapperFactory) CreateTransportableFileWrapper(content StringKeyMap) TransportableFileWrapper {
-	wrapper := &PortableNetworkFileWrapper{}
-	return wrapper.InitWithMap(content)
+func (pnfWrapperFactory) CreateTransportableFileWrapper(content StringKeyMap,
+	data TransportableData, filename string, url URL, key DecryptKey,
+) TransportableFileWrapper {
+	return NewPortableNetworkFileWrapper(content, data, filename, url, key)
 }
 
 /**
@@ -117,32 +122,36 @@ func (factory pnfWrapperFactory) CreateTransportableFileWrapper(content StringKe
 type PortableNetworkFileWrapper struct {
 	//TransportableFileWrapper
 
-	_dictionary StringKeyMap
+	dictionary StringKeyMap
 
 	// file content (not encrypted)
-	_attachment TransportableData
+	attachment TransportableData
 
 	// download from CDN
-	_remoteURL URL
+	remoteURL URL
 	// key to decrypt data downloaded from CDN
-	_password DecryptKey
+	password DecryptKey
 }
 
-func (wrapper *PortableNetworkFileWrapper) InitWithMap(dictionary StringKeyMap) TransportableFileWrapper {
-	if ValueIsNil(dictionary) {
-		// create empty map
-		dictionary = NewMap()
+func NewPortableNetworkFileWrapper(dict StringKeyMap,
+	data TransportableData, filename string, url URL, key DecryptKey,
+) *PortableNetworkFileWrapper {
+	if filename != "" {
+		dict["filename"] = filename
 	}
-	wrapper._dictionary = dictionary
-	// lazy load
-	wrapper._attachment = nil
-	wrapper._remoteURL = nil
-	wrapper._password = nil
-	return wrapper
+	if url != nil {
+		dict["url"] = url.String()
+	}
+	return &PortableNetworkFileWrapper{
+		dictionary: dict,
+		attachment: data,
+		remoteURL:  url,
+		password:   key,
+	}
 }
 
 func (wrapper *PortableNetworkFileWrapper) Get(key string) interface{} {
-	value, exists := wrapper._dictionary[key]
+	value, exists := wrapper.dictionary[key]
 	if !exists {
 		return nil
 	}
@@ -151,14 +160,14 @@ func (wrapper *PortableNetworkFileWrapper) Get(key string) interface{} {
 
 func (wrapper *PortableNetworkFileWrapper) Set(key string, value interface{}) {
 	if ValueIsNil(value) {
-		delete(wrapper._dictionary, key)
+		delete(wrapper.dictionary, key)
 	} else {
-		wrapper._dictionary[key] = value
+		wrapper.dictionary[key] = value
 	}
 }
 
 func (wrapper *PortableNetworkFileWrapper) Remove(key string) {
-	delete(wrapper._dictionary, key)
+	delete(wrapper.dictionary, key)
 }
 
 func (wrapper *PortableNetworkFileWrapper) GetString(key string) string {
@@ -171,26 +180,26 @@ func (wrapper *PortableNetworkFileWrapper) GetString(key string) string {
 // Override
 func (wrapper *PortableNetworkFileWrapper) Map() StringKeyMap {
 	// serialize 'data'
-	ted := wrapper._attachment
+	ted := wrapper.attachment
 	if ted != nil && wrapper.Get("data") == nil {
 		wrapper.Set("data", ted.Serialize())
 	}
 	// serialize 'key'
-	pwd := wrapper._password
+	pwd := wrapper.password
 	if pwd != nil && wrapper.Get("key") == nil {
 		wrapper.Set("key", pwd.Map())
 	}
 	// OK
-	return wrapper._dictionary
+	return wrapper.dictionary
 }
 
 // Override
 func (wrapper *PortableNetworkFileWrapper) Data() TransportableData {
-	ted := wrapper._attachment
+	ted := wrapper.attachment
 	if ted == nil {
 		base64 := wrapper.Get("data")
 		ted = ParseTransportableData(base64)
-		wrapper._attachment = ted
+		wrapper.attachment = ted
 	}
 	return ted
 }
@@ -201,7 +210,7 @@ func (wrapper *PortableNetworkFileWrapper) SetData(ted TransportableData) {
 	//if ted != nil {
 	//	wrapper.Set("data", ted.Serialize())
 	//}
-	wrapper._attachment = ted
+	wrapper.attachment = ted
 }
 
 // Override
@@ -220,12 +229,12 @@ func (wrapper *PortableNetworkFileWrapper) SetFilename(filename string) {
 
 // Override
 func (wrapper *PortableNetworkFileWrapper) URL() URL {
-	remote := wrapper._remoteURL
+	remote := wrapper.remoteURL
 	if remote == nil {
 		locator := wrapper.GetString("URL")
 		if locator != "" {
 			remote = ParseURL(locator)
-			wrapper._remoteURL = remote
+			wrapper.remoteURL = remote
 		}
 	}
 	return remote
@@ -238,16 +247,16 @@ func (wrapper *PortableNetworkFileWrapper) SetURL(remote URL) {
 	} else {
 		wrapper.Set("URL", remote.String())
 	}
-	wrapper._remoteURL = remote
+	wrapper.remoteURL = remote
 }
 
 // Override
 func (wrapper *PortableNetworkFileWrapper) Password() DecryptKey {
-	pwd := wrapper._password
+	pwd := wrapper.password
 	if pwd == nil {
 		info := wrapper.Get("key")
 		pwd = ParseSymmetricKey(info)
-		wrapper._password = pwd
+		wrapper.password = pwd
 	}
 	return pwd
 }
@@ -258,5 +267,5 @@ func (wrapper *PortableNetworkFileWrapper) SetPassword(pwd DecryptKey) {
 	//if pwd != nil {
 	//	wrapper.Set("key", pwd.Map())
 	//}
-	wrapper._password = pwd
+	wrapper.password = pwd
 }

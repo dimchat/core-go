@@ -47,44 +47,25 @@ import (
  */
 type BaseVisa struct {
 	//Visa
-	BaseDocument
+	*BaseDocument
 
 	// Public Key for encryption
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~
 	// For safety considerations, the visa.key which used to encrypt message data
 	// should be different with meta.key
-	_key EncryptKey
+	publicKey EncryptKey
 
 	// Avatar URL
-	_image TransportableFile
+	image TransportableFile
 }
 
-func (doc *BaseVisa) InitWithMap(dict StringKeyMap) Visa {
-	if doc.BaseDocument.InitWithMap(dict) != nil {
+func NewBaseVisa(dict StringKeyMap, data string, signature TransportableData) *BaseVisa {
+	return &BaseVisa{
+		BaseDocument: NewBaseDocument(dict, VISA, data, signature),
 		// lazy load
-		doc._key = nil
-		doc._image = nil
+		publicKey: nil,
+		image:     nil,
 	}
-	return doc
-}
-
-// load visa info from local database
-func (doc *BaseVisa) InitWithData(data string, signature TransportableData) Visa {
-	if doc.BaseDocument.InitWithType(VISA, data, signature) != nil {
-		// lazy load
-		doc._key = nil
-		doc._image = nil
-	}
-	return doc
-}
-
-// create empty visa
-func (doc *BaseVisa) Init() Visa {
-	if doc.BaseDocument.Init(VISA) != nil {
-		doc._key = nil
-		doc._image = nil
-	}
-	return doc
 }
 
 //-------- IVisa
@@ -102,21 +83,16 @@ func (doc *BaseVisa) SetName(nickname string) {
 
 // Override
 func (doc *BaseVisa) PublicKey() EncryptKey {
-	key := doc._key
-	if key == nil {
+	visaKey := doc.publicKey
+	if visaKey == nil {
 		info := doc.GetProperty("key")
 		pubKey := ParsePublicKey(info)
-		if pubKey == nil {
-			//panic("public key error")
-			return nil
-		}
-		encKey, ok := pubKey.(EncryptKey)
-		if ok {
-			key = encKey
-			doc._key = encKey
+		if encKey, ok := pubKey.(EncryptKey); ok {
+			visaKey = encKey
+			doc.publicKey = encKey
 		}
 	}
-	return key
+	return visaKey
 }
 
 // Override
@@ -126,16 +102,16 @@ func (doc *BaseVisa) SetPublicKey(key EncryptKey) {
 	} else {
 		doc.SetProperty("key", key.Map())
 	}
-	doc._key = key
+	doc.publicKey = key
 }
 
 // Override
 func (doc *BaseVisa) Avatar() TransportableFile {
-	img := doc._image
+	img := doc.image
 	if img == nil {
 		url := doc.GetProperty("avatar")
 		img = ParseTransportableFile(url)
-		doc._image = img
+		doc.image = img
 	}
 	return img
 }
@@ -147,7 +123,7 @@ func (doc *BaseVisa) SetAvatar(img TransportableFile) {
 	} else {
 		doc.SetProperty("avatar", img.Serialize())
 	}
-	doc._image = img
+	doc.image = img
 }
 
 /**
@@ -156,19 +132,13 @@ func (doc *BaseVisa) SetAvatar(img TransportableFile) {
  */
 type BaseBulletin struct {
 	//Bulletin
-	BaseDocument
+	*BaseDocument
 }
 
-func (doc *BaseBulletin) InitWithData(data string, signature TransportableData) Bulletin {
-	if doc.BaseDocument.InitWithType(BULLETIN, data, signature) != nil {
+func NewBaseBulletin(dict StringKeyMap, data string, signature TransportableData) *BaseBulletin {
+	return &BaseBulletin{
+		BaseDocument: NewBaseDocument(dict, BULLETIN, data, signature),
 	}
-	return doc
-}
-
-func (doc *BaseBulletin) Init() Bulletin {
-	if doc.BaseDocument.Init(BULLETIN) != nil {
-	}
-	return doc
 }
 
 //-------- IBulletin

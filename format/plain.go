@@ -37,17 +37,13 @@ import . "github.com/dimchat/mkm-go/format"
  */
 type PlainData struct {
 	//TransportableData
-	BaseData
+	*BaseData
 }
 
-func (ted *PlainData) InitWithString(str string) TransportableData {
-	ted.BaseData.InitWithString(str)
-	return ted
-}
-
-func (ted *PlainData) InitWithBytes(bin []byte) TransportableData {
-	ted.BaseData.InitWithBytes(bin)
-	return ted
+func NewPlainData(encoded string, bytes []byte) *PlainData {
+	return &PlainData{
+		BaseData: NewBaseData(encoded, bytes),
+	}
 }
 
 //
@@ -56,25 +52,26 @@ func (ted *PlainData) InitWithBytes(bin []byte) TransportableData {
 
 // Override
 func (ted *PlainData) Encoding() string {
+	//return PLAIN
 	return ""
 }
 
 // Override
 func (ted *PlainData) Bytes() []byte {
-	bin := ted._binary
+	bin := ted.bytes
 	if bin == nil {
-		bin = UTF8Encode(ted._string)
-		ted._binary = bin
+		bin = UTF8Encode(ted.encoded)
+		ted.bytes = bin
 	}
 	return bin
 }
 
 // Override
 func (ted *PlainData) String() string {
-	base64 := ted._string
+	base64 := ted.encoded
 	if base64 == "" {
-		base64 = UTF8Decode(ted._binary)
-		ted._string = base64
+		base64 = UTF8Decode(ted.bytes)
+		ted.encoded = base64
 	}
 	return base64
 }
@@ -99,35 +96,4 @@ func (ted *PlainData) Serialize() interface{} {
 
 func (ted *PlainData) Equal(other interface{}) bool {
 	return equals(ted, other)
-}
-
-//
-//  Factory methods
-//
-
-func NewPlainDataWithBytes(bin []byte) TransportableData {
-	return &PlainData{
-		BaseData: BaseData{
-			_string: "",
-			_binary: bin,
-		},
-	}
-}
-
-func NewPlainDataWithString(str string) TransportableData {
-	return &PlainData{
-		BaseData: BaseData{
-			_string: str,
-			_binary: nil,
-		},
-	}
-}
-
-func ZeroPlainData() TransportableData {
-	return &PlainData{
-		BaseData: BaseData{
-			_binary: []byte{},
-			_string: "",
-		},
-	}
 }

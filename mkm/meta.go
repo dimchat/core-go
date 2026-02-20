@@ -61,7 +61,7 @@ import (
  */
 type BaseMeta struct {
 	//Meta
-	Dictionary
+	*Dictionary
 
 	/**
 	 *  Meta algorithm version
@@ -73,7 +73,7 @@ type BaseMeta struct {
 	 *      ...
 	 *  </pre>
 	 */
-	_type MetaType
+	version MetaType
 
 	/**
 	 *  Public key (used for signature)
@@ -81,7 +81,7 @@ type BaseMeta struct {
 	 *      RSA / ECC
 	 *  </p>
 	 */
-	_key VerifyKey
+	publicKey VerifyKey
 
 	/**
 	 *  Seed to generate fingerprint
@@ -89,7 +89,7 @@ type BaseMeta struct {
 	 *      Username / Group-X
 	 *  </p>
 	 */
-	_seed string
+	seed string
 
 	/**
 	 *  Fingerprint to verify ID and public key
@@ -99,94 +99,89 @@ type BaseMeta struct {
 	 *  Check: verify(seed, fingerprint, publicKey)
 	 *  </pre>
 	 */
-	_fingerprint TransportableData
+	fingerprint TransportableData
 
-	_status int8 // 1 for valid, -1 for invalid
+	status int8 // 1 for valid, -1 for invalid
 
 	// protected
 	HasSeed bool
 }
 
-func (meta *BaseMeta) InitWithMap(dict StringKeyMap) Meta {
-	if meta.Dictionary.InitWithMap(dict) != nil {
+func NewBaseMeta(dict StringKeyMap, metaType MetaType, publicKey VerifyKey, seed string, fingerprint TransportableData) *BaseMeta {
+	var status int8
+	if dict != nil {
 		// meta info from network, waiting to verify.
-		meta._status = 0
-		// lazy load
-		meta._type = ""
-		meta._key = nil
-		meta._seed = ""
-		meta._fingerprint = nil
-	}
-	return meta
-}
-
-func (meta *BaseMeta) InitWithType(version MetaType, key VerifyKey, seed string, fingerprint TransportableData) Meta {
-	if meta.Dictionary.Init() != nil {
+		status = 0
+	} else {
+		dict = NewMap()
 		// meta type
-		meta.Set("type", version)
-		meta._type = version
+		dict["type"] = metaType
 		// meta key
-		meta.Set("key", key.Map())
-		meta._key = key
+		dict["key"] = publicKey.Map()
 		// seed
 		if seed != "" {
-			meta.Set("seed", seed)
+			dict["seed"] = seed
 		}
-		meta._seed = seed
 		// fingerprint
 		if fingerprint != nil {
-			meta.Set("fingerprint", fingerprint.Serialize())
+			dict["fingerprint"] = fingerprint.Serialize()
 		}
-		meta._fingerprint = fingerprint
-
 		// generated meta, or loaded from local storage,
 		// no need to verify again.
-		meta._status = 1
+		status = 1
 	}
-	return meta
+	return &BaseMeta{
+		Dictionary:  NewDictionary(dict),
+		version:     metaType,
+		publicKey:   publicKey,
+		seed:        seed,
+		fingerprint: fingerprint,
+		status:      status,
+		HasSeed:     false, // set by subclass
+	}
 }
 
 //-------- IMeta
 
 // Override
 func (meta *BaseMeta) Type() MetaType {
-	version := meta._type
+	version := meta.version
 	if version == "" {
 		helper := GetGeneralAccountHelper()
 		version = helper.GetMetaType(meta.Map(), "")
-		meta._type = version
+		meta.version = version
 	}
 	return version
 }
 
 // Override
 func (meta *BaseMeta) PublicKey() VerifyKey {
-	key := meta._key
+	key := meta.publicKey
 	if key == nil {
 		info := meta.Get("key")
 		key = ParsePublicKey(info)
-		meta._key = key
+		meta.publicKey = key
 	}
 	return key
 }
 
 // Override
 func (meta *BaseMeta) Seed() string {
-	seed := meta._seed
+	seed := meta.seed
 	if seed == "" && meta.HasSeed {
 		seed = meta.GetString("seed", "")
-		meta._seed = seed
+		meta.seed = seed
 	}
 	return seed
 }
 
 // Override
 func (meta *BaseMeta) Fingerprint() TransportableData {
-	ted := meta._fingerprint
+	ted := meta.fingerprint
 	if ted == nil && meta.HasSeed {
 		base64 := meta.Get("fingerprint")
 		ted = ParseTransportableData(base64)
-		meta._fingerprint = ted
+		meta.fingerprint = ted
 	}
 	return ted
 }
@@ -197,17 +192,17 @@ func (meta *BaseMeta) Fingerprint() TransportableData {
 
 // Override
 func (meta *BaseMeta) IsValid() bool {
-	if meta._status == 0 {
+	if meta.status == 0 {
 		// meta from network, try to verify
 		if meta.checkValid() {
 			// correct
-			meta._status = 1
+			meta.status = 1
 		} else {
 			// error
-			meta._status = -1
+			meta.status = -1
 		}
 	}
-	return meta._status > 0
+	return meta.status > 0
 }
 
 // protected

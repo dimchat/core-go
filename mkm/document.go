@@ -44,94 +44,64 @@ import (
  */
 type BaseDocument struct {
 	//Document
-	Dictionary
+	*Dictionary
 
-	_data      string            // JSONEncode(properties)
-	_signature TransportableData // LocalUser(id).Sign(data)
+	data      string            // JSONEncode(properties)
+	signature TransportableData // LocalUser(id).Sign(data)
 
-	_properties StringKeyMap
-	_status     int8 // 1 for valid, -1 for invalid
+	properties StringKeyMap
+	status     int8 // 1 for valid, -1 for invalid
 }
 
-/**
- *  Create Entity Document
- *
- *  @param dict - info
- */
-func (doc *BaseDocument) InitWithMap(dict StringKeyMap) Document {
-	if doc.Dictionary.InitWithMap(dict) != nil {
-		// lazy load
-		doc._data = ""
-		doc._signature = nil
-		doc._properties = nil
-		doc._status = 0
-	}
-	return doc
-}
-
-/**
- *  Create with data and signature loaded from local storage
- *
- * @param docType   - document type
- * @param data      - document data in JsON format
- * @param signature - signature of document data in Base64 format
- */
-func (doc *BaseDocument) InitWithType(docType DocumentType, data string, signature TransportableData) Document {
-	if doc.Dictionary.Init() != nil {
+func NewBaseDocument(dict StringKeyMap, docType DocumentType, data string, signature TransportableData) *BaseDocument {
+	var properties StringKeyMap
+	var status int8
+	if dict != nil {
+		// document info from network, waiting for verify
+		properties = nil // lazy load
+		status = 0
+	} else if data == "" || signature == nil {
+		// new empty document
+		dict = NewMap()
 		// document type
-		doc.Set("type", docType)
-
-		// document data (JsON)
-		doc.Set("data", data)
-		doc._data = data
-
-		// document signature (Base64)
-		doc.Set("signature", signature.Serialize())
-		doc._signature = signature
-
-		doc._properties = nil // lazy
-
-		// all documents must be verified before saving into local storage
-		doc._status = 1
-	}
-	return doc
-}
-
-/**
- *  Create a new empty document
- *
- * @param type - document type
- */
-func (doc *BaseDocument) Init(docType DocumentType) Document {
-	if doc.Dictionary.Init() != nil {
-		// document type
-		doc.Set("type", docType)
-
-		// document data & signature
-		doc._data = ""
-		doc._signature = nil
-
+		dict["type"] = docType
 		// initialize properties with created time
-		info := NewMap()
-		info["type"] = docType // deprecated
-		info["created_time"] = TimeToFloat64(TimeNow())
-		doc._properties = info
-
-		doc._status = 0
+		properties = NewMap()
+		properties["type"] = docType // deprecated
+		properties["created_time"] = TimeToFloat64(TimeNow())
+		status = 0
+	} else {
+		// document with data and signature loaded from local storage
+		dict = NewMap()
+		// document type
+		dict["type"] = docType
+		// document data (JsON)
+		dict["data"] = data
+		// document signature (Base64)
+		dict["signature"] = signature.Serialize()
+		properties = nil // lazy load
+		// all documents must be verified before saving into local storage
+		status = 1
 	}
-	return doc
+	return &BaseDocument{
+		Dictionary: NewDictionary(dict),
+		data:       data,
+		signature:  signature,
+		properties: properties,
+		status:     status,
+	}
 }
 
 /**
  *  Get serialized properties
  *
- * @return JsON string
+ * @return JSON string
  */
-func (doc *BaseDocument) data() string {
-	json := doc._data
+func (doc *BaseDocument) getData() string {
+	json := doc.data
 	if json == "" {
-		json := doc.GetString("data", "")
-		doc._data = json
+		json = doc.GetString("data", "")
+		doc.data = json
 	}
 	return json
 }
@@ -141,12 +111,12 @@ func (doc *BaseDocument) data() string {
  *
  * @return signature data
  */
-func (doc *BaseDocument) signature() TransportableData {
-	ted := doc._signature
+func (doc *BaseDocument) getSignature() TransportableData {
+	ted := doc.signature
 	if ted == nil {
 		base64 := doc.Get("signature")
 		ted = ParseTransportableData(base64)
-		doc._signature = ted
+		doc.signature = ted
 	}
 	return ted
 }
@@ -155,7 +125,7 @@ func (doc *BaseDocument) signature() TransportableData {
 
 // Override
 func (doc *BaseDocument) IsValid() bool {
-	return doc._status > 0
+	return doc.status > 0
 }
 
 // Override
@@ -164,23 +134,23 @@ func (doc *BaseDocument) Verify(publicKey VerifyKey) bool {
 	//	// already verify OK
 	//	return true
 	//}
-	data := doc.data()
-	signature := doc.signature()
+	data := doc.getData()
+	signature := doc.getSignature()
 	if data == "" {
 		// NOTICE: if data is empty, signature should be empty at the same time
 		//         this happen while entity document not found
 		if signature == nil || signature.IsEmpty() {
-			doc._status = 0
+			doc.status = 0
 		} else {
 			// data signature error
-			doc._status = -1
+			doc.status = -1
 		}
 	} else if signature == nil || signature.IsEmpty() {
 		// signature error
-		doc._status = -1
+		doc.status = -1
 	} else if publicKey.Verify(UTF8Encode(data), signature.Bytes()) {
 		// signature matched
-		doc._status = 1
+		doc.status = 1
 	} else {
 		// public key not matched,
 		// no need to affect the status here
@@ -188,7 +158,7 @@ func (doc *BaseDocument) Verify(publicKey VerifyKey) bool {
 	}
 	// NOTICE: if status is 0, it doesn't mean the document is invalid,
 	//         try another key
-	return doc._status == 1
+	return doc.status == 1
 }
 
 // Override
@@ -208,24 +178,24 @@ func (doc *BaseDocument) Sign(privateKey SignKey) []byte {
 	signature := privateKey.Sign(UTF8Encode(data))
 	ted := NewBase64DataWithBytes(signature)
 	// 3. update 'data' & 'signature' fields
-	doc.Set("data", data)
-	doc.Set("signature", ted.Serialize())
-	doc._data = data
-	doc._signature = ted
+	doc.Set("data", data)                 // JSON string
+	doc.Set("signature", ted.Serialize()) // BASE-64
+	doc.data = data
+	doc.signature = ted
 	// 4. update status
-	doc._status = 1
+	doc.status = 1
 	return signature
 }
 
 // Override
 func (doc *BaseDocument) Properties() StringKeyMap {
-	if doc._status < 0 {
+	if doc.status < 0 {
 		// invalid
 		return nil
 	}
-	info := doc._properties
+	info := doc.properties
 	if info == nil {
-		data := doc.data()
+		data := doc.getData()
 		if data == "" {
 			// create new properties
 			info = NewMap()
@@ -233,7 +203,7 @@ func (doc *BaseDocument) Properties() StringKeyMap {
 			// get properties from data
 			info = JSONDecodeMap(data)
 		}
-		doc._properties = info
+		doc.properties = info
 	}
 	return info
 }
@@ -254,7 +224,7 @@ func (doc *BaseDocument) GetProperty(name string) interface{} {
 // Override
 func (doc *BaseDocument) SetProperty(name string, value interface{}) {
 	// 1. reset status
-	doc._status = 0
+	doc.status = 0
 	// 2. update property value with name
 	properties := doc.Properties()
 	if properties == nil {
@@ -267,8 +237,8 @@ func (doc *BaseDocument) SetProperty(name string, value interface{}) {
 	// 3. clear data signature after properties changed
 	doc.Remove("data")
 	doc.Remove("signature")
-	doc._data = ""
-	doc._signature = nil
+	doc.data = ""
+	doc.signature = nil
 }
 
 //-------- IDocument

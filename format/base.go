@@ -33,12 +33,11 @@ package format
 import (
 	"bytes"
 	"fmt"
-	"reflect"
 
 	. "github.com/dimchat/mkm-go/format"
-	. "github.com/dimchat/mkm-go/types"
 )
 
+//goland:noinspection GoSnakeCaseUsage
 const (
 	BASE_64 = "base64"
 	BASE_58 = "base58"
@@ -55,41 +54,36 @@ type EncodeData interface {
 type BaseData struct {
 	//TransportableData
 
-	_string string // encoded string
-	_binary []byte // decoded bytes
+	encoded string // encoded string
+	bytes   []byte // decoded bytes
 }
 
-func (ted *BaseData) InitWithString(str string) {
-	ted._string = str
-	// lazy load
-	ted._binary = nil
-}
-
-func (ted *BaseData) InitWithBytes(bin []byte) {
-	ted._binary = bin
-	// lazy load
-	ted._string = ""
+func NewBaseData(encoded string, bytes []byte) *BaseData {
+	return &BaseData{
+		encoded: encoded,
+		bytes:   bytes,
+	}
 }
 
 // protected
 func (ted *BaseData) EncodedString() string {
-	return ted._string
+	return ted.encoded
 }
 
 // protected
 func (ted *BaseData) DecodedBytes() []byte {
-	return ted._binary
+	return ted.bytes
 }
 
 // Override
 func (ted *BaseData) IsEmpty() bool {
 	// 1. check inner bytes
-	bin := ted._binary
-	if bin != nil && len(bin) > 0 {
+	bin := ted.bytes
+	if len(bin) > 0 {
 		return false
 	}
 	// 2. check inner string
-	str := ted._string
+	str := ted.encoded
 	return str == ""
 }
 
@@ -117,33 +111,24 @@ func serialize(ted TransportableData) interface{} {
 //
 
 func equals(ted EncodeData, other interface{}) bool {
-	// check targeted value
-	target, rv := ObjectReflectValue(other)
-	if target == nil {
+	if other == nil {
 		return ted.IsEmpty()
 	} else if other == ted {
 		// same object
 		return true
 	}
 	// check value types
-	switch v := target.(type) {
+	switch v := other.(type) {
 	case EncodeData:
 		return dataEquals(ted, v)
 	case TransportableData:
-		// compare with decoded bytes
-		return bytes.Equal(v.Bytes(), ted.Bytes())
+		return tedEquals(ted, v)
 	case fmt.Stringer:
 		// compare with encoded string
-		return v.String() == ted.String()
+		return ted.String() == v.String()
 	case string:
 		// compare with encoded string
-		return v == ted.String()
-	}
-	// other bytes
-	switch rv.Kind() {
-	case reflect.String:
-		// compare with encoded string
-		return rv.String() == ted.String()
+		return ted.String() == v
 	default:
 		//panic(fmt.Sprintf("unknown data: %v", other))
 	}
@@ -170,4 +155,18 @@ func dataEquals(self, other EncodeData) bool {
 	thisBytes = self.Bytes()
 	thatBytes = other.Bytes()
 	return bytes.Equal(thisBytes, thatBytes)
+}
+
+func tedEquals(self EncodeData, other TransportableData) bool {
+	if other == nil || other.IsEmpty() {
+		return self.IsEmpty()
+	}
+	// compare with inner bytes
+	thisBytes := self.DecodedBytes()
+	if thisBytes != nil {
+		return bytes.Equal(thisBytes, other.Bytes())
+	}
+	// compare with inner string
+	thisString := self.EncodedString()
+	return thisString == other.String()
 }

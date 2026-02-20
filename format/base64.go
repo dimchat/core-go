@@ -37,17 +37,13 @@ import . "github.com/dimchat/mkm-go/format"
  */
 type Base64Data struct {
 	//TransportableData
-	BaseData
+	*BaseData
 }
 
-func (ted *Base64Data) InitWithString(str string) TransportableData {
-	ted.BaseData.InitWithString(str)
-	return ted
-}
-
-func (ted *Base64Data) InitWithBytes(bin []byte) TransportableData {
-	ted.BaseData.InitWithBytes(bin)
-	return ted
+func NewBase64Data(encoded string, bytes []byte) *Base64Data {
+	return &Base64Data{
+		BaseData: NewBaseData(encoded, bytes),
+	}
 }
 
 //
@@ -61,20 +57,20 @@ func (ted *Base64Data) Encoding() string {
 
 // Override
 func (ted *Base64Data) Bytes() []byte {
-	bin := ted._binary
+	bin := ted.bytes
 	if bin == nil {
-		bin = Base64Decode(ted._string)
-		ted._binary = bin
+		bin = Base64Decode(ted.encoded)
+		ted.bytes = bin
 	}
 	return bin
 }
 
 // Override
 func (ted *Base64Data) String() string {
-	base64 := ted._string
+	base64 := ted.encoded
 	if base64 == "" {
-		base64 = Base64Encode(ted._binary)
-		ted._string = base64
+		base64 = Base64Encode(ted.bytes)
+		ted.encoded = base64
 	}
 	return base64
 }
@@ -99,26 +95,4 @@ func (ted *Base64Data) Serialize() interface{} {
 
 func (ted *Base64Data) Equal(other interface{}) bool {
 	return equals(ted, other)
-}
-
-//
-//  Factory methods
-//
-
-func NewBase64DataWithBytes(bin []byte) TransportableData {
-	return &Base64Data{
-		BaseData: BaseData{
-			_string: "",
-			_binary: bin,
-		},
-	}
-}
-
-func NewBase64DataWithString(str string) TransportableData {
-	return &Base64Data{
-		BaseData: BaseData{
-			_string: str,
-			_binary: nil,
-		},
-	}
 }
