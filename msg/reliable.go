@@ -31,7 +31,6 @@
 package dkd
 
 import (
-	. "github.com/dimchat/dkd-go/protocol"
 	. "github.com/dimchat/mkm-go/format"
 	. "github.com/dimchat/mkm-go/types"
 )
@@ -63,37 +62,38 @@ import (
  */
 type NetworkMessage struct {
 	//ReliableMessage
-	EncryptedMessage
+	*EncryptedMessage
 
-	_signature TransportableData
+	signature TransportableData
 }
 
-func (msg *NetworkMessage) InitWithMap(dict StringKeyMap) ReliableMessage {
-	if msg.EncryptedMessage.InitWithMap(dict) != nil {
-		// lazy load
-		msg._signature = nil
+func NewNetworkMessage(dict StringKeyMap, data, signature TransportableData) *NetworkMessage {
+	return &NetworkMessage{
+		EncryptedMessage: NewEncryptedMessage(dict, data),
+		signature:        signature,
 	}
-	return msg
 }
 
 //-------- IReliableMessage
 
 // Override
 func (msg *NetworkMessage) Signature() TransportableData {
-	ted := msg._signature
+	ted := msg.signature
 	if ted == nil {
 		base64 := msg.Get("signature")
 		ted = ParseTransportableData(base64)
-		msg._signature = ted
+		msg.signature = ted
 	}
 	return ted
 }
 
-//
-//  Factory
-//
-
-func NewReliableMessageWithMap(dict StringKeyMap) ReliableMessage {
-	msg := &NetworkMessage{}
-	return msg.InitWithMap(dict)
+// Override
+func (msg *NetworkMessage) Map() StringKeyMap {
+	// serialize 'signature'
+	ted := msg.signature
+	if ted != nil && !msg.Contains("signature") {
+		msg.Set("signature", ted.Serialize())
+	}
+	// OK
+	return msg.EncryptedMessage.Map()
 }

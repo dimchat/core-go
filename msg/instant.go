@@ -53,25 +53,19 @@ import (
  */
 type PlainMessage struct {
 	//InstantMessage
-	BaseMessage
+	*BaseMessage
 
-	_content Content
+	content Content
 }
 
-func (msg *PlainMessage) InitWithMap(dict StringKeyMap) InstantMessage {
-	if msg.BaseMessage.InitWithMap(dict) != nil {
-		// lazy load
-		msg._content = nil
+func NewPlainMessage(dict StringKeyMap, head Envelope, body Content) *PlainMessage {
+	//if body != nil {
+	//	dict["content"] = body.Map()
+	//}
+	return &PlainMessage{
+		BaseMessage: NewBaseMessage(dict, head),
+		content:     body,
 	}
-	return msg
-}
-
-func (msg *PlainMessage) Init(head Envelope, body Content) InstantMessage {
-	if msg.BaseMessage.InitWithEnvelope(head) != nil {
-		msg.SetContent(body)
-		//msg._content = body
-	}
-	return msg
 }
 
 //-------- IMessage
@@ -120,11 +114,11 @@ func (msg *PlainMessage) Type() MessageType {
 
 // Override
 func (msg *PlainMessage) Content() Content {
-	body := msg._content
+	body := msg.content
 	if body == nil {
 		info := msg.Get("content")
 		body = ParseContent(info)
-		msg._content = body
+		msg.content = body
 	}
 	return body
 }
@@ -133,30 +127,16 @@ func (msg *PlainMessage) Content() Content {
 func (msg *PlainMessage) SetContent(content Content) {
 	msg.Remove("content")
 	//msg.SetMapper("content", content)
-	msg._content = content
+	msg.content = content
 }
 
 // Override
 func (msg *PlainMessage) Map() StringKeyMap {
 	// serialize 'content'
-	body := msg._content
+	body := msg.content
 	if body != nil && !msg.Contains("content") {
 		msg.Set("content", body.Map())
 	}
 	// OK
 	return msg.BaseMessage.Map()
-}
-
-//
-//  Factories
-//
-
-func NewInstantMessage(head Envelope, body Content) InstantMessage {
-	msg := &PlainMessage{}
-	return msg.Init(head, body)
-}
-
-func NewInstantMessageWithMap(dict StringKeyMap) InstantMessage {
-	msg := &PlainMessage{}
-	return msg.InitWithMap(dict)
 }

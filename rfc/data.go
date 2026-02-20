@@ -35,38 +35,30 @@ import (
 type BaseURI struct {
 	//DataURI
 
-	_head DataHeader
-	_body string
+	head DataHeader
+	body string
 
-	_uriString string // built string
-}
-
-func (uri *BaseURI) Init(head DataHeader, body string) DataURI {
-	uri._head = head
-	uri._body = body
-	// lazy load
-	uri._uriString = ""
-	return uri
+	uriString string // built string
 }
 
 // Override
 func (uri *BaseURI) Head() DataHeader {
-	return uri._head
+	return uri.head
 }
 
 // Override
 func (uri *BaseURI) Body() string {
-	return uri._body
+	return uri.body
 }
 
 // Override
 func (uri *BaseURI) IsEmpty() bool {
-	return uri._body == ""
+	return uri.body == ""
 }
 
 // Override
 func (uri *BaseURI) HeaderValue(name string) string {
-	head := uri._head
+	head := uri.head
 	value := head.ExtraValue(name)
 	if value != "" {
 		// charset
@@ -86,25 +78,25 @@ func (uri *BaseURI) HeaderValue(name string) string {
 
 // Override
 func (uri *BaseURI) Charset() string {
-	return uri._head.ExtraValue("charset")
+	return uri.head.ExtraValue("charset")
 }
 
 // Override
 func (uri *BaseURI) Filename() string {
-	return uri._head.ExtraValue("filename")
+	return uri.head.ExtraValue("filename")
 }
 
 // Override
 func (uri *BaseURI) String() string {
-	text := uri._uriString
+	text := uri.uriString
 	if text == "" {
-		header := uri._head.String()
+		header := uri.head.String()
 		if header == "" {
-			text = fmt.Sprintf("data:,%s", uri._body)
+			text = fmt.Sprintf("data:,%s", uri.body)
 		} else {
-			text = fmt.Sprintf("data:%s,%s", header, uri._body)
+			text = fmt.Sprintf("data:%s,%s", header, uri.body)
 		}
-		uri._uriString = text
+		uri.uriString = text
 	}
 	return text
 }
@@ -116,36 +108,27 @@ func (uri *BaseURI) String() string {
 type BaseHeader struct {
 	//DataHeader
 
-	_mimeType string
-	_encoding string
+	mimeType string
+	encoding string
 
-	_extra StringKeyMap
+	extra StringKeyMap
 
-	_headerString string // built string
-}
-
-func (header *BaseHeader) Init(mimeType string, encoding string, extra StringKeyMap) DataHeader {
-	header._mimeType = mimeType
-	header._encoding = encoding
-	header._extra = extra
-	// lazy load
-	header._headerString = ""
-	return header
+	headerString string // built string
 }
 
 // Override
 func (header *BaseHeader) MimeType() string {
-	return header._mimeType
+	return header.mimeType
 }
 
 // Override
 func (header *BaseHeader) Encoding() string {
-	return header._encoding
+	return header.encoding
 }
 
 // Override
 func (header *BaseHeader) ExtraKeys() []string {
-	extra := header._extra
+	extra := header.extra
 	if extra == nil {
 		return nil
 	}
@@ -154,7 +137,7 @@ func (header *BaseHeader) ExtraKeys() []string {
 
 // Override
 func (header *BaseHeader) ExtraValue(name string) string {
-	extra := header._extra
+	extra := header.extra
 	if extra == nil {
 		// extra info is empty
 		return ""
@@ -173,11 +156,11 @@ func (header *BaseHeader) ExtraValue(name string) string {
 
 // Override
 func (header *BaseHeader) String() string {
-	text := header._headerString
+	text := header.headerString
 	if text == "" {
-		mimeType := header._mimeType
-		encoding := header._encoding
-		extra := header._extra
+		mimeType := header.mimeType
+		encoding := header.encoding
+		extra := header.extra
 		items := make([]string, 0, 3)
 		//
 		//  1. 'mime-type'
@@ -187,7 +170,7 @@ func (header *BaseHeader) String() string {
 		} else if encoding != "" {
 			// make sure 'mime-type' is the first header
 			items = append(items, MIMEType.TEXT_PLAIN)
-		} else if extra != nil && len(extra) > 0 {
+		} else if len(extra) > 0 {
 			// make sure 'mime-type' is the first header
 			items = append(items, MIMEType.TEXT_PLAIN)
 		}
@@ -211,7 +194,7 @@ func (header *BaseHeader) String() string {
 		} else {
 			text = ""
 		}
-		header._headerString = text
+		header.headerString = text
 	}
 	return text
 }

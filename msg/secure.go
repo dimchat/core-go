@@ -32,7 +32,6 @@ package dkd
 
 import (
 	. "github.com/dimchat/core-go/format"
-	. "github.com/dimchat/dkd-go/protocol"
 	. "github.com/dimchat/mkm-go/format"
 	. "github.com/dimchat/mkm-go/types"
 )
@@ -61,24 +60,23 @@ import (
  */
 type EncryptedMessage struct {
 	//SecureMessage
-	BaseMessage
+	*BaseMessage
 
-	_data TransportableData
+	data TransportableData
 }
 
-func (msg *EncryptedMessage) InitWithMap(dict StringKeyMap) SecureMessage {
-	if msg.BaseMessage.InitWithMap(dict) != nil {
-		// lazy load
-		msg._data = nil
+func NewEncryptedMessage(dict StringKeyMap, data TransportableData) *EncryptedMessage {
+	return &EncryptedMessage{
+		BaseMessage: NewBaseMessage(dict, nil),
+		data:        data,
 	}
-	return msg
 }
 
 //-------- ISecureMessage
 
 // Override
 func (msg *EncryptedMessage) Data() TransportableData {
-	ted := msg._data
+	ted := msg.data
 	if ted == nil {
 		text := msg.Get("data")
 		if text == nil {
@@ -92,7 +90,7 @@ func (msg *EncryptedMessage) Data() TransportableData {
 		} else {
 			//panic(fmt.Sprintf("content data error: %v", text))
 		}
-		msg._data = ted
+		msg.data = ted
 	}
 	return ted
 }
@@ -107,11 +105,13 @@ func (msg *EncryptedMessage) EncryptedKeys() StringKeyMap {
 	return nil
 }
 
-//
-//  Factory
-//
-
-func NewSecureMessageWithMap(dict StringKeyMap) SecureMessage {
-	msg := &EncryptedMessage{}
-	return msg.InitWithMap(dict)
+// Override
+func (msg *EncryptedMessage) Map() StringKeyMap {
+	// serialize 'data'
+	ted := msg.data
+	if ted != nil && !msg.Contains("data") {
+		msg.Set("data", ted.Serialize())
+	}
+	// OK
+	return msg.BaseMessage.Map()
 }

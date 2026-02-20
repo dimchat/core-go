@@ -87,20 +87,22 @@ func ParseDataURI(uri string) DataURI {
 	return NewDataURI(head, body)
 }
 
-func NewDataURI(head DataHeader, body string) DataURI {
+func NewDataURI(head DataHeader, body string) *BaseURI {
 	return &BaseURI{
-		_head:      head,
-		_body:      body,
-		_uriString: "",
+		head: head,
+		body: body,
+		// lazy load
+		uriString: "",
 	}
 }
 
-func NewDataHeader(mimeType string, encoding string, extra StringKeyMap) DataHeader {
+func NewDataHeader(mimeType, encoding string, extra StringKeyMap) *BaseHeader {
 	return &BaseHeader{
-		_mimeType:     mimeType,
-		_encoding:     encoding,
-		_extra:        extra,
-		_headerString: "",
+		mimeType: mimeType,
+		encoding: encoding,
+		extra:    extra,
+		// lazy load
+		headerString: "",
 	}
 }
 

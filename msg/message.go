@@ -80,34 +80,29 @@ import (
  */
 type BaseMessage struct {
 	//Message
-	Dictionary
+	*Dictionary
 
-	_env Envelope
+	envelope Envelope
 }
 
-func (msg *BaseMessage) InitWithMap(dict StringKeyMap) Message {
-	if msg.Dictionary.InitWithMap(dict) != nil {
-		// lazy load
-		msg._env = nil
+func NewBaseMessage(dict StringKeyMap, head Envelope) *BaseMessage {
+	if dict == nil {
+		dict = head.Map()
 	}
-	return msg
-}
-
-func (msg *BaseMessage) InitWithEnvelope(head Envelope) Message {
-	if msg.Dictionary.InitWithMap(head.Map()) != nil {
-		msg._env = head
+	return &BaseMessage{
+		Dictionary: NewDictionary(dict),
+		envelope:   head,
 	}
-	return msg
 }
 
 //-------- IMessage
 
 // Override
 func (msg *BaseMessage) Envelope() Envelope {
-	head := msg._env
+	head := msg.envelope
 	if head == nil {
 		head = ParseEnvelope(msg.Map())
-		msg._env = head
+		msg.envelope = head
 	}
 	return head
 }

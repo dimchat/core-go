@@ -54,77 +54,73 @@ import (
  */
 type MessageEnvelope struct {
 	//Envelope
-	Dictionary
+	*Dictionary
 
-	_sender   ID
-	_receiver ID
-	_time     Time
+	sender   ID
+	receiver ID
+	time     Time
 }
 
-func (env *MessageEnvelope) InitWithMap(dict StringKeyMap) Envelope {
-	if env.Dictionary.InitWithMap(dict) != nil {
-		// lazy load
-		env._sender = nil
-		env._receiver = nil
-		env._time = nil
+func NewMessageEnvelope(dict StringKeyMap, sender, receiver ID, time Time) *MessageEnvelope {
+	if dict == nil {
+		if sender == nil {
+			panic("sender must not be nil")
+		}
+		if receiver == nil {
+			receiver = ANYONE
+		}
+		if TimeIsNil(time) {
+			time = TimeNow()
+		}
+		dict = StringKeyMap{}
+		dict["sender"] = sender.String()
+		dict["receiver"] = receiver.String()
+		dict["time"] = TimeToFloat64(time)
 	}
-	return env
-}
-
-func (env *MessageEnvelope) Init(from, to ID, when Time) Envelope {
-	if to == nil {
-		to = ANYONE
+	return &MessageEnvelope{
+		Dictionary: NewDictionary(dict),
+		sender:     sender,
+		receiver:   receiver,
+		time:       time,
 	}
-	if TimeIsNil(when) {
-		when = TimeNow()
-	}
-	if env.Dictionary.Init() != nil {
-		env._sender = from
-		env._receiver = to
-		env._time = when
-		env.SetStringer("sender", from)
-		env.SetStringer("receiver", to)
-		env.SetTime("time", when)
-	}
-	return env
 }
 
 //-------- IEnvelope
 
 // Override
 func (env *MessageEnvelope) Sender() ID {
-	sender := env._sender
+	sender := env.sender
 	if sender == nil {
 		did := env.Get("sender")
 		sender = ParseID(did)
-		env._sender = sender
+		env.sender = sender
 	}
 	return sender
 }
 
 // Override
 func (env *MessageEnvelope) Receiver() ID {
-	receiver := env._receiver
+	receiver := env.receiver
 	if receiver == nil {
 		did := env.Get("receiver")
 		receiver = ParseID(did)
 		if receiver == nil {
 			receiver = ANYONE
 		}
-		env._receiver = receiver
+		env.receiver = receiver
 	}
 	return receiver
 }
 
 // Override
 func (env *MessageEnvelope) Time() Time {
-	when := env._time
+	when := env.time
 	if when == nil {
 		when = env.GetTime("time", nil)
 		if when == nil {
 			when = TimeNil()
 		}
-		env._time = when
+		env.time = when
 	}
 	return when
 }
@@ -163,18 +159,4 @@ func (env *MessageEnvelope) Type() MessageType {
 // Override
 func (env *MessageEnvelope) SetType(msgType MessageType) {
 	env.Set("type", msgType)
-}
-
-//
-//  Factories
-//
-
-func NewEnvelope(from, to ID, when Time) Envelope {
-	env := &MessageEnvelope{}
-	return env.Init(from, to, when)
-}
-
-func NewEnvelopeWithMap(dict StringKeyMap) Envelope {
-	env := &MessageEnvelope{}
-	return env.InitWithMap(dict)
 }
