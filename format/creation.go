@@ -39,8 +39,16 @@ import (
 )
 
 //
-//  Empty Data
+//  Plain Data
 //
+
+func NewPlainDataWithBytes(bytes []byte) TransportableData {
+	return NewPlainData("", bytes)
+}
+
+func NewPlainDataWithString(text string) TransportableData {
+	return NewPlainData(text, nil)
+}
 
 func ZeroPlainData() TransportableData {
 	return NewPlainData("", []byte{})
@@ -83,16 +91,11 @@ func NewEmbedDataWithType(mimeType string, body []byte) TransportableData {
 //
 
 func NewPortableNetworkFileWithMap(dict StringKeyMap) TransportableFile {
-	factory := GetTransportableFileWrapperFactory()
-	wrapper := factory.CreateTransportableFileWrapper(dict, nil, "", nil, nil)
-	return NewPortableNetworkFile(dict, wrapper)
+	return NewPortableNetworkFile(dict, nil, "", nil, nil)
 }
 
 func NewPortableNetworkFileWithData(data TransportableData, filename string,
 	url URL, password DecryptKey,
 ) TransportableFile {
-	dict := NewMap()
-	factory := GetTransportableFileWrapperFactory()
-	wrapper := factory.CreateTransportableFileWrapper(dict, data, filename, url, password)
-	return NewPortableNetworkFile(dict, wrapper)
+	return NewPortableNetworkFile(nil, data, filename, url, password)
 }

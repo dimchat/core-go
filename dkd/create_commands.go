@@ -38,15 +38,11 @@ import (
 )
 
 func NewCommandWithMap(dict StringKeyMap) Command {
-	content := &BaseCommand{}
-	content.InitWithMap(dict)
-	return content
+	return NewBaseCommand(dict, "", "")
 }
 
-func NewHistoryCommandWithMap(dict StringKeyMap) HistoryCommand {
-	content := &BaseHistoryCommand{}
-	content.InitWithMap(dict)
-	return content
+func NewHistoryCommandWithMap(dict StringKeyMap) Command {
+	return NewBaseHistoryCommand(dict, "")
 }
 
 /**
@@ -64,18 +60,15 @@ func NewHistoryCommandWithMap(dict StringKeyMap) HistoryCommand {
  *  </pre></blockquote>
  */
 func NewCommandForQueryMeta(did ID) MetaCommand {
-	content := &BaseMetaCommand{}
-	return content.Init(META, did, nil)
+	return NewBaseMetaCommand(nil, META, did, nil)
 }
 
 func NewCommandForRespondMeta(did ID, meta Meta) MetaCommand {
-	content := &BaseMetaCommand{}
-	return content.Init(META, did, meta)
+	return NewBaseMetaCommand(nil, META, did, meta)
 }
 
-func NewMetaCommandWithMap(dict StringKeyMap) MetaCommand {
-	content := &BaseMetaCommand{}
-	return content.InitWithMap(dict)
+func NewMetaCommandWithMap(dict StringKeyMap) Command {
+	return NewBaseMetaCommand(dict, "", nil, nil)
 }
 
 /**
@@ -95,28 +88,20 @@ func NewMetaCommandWithMap(dict StringKeyMap) MetaCommand {
  *  </pre></blockquote>
  */
 func NewCommandForQueryDocuments(did ID, lastTime Time) DocumentCommand {
-	content := &BaseDocumentCommand{}
-	if content.Init(did, nil, nil) != nil {
-		content.SetLastTime(lastTime)
-	}
-	return content
+	return NewBaseDocumentCommand(nil, did, nil, nil, lastTime)
 }
 
 func NewCommandForRespondDocuments(did ID, meta Meta, docs []Document) DocumentCommand {
-	content := &BaseDocumentCommand{}
-	return content.Init(did, meta, docs)
+	return NewBaseDocumentCommand(nil, did, meta, docs, nil)
 }
 
 func NewCommandForRespondDocument(did ID, meta Meta, document Document) DocumentCommand {
-	docs := []Document{
-		document,
-	}
-	return NewCommandForRespondDocuments(did, meta, docs)
+	docs := []Document{document}
+	return NewBaseDocumentCommand(nil, did, meta, docs, nil)
 }
 
-func NewDocumentCommandWithMap(dict StringKeyMap) DocumentCommand {
-	content := &BaseDocumentCommand{}
-	return content.InitWithMap(dict)
+func NewDocumentCommandWithMap(dict StringKeyMap) Command {
+	return NewBaseDocumentCommand(dict, nil, nil, nil, nil)
 }
 
 /**
@@ -141,14 +126,12 @@ func NewDocumentCommandWithMap(dict StringKeyMap) DocumentCommand {
  *  </pre></blockquote>
  */
 func NewReceiptCommand(text string, head Envelope, body Content) ReceiptCommand {
-	var origin = PurifyForReceipt(head, body)
-	content := &BaseReceiptCommand{}
-	return content.Init(text, origin)
+	origin := PurifyForReceipt(head, body)
+	return NewBaseReceiptCommand(nil, text, origin)
 }
 
-func NewReceiptCommandWithMap(dict StringKeyMap) ReceiptCommand {
-	content := &BaseReceiptCommand{}
-	return content.InitWithMap(dict)
+func NewReceiptCommandWithMap(dict StringKeyMap) Command {
+	return NewBaseReceiptCommand(dict, "", nil)
 }
 
 /**
@@ -168,77 +151,59 @@ func NewReceiptCommandWithMap(dict StringKeyMap) ReceiptCommand {
  *  </pre></blockquote>
  */
 func NewGroupCommand(cmd string, group ID, members []ID) GroupCommand {
-	content := &BaseGroupCommand{}
-	return content.Init(cmd, group, members)
+	return NewBaseGroupCommand(nil, cmd, group, members)
 }
 
-func NewGroupCommandWithMap(dict StringKeyMap) GroupCommand {
-	content := &BaseGroupCommand{}
-	content.InitWithMap(dict)
-	return content
+func NewGroupCommandWithMap(dict StringKeyMap) Command {
+	return NewBaseGroupCommand(dict, "", nil, nil)
 }
 
 // Invite
 
 func NewInviteCommand(group ID, members []ID) InviteCommand {
-	content := &InviteGroupCommand{}
-	return content.Init(group, members)
+	return NewInviteGroupCommand(nil, group, members)
 }
 
-func NewInviteCommandWithMap(dict StringKeyMap) InviteCommand {
-	content := &InviteGroupCommand{}
-	content.InitWithMap(dict)
-	return content
+func NewInviteCommandWithMap(dict StringKeyMap) Command {
+	return NewInviteGroupCommand(dict, nil, nil)
 }
 
 // Expel
 
 func NewExpelCommand(group ID, members []ID) ExpelCommand {
-	content := &ExpelGroupCommand{}
-	return content.Init(group, members)
+	return NewExpelGroupCommand(nil, group, members)
 }
 
-func NewExpelCommandWithMap(dict StringKeyMap) ExpelCommand {
-	content := &ExpelGroupCommand{}
-	content.InitWithMap(dict)
-	return content
+func NewExpelCommandWithMap(dict StringKeyMap) Command {
+	return NewExpelGroupCommand(dict, nil, nil)
 }
 
 // Join
 
 func NewJoinCommand(group ID) JoinCommand {
-	content := &JoinGroupCommand{}
-	return content.Init(group)
+	return NewJoinGroupCommand(nil, group)
 }
 
-func NewJoinCommandWithMap(dict StringKeyMap) JoinCommand {
-	content := &JoinGroupCommand{}
-	content.InitWithMap(dict)
-	return content
+func NewJoinCommandWithMap(dict StringKeyMap) Command {
+	return NewJoinGroupCommand(dict, nil)
 }
 
 // Quit
 
 func NewQuitCommand(group ID) QuitCommand {
-	content := &QuitGroupCommand{}
-	return content.Init(group)
+	return NewQuitGroupCommand(nil, group)
 }
 
-func NewQuitCommandWithMap(dict StringKeyMap) QuitCommand {
-	content := &QuitGroupCommand{}
-	content.InitWithMap(dict)
-	return content
+func NewQuitCommandWithMap(dict StringKeyMap) Command {
+	return NewQuitGroupCommand(dict, nil)
 }
 
 // Reset
 
 func NewResetCommand(group ID, members []ID) ResetCommand {
-	content := &ResetGroupCommand{}
-	return content.Init(group, members)
+	return NewResetGroupCommand(nil, group, members)
 }
 
-func NewResetCommandWithMap(dict StringKeyMap) ResetCommand {
-	content := &ResetGroupCommand{}
-	content.InitWithMap(dict)
-	return content
+func NewResetCommandWithMap(dict StringKeyMap) Command {
+	return NewResetGroupCommand(dict, nil, nil)
 }

@@ -52,28 +52,33 @@ import (
  */
 type BaseMetaCommand struct {
 	//MetaCommand
-	BaseCommand
+	*BaseCommand
 
-	_meta Meta
+	meta Meta
 }
 
-func (content *BaseMetaCommand) InitWithMap(dict StringKeyMap) MetaCommand {
-	if content.BaseCommand.InitWithMap(dict) != nil {
-		// lazy load
-		content._meta = nil
-	}
-	return content
-}
-
-func (content *BaseMetaCommand) Init(cmd string, did ID, meta Meta) MetaCommand {
-	if content.BaseCommand.Init(cmd) != nil {
-		// ID
-		content.Set("did", did.String())
-		// meta
-		if meta != nil {
-			content.Set("meta", meta.Map())
+func NewBaseMetaCommand(dict StringKeyMap, cmd string, did ID, meta Meta) *BaseMetaCommand {
+	if dict != nil {
+		// init meta command with map
+		return &BaseMetaCommand{
+			BaseCommand: NewBaseCommand(dict, "", ""),
+			// lazy load
+			meta: nil,
 		}
-		content._meta = meta
+	}
+	// new meta command
+	if cmd == "" {
+		cmd = META
+	}
+	content := &BaseMetaCommand{
+		BaseCommand: NewBaseCommand(nil, "", cmd),
+		meta:        meta,
+	}
+	// ID
+	content.Set("did", did.String())
+	// meta
+	if meta != nil {
+		content.Set("meta", meta.Map())
 	}
 	return content
 }
@@ -86,11 +91,11 @@ func (content *BaseMetaCommand) ID() ID {
 
 // Override
 func (content *BaseMetaCommand) Meta() Meta {
-	meta := content._meta
+	meta := content.meta
 	if meta == nil {
 		info := content.Get("meta")
 		meta = ParseMeta(info)
-		content._meta = meta
+		content.meta = meta
 	}
 	return meta
 }
@@ -113,33 +118,39 @@ func (content *BaseMetaCommand) Meta() Meta {
  */
 type BaseDocumentCommand struct {
 	//DocumentCommand
-	BaseMetaCommand
+	*BaseMetaCommand
 
-	_docs []Document
+	docs []Document
 }
 
-func (content *BaseDocumentCommand) InitWithMap(dict StringKeyMap) DocumentCommand {
-	if content.BaseMetaCommand.InitWithMap(dict) != nil {
-		// lazy load
-		content._docs = nil
-	}
-	return content
-}
-
-func (content *BaseDocumentCommand) Init(did ID, meta Meta, docs []Document) DocumentCommand {
-	if content.BaseMetaCommand.Init(DOCUMENTS, did, meta) != nil {
-		// documents
-		if docs != nil {
-			content.Set("documents", DocumentRevert(docs))
+func NewBaseDocumentCommand(dict StringKeyMap, did ID, meta Meta, docs []Document, lastTime Time) *BaseDocumentCommand {
+	if dict != nil {
+		// init document command with map
+		return &BaseDocumentCommand{
+			BaseMetaCommand: NewBaseMetaCommand(dict, "", nil, nil),
+			// lazy load
+			docs: nil,
 		}
-		content._docs = docs
+	}
+	// new document command
+	content := &BaseDocumentCommand{
+		BaseMetaCommand: NewBaseMetaCommand(nil, DOCUMENTS, did, meta),
+		docs:            docs,
+	}
+	// documents
+	if docs != nil {
+		content.Set("documents", DocumentRevert(docs))
+	}
+	// last document time
+	if lastTime != nil {
+		content.SetLastTime(lastTime)
 	}
 	return content
 }
 
 // Override
 func (content *BaseDocumentCommand) Documents() []Document {
-	docs := content._docs
+	docs := content.docs
 	if docs == nil {
 		array := content.Get("documents")
 		if array != nil {
@@ -147,7 +158,7 @@ func (content *BaseDocumentCommand) Documents() []Document {
 		} else {
 			//docs = []Document{}
 		}
-		content._docs = docs
+		content.docs = docs
 	}
 	return docs
 }

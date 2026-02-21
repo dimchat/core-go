@@ -59,29 +59,32 @@ import (
  */
 type BaseQuoteContent struct {
 	//QuoteContent
-	BaseContent
+	*BaseContent
 
-	_envelope Envelope
+	envelope Envelope
 }
 
-func (content *BaseQuoteContent) InitWithMap(dict StringKeyMap) QuoteContent {
-	if content.BaseContent.InitWithMap(dict) != nil {
-		// lazy load
-		content._envelope = nil
+func NewBaseQuoteContent(dict StringKeyMap, text string, origin StringKeyMap) *BaseQuoteContent {
+	if dict != nil {
+		// init quote content with map
+		return &BaseQuoteContent{
+			BaseContent: NewBaseContent(dict, ""),
+			// lazy load
+			envelope: nil,
+		}
 	}
-	return content
-}
-
-func (content *BaseQuoteContent) Init(text string, origin StringKeyMap) QuoteContent {
-	if content.BaseContent.InitWithType(ContentType.QUOTE) != nil {
-		// text message
-		content.Set("text", text)
-		// original envelope of message quote with,
-		// includes 'sender', 'receiver', 'type' and 'sn'
-		content.Set("origin", origin)
+	// new quote content
+	content := &BaseQuoteContent{
+		BaseContent: NewBaseContent(nil, ContentType.QUOTE),
 		// lazy load
-		content._envelope = nil
+		envelope: nil,
 	}
+	// text message
+	content.Set("text", text)
+	// original envelope of message quote with,
+	// includes 'sender', 'receiver', 'type' and 'sn'
+	content.Set("origin", origin)
+	// OK
 	return content
 }
 
@@ -104,11 +107,11 @@ func (content *BaseQuoteContent) Origin() StringKeyMap {
 
 // Override
 func (content *BaseQuoteContent) OriginalEnvelope() Envelope {
-	env := content._envelope
+	env := content.envelope
 	if env == nil {
 		origin := content.Origin()
 		env = ParseEnvelope(origin)
-		content._envelope = env
+		content.envelope = env
 	}
 	return env
 }

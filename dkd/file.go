@@ -63,55 +63,38 @@ import (
  */
 type BaseFileContent struct {
 	//FileContent
-	BaseContent
+	*BaseContent
 
-	_wrapper TransportableFileWrapper
+	wrapper TransportableFileWrapper
 }
 
-func (content *BaseFileContent) createWrapper() TransportableFileWrapper {
-	dict := content.Map()
-	factory := GetTransportableFileWrapperFactory()
-	return factory.CreateTransportableFileWrapper(dict)
-}
-
-func (content *BaseFileContent) InitWithMap(dict StringKeyMap) FileContent {
-	if content.BaseContent.InitWithMap(dict) != nil {
-		content._wrapper = content.createWrapper()
-	}
-	return content
-}
-
-func (content *BaseFileContent) InitWithType(msgType MessageType,
+func NewBaseFileContent(dict StringKeyMap,
+	msgType MessageType,
 	data TransportableData, filename string,
-	url URL, key DecryptKey,
-) FileContent {
-	if content.BaseContent.InitWithType(msgType) != nil {
-		wrapper := content.createWrapper()
-		content._wrapper = wrapper
-		// file data
-		if data != nil {
-			wrapper.SetData(data)
-		}
-		// file name
-		if filename != "" {
-			wrapper.SetFilename(filename)
-		}
-		// download URL
-		if url != nil {
-			wrapper.SetURL(url)
-		}
-		// decrypt key
-		if key != nil {
-			wrapper.SetPassword(key)
+	url URL, password DecryptKey,
+) *BaseFileContent {
+	if dict != nil {
+		// init file content with map
+		return &BaseFileContent{
+			BaseContent: NewBaseContent(dict, ""),
+			wrapper:     CreateTransportableFileWrapper(dict, nil, "", nil, nil),
 		}
 	}
+	// new file content
+	if msgType == "" {
+		msgType = ContentType.FILE
+	}
+	content := &BaseFileContent{
+		BaseContent: NewBaseContent(nil, msgType),
+	}
+	content.wrapper = CreateTransportableFileWrapper(content.Map(), data, filename, url, password)
 	return content
 }
 
 // Override
 func (content *BaseFileContent) Map() StringKeyMap {
 	// call wrapper to serialize 'data' & 'key'
-	return content._wrapper.Map()
+	return content.wrapper.Map()
 }
 
 /**
@@ -120,12 +103,12 @@ func (content *BaseFileContent) Map() StringKeyMap {
 
 // Override
 func (content *BaseFileContent) Data() TransportableData {
-	return content._wrapper.Data()
+	return content.wrapper.Data()
 }
 
 // Override
 func (content *BaseFileContent) SetData(data TransportableData) {
-	content._wrapper.SetData(data)
+	content.wrapper.SetData(data)
 }
 
 /**
@@ -134,12 +117,12 @@ func (content *BaseFileContent) SetData(data TransportableData) {
 
 // Override
 func (content *BaseFileContent) Filename() string {
-	return content._wrapper.Filename()
+	return content.wrapper.Filename()
 }
 
 // Override
 func (content *BaseFileContent) SetFilename(filename string) {
-	content._wrapper.SetFilename(filename)
+	content.wrapper.SetFilename(filename)
 }
 
 /**
@@ -148,12 +131,12 @@ func (content *BaseFileContent) SetFilename(filename string) {
 
 // Override
 func (content *BaseFileContent) URL() URL {
-	return content._wrapper.URL()
+	return content.wrapper.URL()
 }
 
 // Override
 func (content *BaseFileContent) SetURL(url URL) {
-	content._wrapper.SetURL(url)
+	content.wrapper.SetURL(url)
 }
 
 /**
@@ -162,10 +145,10 @@ func (content *BaseFileContent) SetURL(url URL) {
 
 // Override
 func (content *BaseFileContent) Password() DecryptKey {
-	return content._wrapper.Password()
+	return content.wrapper.Password()
 }
 
 // Override
 func (content *BaseFileContent) SetPassword(password DecryptKey) {
-	content._wrapper.SetPassword(password)
+	content.wrapper.SetPassword(password)
 }

@@ -51,87 +51,48 @@ import (
  */
 type SecretContent struct {
 	//ForwardContent
-	BaseContent
+	*BaseContent
 
-	_forward ReliableMessage
-	_secrets []ReliableMessage
+	secrets []ReliableMessage
 }
 
-func (content *SecretContent) InitWithMap(dict StringKeyMap) ForwardContent {
-	if content.BaseContent.InitWithMap(dict) != nil {
-		// lazy load
-		content._forward = nil
-		content._secrets = nil
+func NewSecretContent(dict StringKeyMap, messages []ReliableMessage) *SecretContent {
+	return &SecretContent{
+		BaseContent: NewBaseContent(dict, ContentType.FORWARD),
+		secrets:     messages,
 	}
-	return content
-}
-
-func (content *SecretContent) InitWithMessage(msg ReliableMessage) ForwardContent {
-	if content.BaseContent.InitWithType(ContentType.FORWARD) != nil {
-		content._forward = msg
-		content._secrets = nil
-		//content.Set("forward", msg.Map())
-	}
-	return content
-}
-
-func (content *SecretContent) InitWithMessages(messages []ReliableMessage) ForwardContent {
-	if content.BaseContent.InitWithType(ContentType.FORWARD) != nil {
-		content._forward = nil
-		content._secrets = messages
-		//content.Set("secrets", ReliableMessageRevert(messages))
-	}
-	return content
 }
 
 // Override
 func (content *SecretContent) Map() StringKeyMap {
-	msg := content._forward
-	messages := content._secrets
-	if messages != nil {
-		// serialize 'secrets'
-		if !content.Contains("secrets") {
-			content.Set("secrets", ReliableMessageRevert(messages))
-		}
-	} else if msg != nil {
-		// serialize 'forward'
-		if !content.Contains("forward") {
-			content.Set("forward", msg.Map())
-		}
+	// serialize 'secret' messages
+	messages := content.secrets
+	if messages != nil && !content.Contains("secrets") {
+		content.Set("secrets", ReliableMessageRevert(messages))
 	}
 	// OK
 	return content.BaseContent.Map()
 }
 
 // Override
-func (content *SecretContent) ForwardMessage() ReliableMessage {
-	msg := content._forward
-	if msg == nil {
-		info := content.Get("forward")
-		msg = ParseReliableMessage(info)
-		content._forward = msg
-	}
-	return msg
-}
-
-// Override
 func (content *SecretContent) SecretMessages() []ReliableMessage {
-	messages := content._secrets
+	messages := content.secrets
 	if messages == nil {
-		info := content.Get("secrets")
-		if info != nil {
+		secrets := content.Get("secrets")
+		if secrets != nil {
 			// get from secrets
-			messages = ReliableMessageConvert(info)
+			messages = ReliableMessageConvert(secrets)
 		} else {
 			// get from 'forward'
-			msg := content.ForwardMessage()
+			forward := content.Get("forward")
+			msg := ParseReliableMessage(forward)
 			if msg != nil {
 				messages = []ReliableMessage{msg}
 			} else {
 				messages = []ReliableMessage{}
 			}
 		}
-		content._secrets = messages
+		content.secrets = messages
 	}
 	return messages
 }
@@ -151,33 +112,34 @@ func (content *SecretContent) SecretMessages() []ReliableMessage {
  */
 type CombineForwardContent struct {
 	//CombineContent
-	BaseContent
+	*BaseContent
 
-	_history []InstantMessage
+	history []InstantMessage
 }
 
-func (content *CombineForwardContent) InitWithMap(dict StringKeyMap) CombineContent {
-	if content.BaseContent.InitWithMap(dict) != nil {
-		// lazy load
-		content._history = nil
+func NewCombineForwardContent(dict StringKeyMap, title string, messages []InstantMessage) *CombineForwardContent {
+	if dict != nil {
+		// init combine content with map
+		return &CombineForwardContent{
+			BaseContent: NewBaseContent(dict, ""),
+			// lazy load
+			history: nil,
+		}
 	}
-	return content
-}
-
-func (content *CombineForwardContent) Init(title string, messages []InstantMessage) CombineContent {
-	if content.BaseContent.InitWithType(ContentType.COMBINE_FORWARD) != nil {
-		// chat name
-		content.Set("title", title)
-		// chat history
-		content._history = messages // lazy serialize
+	// new combine content
+	content := &CombineForwardContent{
+		BaseContent: NewBaseContent(dict, ContentType.COMBINE_FORWARD),
+		history:     messages,
 	}
+	// chat name
+	content.Set("title", title)
 	return content
 }
 
 // Override
 func (content *CombineForwardContent) Map() StringKeyMap {
 	// serialize 'messages'
-	messages := content._history
+	messages := content.history
 	if messages != nil && !content.Contains("messages") {
 		content.Set("messages", InstantMessageRevert(messages))
 	}
@@ -192,7 +154,7 @@ func (content *CombineForwardContent) Title() string {
 
 // Override
 func (content *CombineForwardContent) Messages() []InstantMessage {
-	messages := content._history
+	messages := content.history
 	if messages == nil {
 		array := content.Get("messages")
 		if array != nil {
@@ -200,7 +162,7 @@ func (content *CombineForwardContent) Messages() []InstantMessage {
 		} else {
 			messages = []InstantMessage{}
 		}
-		content._history = messages
+		content.history = messages
 	}
 	return messages
 }
@@ -219,31 +181,22 @@ func (content *CombineForwardContent) Messages() []InstantMessage {
  */
 type ListContent struct {
 	//ArrayContent
-	BaseContent
+	*BaseContent
 
-	_list []Content
+	list []Content
 }
 
-func (content *ListContent) InitWithMap(dict StringKeyMap) ArrayContent {
-	if content.BaseContent.InitWithMap(dict) != nil {
-		// lazy load
-		content._list = nil
+func NewListContent(dict StringKeyMap, contents []Content) *ListContent {
+	return &ListContent{
+		BaseContent: NewBaseContent(dict, ContentType.ARRAY),
+		list:        contents,
 	}
-	return content
-}
-
-func (content *ListContent) Init(contents []Content) ArrayContent {
-	if content.BaseContent.InitWithType(ContentType.ARRAY) != nil {
-		// content list
-		content._list = contents // lazy serialize
-	}
-	return content
 }
 
 // Override
 func (content *ListContent) Map() StringKeyMap {
 	// serialize 'contents'
-	contents := content._list
+	contents := content.list
 	if contents != nil && !content.Contains("contents") {
 		content.Set("contents", ContentRevert(contents))
 	}
@@ -253,7 +206,7 @@ func (content *ListContent) Map() StringKeyMap {
 
 // Override
 func (content *ListContent) Contents() []Content {
-	contents := content._list
+	contents := content.list
 	if contents == nil {
 		array := content.Get("contents")
 		if array != nil {
@@ -261,7 +214,7 @@ func (content *ListContent) Contents() []Content {
 		} else {
 			contents = []Content{}
 		}
-		content._list = contents
+		content.list = contents
 	}
 	return contents
 }

@@ -69,6 +69,13 @@ type TransportableFileWrapper interface {
 	SetPassword(password DecryptKey)
 }
 
+func CreateTransportableFileWrapper(content StringKeyMap,
+	data TransportableData, filename string, url URL, password DecryptKey,
+) TransportableFileWrapper {
+	factory := sharedTransportableFileWrapperFactory
+	return factory.CreateTransportableFileWrapper(content, data, filename, url, password)
+}
+
 /**
  *  Wrapper Factory
  */
@@ -76,7 +83,7 @@ type TransportableFileWrapperFactory interface {
 
 	// Create PNF Wrapper
 	CreateTransportableFileWrapper(content StringKeyMap,
-		data TransportableData, filename string, url URL, key DecryptKey,
+		data TransportableData, filename string, url URL, password DecryptKey,
 	) TransportableFileWrapper
 }
 
@@ -134,7 +141,7 @@ type PortableNetworkFileWrapper struct {
 }
 
 func NewPortableNetworkFileWrapper(dict StringKeyMap,
-	data TransportableData, filename string, url URL, key DecryptKey,
+	data TransportableData, filename string, url URL, password DecryptKey,
 ) *PortableNetworkFileWrapper {
 	if filename != "" {
 		dict["filename"] = filename
@@ -146,7 +153,7 @@ func NewPortableNetworkFileWrapper(dict StringKeyMap,
 		dictionary: dict,
 		attachment: data,
 		remoteURL:  url,
-		password:   key,
+		password:   password,
 	}
 }
 

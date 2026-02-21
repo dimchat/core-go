@@ -40,8 +40,7 @@ import (
 )
 
 func NewContentWithMap(dict StringKeyMap) Content {
-	content := &BaseContent{}
-	return content.InitWithMap(dict)
+	return NewBaseContent(dict, "")
 }
 
 /**
@@ -57,14 +56,11 @@ func NewContentWithMap(dict StringKeyMap) Content {
  *  </pre></blockquote>
  */
 func NewTextContent(text string) TextContent {
-	content := &BaseTextContent{}
-	return content.Init(text)
+	return NewBaseTextContent(nil, text)
 }
 
-func NewTextContentWithMap(dict StringKeyMap) TextContent {
-	content := &BaseTextContent{}
-	content.InitWithMap(dict)
-	return content
+func NewTextContentWithMap(dict StringKeyMap) Content {
+	return NewBaseTextContent(dict, "")
 }
 
 /**
@@ -83,13 +79,11 @@ func NewTextContentWithMap(dict StringKeyMap) TextContent {
  *  </pre></blockquote>
  */
 func NewNameCard(did ID, name string, avatar TransportableFile) NameCard {
-	content := &NameCardContent{}
-	return content.Init(did, name, avatar)
+	return NewNameCardContent(nil, did, name, avatar)
 }
 
-func NewNameCardWithMap(dict StringKeyMap) NameCard {
-	content := &NameCardContent{}
-	return content.InitWithMap(dict)
+func NewNameCardWithMap(dict StringKeyMap) Content {
+	return NewNameCardContent(dict, nil, "", nil)
 }
 
 /**
@@ -114,17 +108,14 @@ func NewNameCardWithMap(dict StringKeyMap) NameCard {
  *  </pre></blockquote>
  */
 func NewPageContentWithURL(url URL, title string, icon TransportableFile, desc string) PageContent {
-	content := &WebPageContent{}
-	return content.Init(title, icon, desc, url, "")
+	return NewWebPageContent(nil, title, icon, desc, url, "")
 }
 func NewPageContentWithHTML(html string, title string, icon TransportableFile, desc string) PageContent {
-	content := &WebPageContent{}
-	return content.Init(title, icon, desc, nil, html)
+	return NewWebPageContent(nil, title, icon, desc, nil, html)
 }
 
-func NewPageContentWithMap(dict StringKeyMap) PageContent {
-	content := &WebPageContent{}
-	return content.InitWithMap(dict)
+func NewPageContentWithMap(dict StringKeyMap) Content {
+	return NewWebPageContent(dict, "", nil, "", nil, "")
 }
 
 /**
@@ -141,18 +132,16 @@ func NewPageContentWithMap(dict StringKeyMap) PageContent {
  *  </pre></blockquote>
  */
 func NewForwardMessage(msg ReliableMessage) ForwardContent {
-	content := &SecretContent{}
-	return content.InitWithMessage(msg)
+	messages := []ReliableMessage{msg}
+	return NewSecretContent(nil, messages)
 }
 
 func NewForwardMessages(messages []ReliableMessage) ForwardContent {
-	content := &SecretContent{}
-	return content.InitWithMessages(messages)
+	return NewSecretContent(nil, messages)
 }
 
-func NewForwardContentWithMap(dict StringKeyMap) ForwardContent {
-	content := &SecretContent{}
-	return content.InitWithMap(dict)
+func NewForwardContentWithMap(dict StringKeyMap) Content {
+	return NewSecretContent(dict, nil)
 }
 
 /**
@@ -169,13 +158,11 @@ func NewForwardContentWithMap(dict StringKeyMap) ForwardContent {
  *  </pre></blockquote>
  */
 func NewCombineMessages(title string, messages []InstantMessage) CombineContent {
-	content := &CombineForwardContent{}
-	return content.Init(title, messages)
+	return NewCombineForwardContent(nil, title, messages)
 }
 
-func NewCombineContentWithMap(dict StringKeyMap) CombineContent {
-	content := &CombineForwardContent{}
-	return content.InitWithMap(dict)
+func NewCombineContentWithMap(dict StringKeyMap) Content {
+	return NewCombineForwardContent(dict, "", nil)
 }
 
 /**
@@ -191,13 +178,11 @@ func NewCombineContentWithMap(dict StringKeyMap) CombineContent {
  *  </pre></blockquote>
  */
 func NewArrayContent(contents []Content) ArrayContent {
-	content := &ListContent{}
-	return content.Init(contents)
+	return NewListContent(nil, contents)
 }
 
-func NewArrayContentWithMap(dict StringKeyMap) ArrayContent {
-	content := &ListContent{}
-	return content.InitWithMap(dict)
+func NewArrayContentWithMap(dict StringKeyMap) Content {
+	return NewListContent(dict, nil)
 }
 
 /**
@@ -222,78 +207,69 @@ func NewArrayContentWithMap(dict StringKeyMap) ArrayContent {
  *  }
  *  </pre></blockquote>
  */
-func NewFileContent(data TransportableData, filename string, url URL, key DecryptKey) FileContent {
-	content := &BaseFileContent{}
-	return content.InitWithType(ContentType.FILE, data, filename, url, key)
+func NewFileContent(data TransportableData, filename string, url URL, password DecryptKey) FileContent {
+	return NewBaseFileContent(nil, "", data, filename, url, password)
 }
 func NewFileContentWithData(data TransportableData, filename string) FileContent {
-	return NewFileContent(data, filename, nil, nil)
+	return NewBaseFileContent(nil, "", data, filename, nil, nil)
 }
-func NewFileContentWithURL(url URL, key DecryptKey) FileContent {
-	return NewFileContent(nil, "", url, key)
+func NewFileContentWithURL(url URL, password DecryptKey) FileContent {
+	return NewBaseFileContent(nil, "", nil, "", url, password)
 }
 
-func NewFileContentWithMap(dict StringKeyMap) FileContent {
-	content := &BaseFileContent{}
-	return content.InitWithMap(dict)
+func NewFileContentWithMap(dict StringKeyMap) Content {
+	return NewBaseFileContent(dict, "", nil, "", nil, nil)
 }
 
 /**
  *  Image Content
  */
-func NewImageContent(data TransportableData, filename string, url URL, key DecryptKey) ImageContent {
-	content := &ImageFileContent{}
-	return content.Init(data, filename, url, key)
+func NewImageContent(data TransportableData, filename string, url URL, password DecryptKey) ImageContent {
+	return NewImageFileContent(nil, data, filename, url, password, nil)
 }
 func NewImageContentWithData(data TransportableData, filename string) ImageContent {
-	return NewImageContent(data, filename, nil, nil)
+	return NewImageFileContent(nil, data, filename, nil, nil, nil)
 }
-func NewImageContentWithURL(url URL, key DecryptKey) ImageContent {
-	return NewImageContent(nil, "", url, key)
+func NewImageContentWithURL(url URL, password DecryptKey) ImageContent {
+	return NewImageFileContent(nil, nil, "", url, password, nil)
 }
 
-func NewImageContentWithMap(dict StringKeyMap) ImageContent {
-	content := &ImageFileContent{}
-	return content.InitWithMap(dict)
+func NewImageContentWithMap(dict StringKeyMap) Content {
+	return NewImageFileContent(dict, nil, "", nil, nil, nil)
 }
 
 /**
  *  Audio Content
  */
-func NewAudioContent(data TransportableData, filename string, url URL, key DecryptKey) AudioContent {
-	content := &AudioFileContent{}
-	return content.Init(data, filename, url, key)
+func NewAudioContent(data TransportableData, filename string, url URL, password DecryptKey) AudioContent {
+	return NewAudioFileContent(nil, data, filename, url, password)
 }
 func NewAudioContentWithData(data TransportableData, filename string) AudioContent {
-	return NewAudioContent(data, filename, nil, nil)
+	return NewAudioFileContent(nil, data, filename, nil, nil)
 }
-func NewAudioContentWithURL(url URL, key DecryptKey) AudioContent {
-	return NewAudioContent(nil, "", url, key)
+func NewAudioContentWithURL(url URL, password DecryptKey) AudioContent {
+	return NewAudioFileContent(nil, nil, "", url, password)
 }
 
-func NewAudioContentWithMap(dict StringKeyMap) AudioContent {
-	content := &AudioFileContent{}
-	content.InitWithMap(dict)
-	return content
+func NewAudioContentWithMap(dict StringKeyMap) Content {
+	return NewAudioFileContent(dict, nil, "", nil, nil)
 }
 
 /**
  *  Video Content
  */
-func NewVideoContent(data TransportableData, filename string, url URL, key DecryptKey) VideoContent {
-	content := &VideoFileContent{}
-	return content.Init(data, filename, url, key)
+func NewVideoContent(data TransportableData, filename string, url URL, password DecryptKey) VideoContent {
+	return NewVideoFileContent(nil, data, filename, url, password, nil)
 }
 func NewVideoContentWithData(data TransportableData, filename string) VideoContent {
-	return NewVideoContent(data, filename, nil, nil)
+	return NewVideoFileContent(nil, data, filename, nil, nil, nil)
 }
-func NewVideoContentWithURL(url URL, key DecryptKey) VideoContent {
-	return NewVideoContent(nil, "", url, key)
+func NewVideoContentWithURL(url URL, password DecryptKey) VideoContent {
+	return NewVideoFileContent(nil, nil, "", url, password, nil)
 }
 
-func NewVideoContentWithMap(dict StringKeyMap) VideoContent {
-	content := &VideoFileContent{}
-	return content.InitWithMap(dict)
+func NewVideoContentWithMap(dict StringKeyMap) Content {
+	return NewVideoFileContent(dict, nil, "", nil, nil, nil)
 }
 
 /**
@@ -310,25 +286,19 @@ func NewVideoContentWithMap(dict StringKeyMap) VideoContent {
  *  </pre></blockquote>
  */
 func NewMoneyContent(currency string, amount float64) MoneyContent {
-	content := &BaseMoneyContent{}
-	return content.Init(currency, amount)
+	return NewBaseMoneyContent(nil, "", currency, amount)
 }
 
-func NewMoneyContentWithMap(dict StringKeyMap) MoneyContent {
-	content := &BaseMoneyContent{}
-	content.InitWithMap(dict)
-	return content
+func NewMoneyContentWithMap(dict StringKeyMap) Content {
+	return NewBaseMoneyContent(dict, "", "", 0)
 }
 
 func NewTransferContent(currency string, amount float64) TransferContent {
-	content := &TransferMoneyContent{}
-	return content.Init(currency, amount)
+	return NewTransferMoneyContent(nil, currency, amount)
 }
 
-func NewTransferContentWithMap(dict StringKeyMap) TransferContent {
-	content := &TransferMoneyContent{}
-	content.InitWithMap(dict)
-	return content
+func NewTransferContentWithMap(dict StringKeyMap) Content {
+	return NewTransferMoneyContent(dict, "", 0)
 }
 
 /**
@@ -352,13 +322,11 @@ func NewTransferContentWithMap(dict StringKeyMap) TransferContent {
  */
 func NewQuoteContent(text string, head Envelope, body Content) QuoteContent {
 	origin := PurifyForQuote(head, body)
-	content := &BaseQuoteContent{}
-	return content.Init(text, origin)
+	return NewBaseQuoteContent(nil, text, origin)
 }
 
-func NewQuoteContentWithMap(dict StringKeyMap) QuoteContent {
-	content := &BaseQuoteContent{}
-	return content.InitWithMap(dict)
+func NewQuoteContentWithMap(dict StringKeyMap) Content {
+	return NewBaseQuoteContent(dict, "", nil)
 }
 
 /**
@@ -377,12 +345,9 @@ func NewQuoteContentWithMap(dict StringKeyMap) QuoteContent {
  *  </pre></blockquote>
  */
 func NewCustomizedContent(app, mod, act string) CustomizedContent {
-	content := &AppCustomizedContent{}
-	return content.Init(app, mod, act)
+	return NewAppCustomizedContent(nil, "", app, mod, act)
 }
 
-func NewCustomizedContentWithMap(dict StringKeyMap) CustomizedContent {
-	content := &AppCustomizedContent{}
-	content.InitWithMap(dict)
-	return content
+func NewCustomizedContentWithMap(dict StringKeyMap) Content {
+	return NewAppCustomizedContent(dict, "", "", "", "")
 }

@@ -30,9 +30,7 @@
  */
 package protocol
 
-import (
-	. "github.com/dimchat/dkd-go/protocol"
-)
+import . "github.com/dimchat/dkd-go/protocol"
 
 /**
  *  Top-Secret Content
@@ -49,9 +47,6 @@ import (
  */
 type ForwardContent interface {
 	Content
-
-	// forward message
-	ForwardMessage() ReliableMessage
 
 	// secret messages
 	SecretMessages() []ReliableMessage

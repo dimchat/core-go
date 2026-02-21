@@ -44,11 +44,23 @@ type PortableNetworkFile struct {
 	wrapper TransportableFileWrapper
 }
 
-func NewPortableNetworkFile(dict StringKeyMap, wrapper TransportableFileWrapper) *PortableNetworkFile {
-	return &PortableNetworkFile{
-		Dictionary: NewDictionary(dict),
-		wrapper:    wrapper,
+func NewPortableNetworkFile(dict StringKeyMap,
+	data TransportableData, filename string,
+	url URL, password DecryptKey,
+) *PortableNetworkFile {
+	if dict != nil {
+		// init PNF with map
+		return &PortableNetworkFile{
+			Dictionary: NewDictionary(dict),
+			wrapper:    CreateTransportableFileWrapper(dict, nil, "", nil, nil),
+		}
 	}
+	// new PNF
+	pnf := &PortableNetworkFile{
+		Dictionary: NewDictionary(nil),
+	}
+	pnf.wrapper = CreateTransportableFileWrapper(pnf.Map(), data, filename, url, password)
+	return pnf
 }
 
 func (pnf *PortableNetworkFile) getURIString() string {

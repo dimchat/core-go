@@ -52,7 +52,7 @@ type EncodeData interface {
 }
 
 type BaseData struct {
-	//TransportableData
+	//EncodeData
 
 	encoded string // encoded string
 	bytes   []byte // decoded bytes
@@ -139,17 +139,17 @@ func dataEquals(self, other EncodeData) bool {
 	if other == nil || other.IsEmpty() {
 		return self.IsEmpty()
 	}
-	// compare with inner bytes
-	thisBytes := self.DecodedBytes()
-	thatBytes := other.DecodedBytes()
-	if thisBytes != nil && thatBytes != nil {
-		return bytes.Equal(thisBytes, thatBytes)
-	}
 	// compare with inner string
 	thisString := self.EncodedString()
 	thatString := other.EncodedString()
 	if thisString != "" && thatString != "" {
 		return thisString == thatString
+	}
+	// compare with inner bytes
+	thisBytes := self.DecodedBytes()
+	thatBytes := other.DecodedBytes()
+	if thisBytes != nil && thatBytes != nil {
+		return bytes.Equal(thisBytes, thatBytes)
 	}
 	// compare with decoded bytes
 	thisBytes = self.Bytes()
@@ -161,12 +161,14 @@ func tedEquals(self EncodeData, other TransportableData) bool {
 	if other == nil || other.IsEmpty() {
 		return self.IsEmpty()
 	}
-	// compare with inner bytes
-	thisBytes := self.DecodedBytes()
-	if thisBytes != nil {
-		return bytes.Equal(thisBytes, other.Bytes())
-	}
-	// compare with inner string
+	// compare with encoded string
 	thisString := self.EncodedString()
-	return thisString == other.String()
+	if thisString != "" {
+		thatString := other.String()
+		return thisString == thatString
+	}
+	// compare with decoded bytes
+	thisBytes := self.DecodedBytes()
+	thatBytes := other.Bytes()
+	return bytes.Equal(thisBytes, thatBytes)
 }

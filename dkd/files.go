@@ -63,33 +63,25 @@ import (
  */
 type ImageFileContent struct {
 	//ImageContent
-	BaseFileContent
+	*BaseFileContent
 
-	_thumbnail TransportableFile
+	thumbnail TransportableFile
 }
 
-func (content *ImageFileContent) InitWithMap(dict StringKeyMap) ImageContent {
-	if content.BaseFileContent.InitWithMap(dict) != nil {
-		// lazy load
-		content._thumbnail = nil
+func NewImageFileContent(dict StringKeyMap,
+	data TransportableData, filename string, url URL, password DecryptKey,
+	thumbnail TransportableFile,
+) *ImageFileContent {
+	return &ImageFileContent{
+		BaseFileContent: NewBaseFileContent(dict, ContentType.IMAGE, data, filename, url, password),
+		thumbnail:       thumbnail,
 	}
-	return content
-}
-
-func (content *ImageFileContent) Init(
-	data TransportableData, filename string,
-	url URL, key DecryptKey,
-) ImageContent {
-	if content.BaseFileContent.InitWithType(ContentType.IMAGE, data, filename, url, key) != nil {
-		content._thumbnail = nil
-	}
-	return content
 }
 
 // Override
 func (content *ImageFileContent) Map() StringKeyMap {
 	// serialize 'thumbnail'
-	img := content._thumbnail
+	img := content.thumbnail
 	if img != nil && !content.Contains("thumbnail") {
 		content.Set("thumbnail", img.Serialize())
 	}
@@ -99,11 +91,11 @@ func (content *ImageFileContent) Map() StringKeyMap {
 
 // Override
 func (content *ImageFileContent) Thumbnail() TransportableFile {
-	img := content._thumbnail
+	img := content.thumbnail
 	if img == nil {
 		uri := content.Get("thumbnail")
 		img = ParseTransportableFile(uri)
-		content._thumbnail = img
+		content.thumbnail = img
 	}
 	return img
 }
@@ -112,7 +104,7 @@ func (content *ImageFileContent) Thumbnail() TransportableFile {
 func (content *ImageFileContent) SetThumbnail(thumbnail TransportableFile) {
 	content.Remove("thumbnail")
 	//content.SetMapper("thumbnail", thumbnail)
-	content._thumbnail = thumbnail
+	content.thumbnail = thumbnail
 }
 
 /**
@@ -141,16 +133,15 @@ func (content *ImageFileContent) SetThumbnail(thumbnail TransportableFile) {
  */
 type AudioFileContent struct {
 	//AudioContent
-	BaseFileContent
+	*BaseFileContent
 }
 
-func (content *AudioFileContent) Init(
-	data TransportableData, filename string,
-	url URL, key DecryptKey,
-) AudioContent {
-	if content.BaseFileContent.InitWithType(ContentType.AUDIO, data, filename, url, key) != nil {
+func NewAudioFileContent(dict StringKeyMap,
+	data TransportableData, filename string, url URL, password DecryptKey,
+) *AudioFileContent {
+	return &AudioFileContent{
+		BaseFileContent: NewBaseFileContent(dict, ContentType.AUDIO, data, filename, url, password),
 	}
-	return content
 }
 
 // Override
@@ -202,33 +193,25 @@ func (content *AudioFileContent) SetText(text string) {
  */
 type VideoFileContent struct {
 	//VideoContent
-	BaseFileContent
+	*BaseFileContent
 
-	_snapshot TransportableFile
+	snapshot TransportableFile
 }
 
-func (content *VideoFileContent) InitWithMap(dict StringKeyMap) VideoContent {
-	if content.BaseFileContent.InitWithMap(dict) != nil {
-		// lazy load
-		content._snapshot = nil
+func NewVideoFileContent(dict StringKeyMap,
+	data TransportableData, filename string, url URL, password DecryptKey,
+	snapshot TransportableFile,
+) *VideoFileContent {
+	return &VideoFileContent{
+		BaseFileContent: NewBaseFileContent(dict, ContentType.VIDEO, data, filename, url, password),
+		snapshot:        snapshot,
 	}
-	return content
-}
-
-func (content *VideoFileContent) Init(
-	data TransportableData, filename string,
-	url URL, key DecryptKey,
-) VideoContent {
-	if content.BaseFileContent.InitWithType(ContentType.VIDEO, data, filename, url, key) != nil {
-		content._snapshot = nil
-	}
-	return content
 }
 
 // Override
 func (content *VideoFileContent) Map() StringKeyMap {
 	// serialize 'snapshot'
-	img := content._snapshot
+	img := content.snapshot
 	if img != nil && !content.Contains("snapshot") {
 		content.Set("snapshot", img.Serialize())
 	}
@@ -238,11 +221,11 @@ func (content *VideoFileContent) Map() StringKeyMap {
 
 // Override
 func (content *VideoFileContent) Snapshot() TransportableFile {
-	img := content._snapshot
+	img := content.snapshot
 	if img == nil {
 		uri := content.Get("snapshot")
 		img = ParseTransportableFile(uri)
-		content._snapshot = img
+		content.snapshot = img
 	}
 	return img
 }
@@ -251,5 +234,5 @@ func (content *VideoFileContent) Snapshot() TransportableFile {
 func (content *VideoFileContent) SetSnapshot(snapshot TransportableFile) {
 	content.Remove("snapshot")
 	//content.SetMapper("snapshot", snapshot)
-	content._snapshot = snapshot
+	content.snapshot = snapshot
 }

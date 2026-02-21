@@ -61,34 +61,37 @@ import (
  */
 type BaseReceiptCommand struct {
 	//ReceiptCommand
-	BaseCommand
+	*BaseCommand
 
 	/**
 	 *  original message envelope
 	 */
-	_envelope Envelope
+	envelope Envelope
 }
 
-func (content *BaseReceiptCommand) InitWithMap(dict StringKeyMap) ReceiptCommand {
-	if content.BaseCommand.InitWithMap(dict) != nil {
-		// lazy load
-		content._envelope = nil
-	}
-	return content
-}
-
-func (content *BaseReceiptCommand) Init(text string, origin StringKeyMap) ReceiptCommand {
-	if content.BaseCommand.Init(RECEIPT) != nil {
-		// text message
-		content.Set("text", text)
-		// original envelope of message responding to,
-		// includes 'sn' and 'signature'
-		if origin != nil {
-			content.Set("origin", origin)
+func NewBaseReceiptCommand(dict StringKeyMap, text string, origin StringKeyMap) *BaseReceiptCommand {
+	if dict != nil {
+		// init receipt command with map
+		return &BaseReceiptCommand{
+			BaseCommand: NewBaseCommand(dict, "", ""),
+			// lazy load
+			envelope: nil,
 		}
-		// lazy load
-		content._envelope = nil
 	}
+	// new receipt command
+	content := &BaseReceiptCommand{
+		BaseCommand: NewBaseCommand(nil, "", RECEIPT),
+		// lazy load
+		envelope: nil,
+	}
+	// text message
+	content.Set("text", text)
+	// original envelope of message responding to,
+	// includes 'sn' and 'signature'
+	if origin != nil {
+		content.Set("origin", origin)
+	}
+	// OK
 	return content
 }
 
@@ -111,11 +114,11 @@ func (content *BaseReceiptCommand) Origin() StringKeyMap {
 
 // Override
 func (content *BaseReceiptCommand) OriginalEnvelope() Envelope {
-	env := content._envelope
+	env := content.envelope
 	if env == nil {
 		origin := content.Origin()
 		env = ParseEnvelope(origin)
-		content._envelope = env
+		content.envelope = env
 	}
 	return env
 }

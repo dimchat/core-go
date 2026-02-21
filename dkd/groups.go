@@ -33,6 +33,7 @@ package dkd
 import (
 	. "github.com/dimchat/core-go/protocol"
 	. "github.com/dimchat/mkm-go/protocol"
+	. "github.com/dimchat/mkm-go/types"
 )
 
 /**
@@ -51,13 +52,13 @@ import (
  */
 type BaseHistoryCommand struct {
 	//HistoryCommand
-	BaseCommand
+	*BaseCommand
 }
 
-func (content *BaseHistoryCommand) Init(cmd string) HistoryCommand {
-	if content.BaseCommand.InitWithType(ContentType.HISTORY, cmd) != nil {
+func NewBaseHistoryCommand(dict StringKeyMap, cmd string) *BaseHistoryCommand {
+	return &BaseHistoryCommand{
+		BaseCommand: NewBaseCommand(dict, ContentType.HISTORY, cmd),
 	}
-	return content
 }
 
 /**
@@ -78,15 +79,19 @@ func (content *BaseHistoryCommand) Init(cmd string) HistoryCommand {
  */
 type BaseGroupCommand struct {
 	//GroupCommand
-	BaseHistoryCommand
+	*BaseCommand
+	//*BaseHistoryCommand
 }
 
-func (content *BaseGroupCommand) Init(cmd string, group ID, members []ID) GroupCommand {
-	if content.BaseHistoryCommand.Init(cmd) != nil {
+func NewBaseGroupCommand(dict StringKeyMap, cmd string, group ID, members []ID) *BaseGroupCommand {
+	content := &BaseGroupCommand{
+		BaseCommand: NewBaseCommand(dict, ContentType.HISTORY, cmd),
+	}
+	if group != nil {
 		content.SetGroup(group)
-		if members != nil {
-			content.SetMembers(members)
-		}
+	}
+	if members != nil {
+		content.SetMembers(members)
 	}
 	return content
 }
@@ -119,13 +124,13 @@ func (content *BaseGroupCommand) SetMembers(members []ID) {
 
 type InviteGroupCommand struct {
 	//InviteCommand
-	BaseGroupCommand
+	*BaseGroupCommand
 }
 
-func (content *InviteGroupCommand) Init(group ID, members []ID) InviteCommand {
-	if content.BaseGroupCommand.Init(INVITE, group, members) != nil {
+func NewInviteGroupCommand(dict StringKeyMap, group ID, members []ID) *InviteGroupCommand {
+	return &InviteGroupCommand{
+		BaseGroupCommand: NewBaseGroupCommand(dict, INVITE, group, members),
 	}
-	return content
 }
 
 /**
@@ -133,24 +138,24 @@ func (content *InviteGroupCommand) Init(group ID, members []ID) InviteCommand {
  */
 type ExpelGroupCommand struct {
 	//ExpelCommand
-	BaseGroupCommand
+	*BaseGroupCommand
 }
 
-func (content *ExpelGroupCommand) Init(group ID, members []ID) ExpelCommand {
-	if content.BaseGroupCommand.Init(EXPEL, group, members) != nil {
+func NewExpelGroupCommand(dict StringKeyMap, group ID, members []ID) *ExpelGroupCommand {
+	return &ExpelGroupCommand{
+		BaseGroupCommand: NewBaseGroupCommand(dict, EXPEL, group, members),
 	}
-	return content
 }
 
 type JoinGroupCommand struct {
 	//JoinCommand
-	BaseGroupCommand
+	*BaseGroupCommand
 }
 
-func (content *JoinGroupCommand) Init(group ID) JoinCommand {
-	if content.BaseGroupCommand.Init(JOIN, group, nil) != nil {
+func NewJoinGroupCommand(dict StringKeyMap, group ID) *JoinGroupCommand {
+	return &JoinGroupCommand{
+		BaseGroupCommand: NewBaseGroupCommand(dict, JOIN, group, nil),
 	}
-	return content
 }
 
 // Override
@@ -160,13 +165,13 @@ func (content *JoinGroupCommand) Ask() string {
 
 type QuitGroupCommand struct {
 	//QuitCommand
-	BaseGroupCommand
+	*BaseGroupCommand
 }
 
-func (content *QuitGroupCommand) Init(group ID) QuitCommand {
-	if content.BaseGroupCommand.Init(QUIT, group, nil) != nil {
+func NewQuitGroupCommand(dict StringKeyMap, group ID) *QuitGroupCommand {
+	return &QuitGroupCommand{
+		BaseGroupCommand: NewBaseGroupCommand(dict, QUIT, group, nil),
 	}
-	return content
 }
 
 // Override
@@ -176,11 +181,11 @@ func (content *QuitGroupCommand) Bye() string {
 
 type ResetGroupCommand struct {
 	//ResetCommand
-	BaseGroupCommand
+	*BaseGroupCommand
 }
 
-func (content *ResetGroupCommand) Init(group ID, members []ID) ResetCommand {
-	if content.BaseGroupCommand.Init(RESET, group, members) != nil {
+func NewResetGroupCommand(dict StringKeyMap, group ID, members []ID) *ResetGroupCommand {
+	return &ResetGroupCommand{
+		BaseGroupCommand: NewBaseGroupCommand(dict, RESET, group, members),
 	}
-	return content
 }

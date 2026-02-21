@@ -34,6 +34,7 @@ import (
 	. "github.com/dimchat/core-go/protocol"
 	. "github.com/dimchat/dkd-go/protocol"
 	. "github.com/dimchat/mkm-go/protocol"
+	. "github.com/dimchat/mkm-go/types"
 )
 
 /**
@@ -51,19 +52,26 @@ import (
  */
 type BaseMoneyContent struct {
 	//MoneyContent
-	BaseContent
+	*BaseContent
 }
 
-func (content *BaseMoneyContent) InitWithType(msgType MessageType, currency string, amount float64) MoneyContent {
-	if content.BaseContent.InitWithType(msgType) != nil {
-		content.Set("currency", currency)
-		content.Set("amount", amount)
+func NewBaseMoneyContent(dict StringKeyMap, msgType MessageType, currency string, amount float64) *BaseMoneyContent {
+	if dict != nil {
+		// init money content with map
+		return &BaseMoneyContent{
+			BaseContent: NewBaseContent(dict, ""),
+		}
 	}
+	// new money content
+	if msgType == "" {
+		msgType = ContentType.MONEY
+	}
+	content := &BaseMoneyContent{
+		BaseContent: NewBaseContent(nil, msgType),
+	}
+	content.Set("currency", currency)
+	content.Set("amount", amount)
 	return content
-}
-
-func (content *BaseMoneyContent) Init(currency string, amount float64) MoneyContent {
-	return content.InitWithType(ContentType.MONEY, currency, amount)
 }
 
 // Override
@@ -98,13 +106,13 @@ func (content *BaseMoneyContent) SetAmount(amount float64) {
  */
 type TransferMoneyContent struct {
 	//TransferContent
-	BaseMoneyContent
+	*BaseMoneyContent
 }
 
-func (content *TransferMoneyContent) Init(currency string, amount float64) TransferContent {
-	if content.BaseMoneyContent.InitWithType(ContentType.TRANSFER, currency, amount) != nil {
+func NewTransferMoneyContent(dict StringKeyMap, currency string, amount float64) *TransferMoneyContent {
+	return &TransferMoneyContent{
+		BaseMoneyContent: NewBaseMoneyContent(dict, ContentType.TRANSFER, currency, amount),
 	}
-	return content
 }
 
 // Override

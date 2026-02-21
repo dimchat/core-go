@@ -50,13 +50,21 @@ import (
  */
 type BaseTextContent struct {
 	//TextContent
-	BaseContent
+	*BaseContent
 }
 
-func (content *BaseTextContent) Init(text string) TextContent {
-	if content.InitWithType(ContentType.TEXT) != nil {
-		content.Set("text", text)
+func NewBaseTextContent(dict StringKeyMap, text string) *BaseTextContent {
+	if dict != nil {
+		// init text content with map
+		return &BaseTextContent{
+			BaseContent: NewBaseContent(dict, ""),
+		}
 	}
+	// new text content
+	content := &BaseTextContent{
+		BaseContent: NewBaseContent(nil, ContentType.TEXT),
+	}
+	content.Set("text", text)
 	return content
 }
 
@@ -88,40 +96,42 @@ func (content *BaseTextContent) Text() string {
  */
 type WebPageContent struct {
 	//PageContent
-	BaseContent
+	*BaseContent
 
 	// small image
-	_icon TransportableFile
+	icon TransportableFile
 
 	// web URL
-	_url URL
+	url URL
 }
 
-func (content *WebPageContent) InitWithMap(dict StringKeyMap) PageContent {
-	if content.BaseContent.InitWithMap(dict) != nil {
-		// lazy load
-		content._icon = nil
-		content._url = nil
+func NewWebPageContent(dict StringKeyMap,
+	title string, icon TransportableFile, desc string,
+	url URL, html string,
+) *WebPageContent {
+	if dict != nil {
+		// init page content with map
+		return &WebPageContent{
+			BaseContent: NewBaseContent(dict, ""),
+			// lazy load
+			icon: nil,
+			url:  nil,
+		}
 	}
-	return content
-}
-
-func (content *WebPageContent) Init(
-	title string,
-	icon TransportableFile,
-	desc string,
-	url URL,
-	html string,
-) PageContent {
-	if content.BaseContent.InitWithType(ContentType.PAGE) != nil {
-
-		content.SetTitle(title)
-		content.SetIcon(icon)
-
-		content.SetDescription(desc)
-
-		content.SetURL(url)
-		content.SetHTML(html)
+	// new page content
+	content := &WebPageContent{
+		BaseContent: NewBaseContent(nil, ContentType.PAGE),
+		icon:        icon,
+		url:         url,
+	}
+	content.Set("title", title)
+	//content.Set("icon", icon.Serialize())
+	content.Set("desc", desc)
+	if url != nil {
+		content.Set("URL", url.String())
+	}
+	if html != "" {
+		content.Set("HTML", html)
 	}
 	return content
 }
@@ -129,7 +139,7 @@ func (content *WebPageContent) Init(
 // Override
 func (content *WebPageContent) Map() StringKeyMap {
 	// serialize 'icon'
-	img := content._icon
+	img := content.icon
 	if img != nil && !content.Contains("icon") {
 		content.Set("icon", img.Serialize())
 	}
@@ -149,11 +159,11 @@ func (content *WebPageContent) SetTitle(title string) {
 
 // Override
 func (content *WebPageContent) Icon() TransportableFile {
-	img := content._icon
+	img := content.icon
 	if img == nil {
 		url := content.Get("icon")
 		img = ParseTransportableFile(url)
-		content._icon = img
+		content.icon = img
 	}
 	return img
 }
@@ -162,7 +172,7 @@ func (content *WebPageContent) Icon() TransportableFile {
 func (content *WebPageContent) SetIcon(img TransportableFile) {
 	content.Remove("icon")
 	//content.SetMapper("icon", img)
-	content._icon = img
+	content.icon = img
 }
 
 // Override
@@ -177,12 +187,12 @@ func (content *WebPageContent) SetDescription(desc string) {
 
 // Override
 func (content *WebPageContent) URL() URL {
-	url := content._url
+	url := content.url
 	if url == nil {
 		text := content.GetString("URL", "")
 		if text != "" {
 			url = ParseURL(text)
-			content._url = url
+			content.url = url
 		}
 	}
 	return url
@@ -195,12 +205,12 @@ func (content *WebPageContent) SetURL(url URL) {
 
 // Override
 func (content *WebPageContent) HTML() string {
-	return content.GetString("html", "")
+	return content.GetString("HTML", "")
 }
 
 // Override
 func (content *WebPageContent) SetHTML(html string) {
-	content.Set("html", html)
+	content.Set("HTML", html)
 }
 
 /**
@@ -220,35 +230,38 @@ func (content *WebPageContent) SetHTML(html string) {
  */
 type NameCardContent struct {
 	//NameCard
-	BaseContent
+	*BaseContent
 
-	_image TransportableFile
+	image TransportableFile
 }
 
-func (content *NameCardContent) InitWithMap(dict StringKeyMap) NameCard {
-	if content.BaseContent.InitWithMap(dict) != nil {
-		// lazy load
-		content._image = nil
+func NewNameCardContent(dict StringKeyMap, did ID, name string, avatar TransportableFile) *NameCardContent {
+	if dict != nil {
+		// init name card with map
+		return &NameCardContent{
+			BaseContent: NewBaseContent(dict, ""),
+			// lazy load
+			image: nil,
+		}
 	}
-	return content
-}
-
-func (content *NameCardContent) Init(did ID, name string, avatar TransportableFile) NameCard {
-	if content.BaseContent.InitWithType(ContentType.NAME_CARD) != nil {
-		// ID
-		content.Set("did", did.String())
-		// name
-		content.Set("name", name)
-		// avatar
-		content._image = avatar // lazy serialize
+	// new name card
+	content := &NameCardContent{
+		BaseContent: NewBaseContent(dict, ContentType.NAME_CARD),
+		image:       avatar,
 	}
+	// ID
+	content.Set("did", did.String())
+	// name
+	content.Set("name", name)
+	//// avatar
+	//content.Set("avatar", avatar.Serialize()) // lazy serialize
 	return content
 }
 
 // Override
 func (content *NameCardContent) Map() StringKeyMap {
 	// serialize 'avatar'
-	img := content._image
+	img := content.image
 	if img != nil && !content.Contains("avatar") {
 		content.Set("avatar", img.Serialize())
 	}
@@ -269,11 +282,11 @@ func (content *NameCardContent) Name() string {
 
 // Override
 func (content *NameCardContent) Avatar() TransportableFile {
-	img := content._image
+	img := content.image
 	if img == nil {
 		url := content.Get("avatar")
 		img = ParseTransportableFile(url)
-		content._image = img
+		content.image = img
 	}
 	return img
 }

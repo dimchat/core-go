@@ -62,74 +62,75 @@ import (
  */
 type BaseContent struct {
 	//Content
-	Dictionary
+	*Dictionary
 
 	// message type: text, image, ...
-	_type MessageType
+	msgType MessageType
 
 	// serial number: random number to identify message content
-	_sn SerialNumberType
+	sn SerialNumberType
 
 	// message time
-	_time Time
+	time Time
 }
 
-/* designated initializer */
-func (content *BaseContent) InitWithMap(dict StringKeyMap) Content {
-	if content.Dictionary.InitWithMap(dict) != nil {
-		// lazy load
-		content._type = ""
-		content._sn = 0
-		content._time = nil
+func NewBaseContent(dict StringKeyMap, msgType MessageType) *BaseContent {
+	if dict != nil {
+		// init content with map
+		return &BaseContent{
+			Dictionary: NewDictionary(dict),
+			// lazy load
+			msgType: "",
+			sn:      0,
+			time:    nil,
+		}
 	}
-	return content
-}
-
-/* designated initializer */
-func (content *BaseContent) InitWithType(msgType MessageType) Content {
-	now := TimeNow()
-	sn := GenerateSerialNumber(msgType, now)
-	if content.Dictionary.Init() != nil {
-		content._type = msgType
-		content._sn = sn
-		content._time = now
-		content.Set("type", msgType)
-		content.Set("sn", sn)
-		content.SetTime("time", now)
+	// new message content
+	when := TimeNow()
+	sn := GenerateSerialNumber(msgType, when)
+	// prepare content info
+	dict = NewMap()
+	dict["type"] = msgType
+	dict["sn"] = sn
+	dict["time"] = TimeToFloat64(when)
+	return &BaseContent{
+		Dictionary: NewDictionary(nil),
+		msgType:    msgType,
+		sn:         sn,
+		time:       when,
 	}
-	return content
 }
 
 // Override
 func (content *BaseContent) Type() MessageType {
-	msgType := content._type
+	msgType := content.msgType
 	if msgType == "" {
 		helper := GetGeneralMessageHelper()
 		msgType = helper.GetContentType(content.Map(), "")
-		content._type = msgType
+		content.msgType = msgType
 	}
 	return msgType
 }
 
 // Override
 func (content *BaseContent) SN() SerialNumberType {
-	sn := content._sn
+	sn := content.sn
 	if sn == 0 {
 		sn = content.GetUInt64("sn", 0)
-		content._sn = sn
+		content.sn = sn
 	}
 	return sn
 }
 
 // Override
 func (content *BaseContent) Time() Time {
-	when := content._time
+	when := content.time
 	if when == nil {
 		when = content.GetTime("time", nil)
 		if when == nil {
 			when = TimeNil()
 		}
-		content._time = when
+		content.time = when
 	}
 	return when
 }
@@ -160,19 +161,25 @@ func (content *BaseContent) SetGroup(group ID) {
  */
 type BaseCommand struct {
 	//Command
-	BaseContent
+	*BaseContent
 }
 
-/* designated initializer */
-func (content *BaseCommand) InitWithType(msgType MessageType, cmd string) Command {
-	if content.BaseContent.InitWithType(msgType) != nil {
-		content.Set("command", cmd)
+func NewBaseCommand(dict StringKeyMap, msgType MessageType, cmd string) *BaseCommand {
+	if dict != nil {
+		// init command with map
+		return &BaseCommand{
+			BaseContent: NewBaseContent(dict, ""),
+		}
 	}
+	// new command content
+	if msgType == "" {
+		msgType = ContentType.COMMAND
+	}
+	content := &BaseCommand{
+		BaseContent: NewBaseContent(nil, msgType),
+	}
+	content.Set("command", cmd)
 	return content
-}
-
-func (content *BaseCommand) Init(cmd string) Command {
-	return content.InitWithType(ContentType.COMMAND, cmd)
 }
 
 // Override

@@ -33,6 +33,7 @@ package dkd
 import (
 	. "github.com/dimchat/core-go/protocol"
 	. "github.com/dimchat/dkd-go/protocol"
+	. "github.com/dimchat/mkm-go/types"
 )
 
 /**
@@ -52,20 +53,27 @@ import (
  */
 type AppCustomizedContent struct {
 	//CustomizedContent
-	BaseContent
+	*BaseContent
 }
 
-func (content *AppCustomizedContent) InitWithType(msgType MessageType, app, mod, act string) CustomizedContent {
-	if content.BaseContent.InitWithType(msgType) != nil {
-		content.Set("app", app)
-		content.Set("mod", mod)
-		content.Set("act", act)
+func NewAppCustomizedContent(dict StringKeyMap, msgType MessageType, app, mod, act string) *AppCustomizedContent {
+	if dict != nil {
+		// init customized content with map
+		return &AppCustomizedContent{
+			BaseContent: NewBaseContent(dict, ""),
+		}
 	}
+	// new customized content
+	if msgType == "" {
+		msgType = ContentType.CUSTOMIZED
+	}
+	content := &AppCustomizedContent{
+		BaseContent: NewBaseContent(nil, msgType),
+	}
+	content.Set("app", app)
+	content.Set("mod", mod)
+	content.Set("act", act)
 	return content
-}
-
-func (content *AppCustomizedContent) Init(app, mod, act string) CustomizedContent {
-	return content.InitWithType(ContentType.CUSTOMIZED, app, mod, act)
 }
 
 // Override
