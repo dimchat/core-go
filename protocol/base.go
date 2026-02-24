@@ -35,50 +35,45 @@ import (
 	. "github.com/dimchat/mkm-go/types"
 )
 
+// Command name constants for system commands
+//
+// These values are used as the "command" field in Command message content
 const (
-	//-------- command names begin --------
 	META      = "meta"
 	DOCUMENTS = "documents"
 	RECEIPT   = "receipt"
-	//-------- command names end --------
 )
 
-/**
- *  Command Content
- *
- *  <blockquote><pre>
- *  data format: {
- *      "type" : i2s(0x88),
- *      "sn"   : 123,
- *
- *      "command" : "...", // command name
- *      "extra"   : info   // command parameters
- *  }
- *  </pre></blockquote>
- */
+// Command defines the interface for system command message content
+//
+// Extends the base Content interface for structured command messages (e.g., meta query, document exchange)
+//
+//	Standard data structure: {
+//	    "type"    : i2s(0x88),
+//	    "sn"      : 123,
+//
+//	    "command" : "...",  // Command name (e.g., "meta", "documents", "receipt", ...)
+//	    "extra"   : info    // Optional command-specific parameters
+//	}
 type Command interface {
 	Content
 
-	/**
-	 *  Get command name
-	 *
-	 * @return command/method/declaration
-	 */
+	// CMD returns the name of the command (method / declaration)
 	CMD() string
 }
 
-/**
- *  Command Factory
- *  ~~~~~~~~~~~~~~~
- */
+// CommandFactory defines the factory interface for Command
+//
+// Provides type-safe conversion from raw map data to concrete Command implementations
 type CommandFactory interface {
 
-	/**
-	 *  Parse map object to command
-	 *
-	 * @param content - command content
-	 * @return Command
-	 */
+	// ParseCommand converts a StringKeyMap into a Command instance
+	//
+	// Expects the map to follow the Command data structure format
+	//
+	// Parameters:
+	//   - content: Raw command data in StringKeyMap format
+	// Returns: Parsed Command instance (nil if parsing/validation fails)
 	ParseCommand(content StringKeyMap) Command
 }
 

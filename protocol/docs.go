@@ -35,71 +35,40 @@ import (
 	. "github.com/dimchat/mkm-go/protocol"
 )
 
-/**
- *  User Document
- *  ~~~~~~~~~~~~~
- *  This interface is defined for authorizing other apps to login,
- *  which can generate a temporary asymmetric key pair for messaging.
- */
+// Visa defines the interface for user profile documents (user "visa")
+//
+// This document authorizes third-party applications to log in on behalf of the user
+// and can generate temporary asymmetric key pairs for secure messaging.
 type Visa interface {
 	Document
 
-	/**
-	 *  Get nickname
-	 *
-	 * @return username
-	 */
+	// Name returns the user's display name/nickname
 	Name() string
 	SetName(nickname string)
 
-	/**
-	 *  Get public key to encrypt message for user
-	 *
-	 * @return public key as visa.key
-	 */
+	// PublicKey returns the public encryption key for secure messaging
+	//
+	// Other users use this key to encrypt messages sent to the user (maps to "visa.key" field)
 	PublicKey() EncryptKey
-
-	/**
-	 *  Set public key for other user to encrypt message
-	 *
-	 * @param publicKey - public key as visa.key
-	 */
 	SetPublicKey(publicKey EncryptKey)
 
-	/**
-	 *  Get avatar URL
-	 *
-	 * @return PNF(URL)
-	 */
+	// Avatar returns the user's avatar (PNF format, typically a URL)
 	Avatar() TransportableFile
-
-	/**
-	 *  Set avatar URL
-	 *
-	 * @param img - img URL
-	 */
 	SetAvatar(img TransportableFile)
 }
 
-/**
- *  Group Document
- *  ~~~~~~~~~~~~~~
- */
+// Bulletin defines the interface for group profile documents (group "bulletin")
+//
+// Contains core metadata for group entities (name, founder, etc.)
 type Bulletin interface {
 	Document
 
-	/**
-	 *  Get title
-	 *
-	 * @return group name
-	 */
+	// Name returns the group's display name/title
 	Name() string
 	SetName(title string)
 
-	/**
-	 *  Get group founder
-	 *
-	 * @return user ID
-	 */
+	// Founder returns the unique ID of the group's founder/creator
+	//
+	// This ID represents the original owner of the group
 	Founder() ID
 }

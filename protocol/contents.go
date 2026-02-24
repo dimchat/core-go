@@ -36,85 +36,87 @@ import (
 	. "github.com/dimchat/mkm-go/types"
 )
 
-/**
- *  Text Content
- *
- *  <blockquote><pre>
- *  data format: {
- *      "type" : i2s(0x01),
- *      "sn"   : 123,
- *
- *      "text" : "..."
- *  }
- *  </pre></blockquote>
- */
+// TextContent defines the interface for plain text message content
+//
+// Extends the base Content interface for simple text-based messages
+//
+//	Data structure: {
+//	    "type" : i2s(0x01),
+//	    "sn"   : 123,
+//
+//	    "text" : "..."
+//	}
 type TextContent interface {
 	Content
 
 	Text() string
 }
 
-/**
- *  Web Page
- *
- *  <blockquote><pre>
- *  data format: {
- *      "type" : i2s(0x20),
- *      "sn"   : 123,
- *
- *      "title" : "...",                // Web title
- *      "desc"  : "...",
- *      "icon"  : "data:image/x-icon;base64,...",
- *
- *      "URL"   : "https://github.com/moky/dimp",
- *
- *      "HTML"      : "...",            // Web content
- *      "mime_type" : "text/html",      // Content-Type
- *      "encoding"  : "utf8",
- *      "base"      : "about:blank"     // Base URL
- *  }
- *  </pre></blockquote>
- */
+// PageContent defines the interface for web page preview message content
+//
+// Extends the base Content interface for sharing web page information (title, URL, HTML, etc.)
+//
+//	Data structure: {
+//	    "type"     : i2s(0x20),
+//	    "sn"       : 123,
+//
+//	    "title"    : "...",        // Web page title
+//	    "desc"     : "...",        // Short description of the web page
+//	    "icon"     : "data:image/x-icon;base64,...",
+//
+//	    "URL"      : "https://github.com/moky/dimp",
+//
+//	    "HTML"     : "...",        // Optional raw HTML content of the page
+//	    "mime_type": "text/html",  // MIME type of the HTML content (Content-Type)
+//	    "encoding" : "utf8",       // Character encoding of the HTML content
+//	    "base"     : "about:blank" // Base URL for resolving relative links in HTML
+//	}
 type PageContent interface {
 	Content
 
+	// Title returns the web page title
 	Title() string
 	SetTitle(title string)
 
+	// Icon returns the web page icon (PNF format)
 	Icon() TransportableFile
 	SetIcon(img TransportableFile)
 
+	// Description returns the short description of the web page (from "desc" field)
 	Description() string
 	SetDescription(desc string)
 
+	// URL returns the full URL of the web page
 	URL() URL
 	SetURL(url URL)
 
+	// HTML returns the raw HTML content of the web page
 	HTML() string
 	SetHTML(html string)
 }
 
-/**
- *  Name Card
- *
- *  <blockquote><pre>
- *  data format: {
- *      "type" : i2s(0x33),
- *      "sn"   : 123,
- *
- *      "did"    : "{ID}",        // contact's ID
- *      "name"   : "{nickname}",  // contact's name
- *      "avatar" : "{URL}",       // avatar - PNF(URL)
- *      ...
- *  }
- *  </pre></blockquote>
- */
+// NameCard defines the interface for contact name card message content
+//
+// Extends the base Content interface for sharing contact information (did, name, avatar)
+//
+//	Data structure: {
+//	    "type"   : i2s(0x33),
+//	    "sn"     : 123,
+//
+//	    "did"    : "{ID}",       // Contact's entity ID
+//	    "name"   : "{nickname}", // Contact's display name/nickname
+//	    "avatar" : "{URL}",      // Contact's avatar (PNF format, typically a URL)
+//	    ...                     // Additional contact info (optional)
+//	}
 type NameCard interface {
 	Content
 
+	// ID returns the contact's entity ID (from "did" field)
 	ID() ID
 
+	// Name returns the contact's display name/nickname
 	Name() string
 
+	// Avatar returns the contact's avatar (PNF format)
 	Avatar() TransportableFile
 }

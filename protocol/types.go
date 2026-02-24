@@ -44,30 +44,30 @@ import (
  *  @discussion A message is something send from one place to another one,
  *      it can be an instant message, a system command, or something else.
  *
- *      DKDContentType_Text indicates this is a normal message with plaintext.
+ *      ContentType_Text indicates this is a normal message with plaintext.
  *
- *      DKDContentType_File indicates this is a file, it may include filename
+ *      ContentType_File indicates this is a file, it may include filename
  *      and file data, but usually the file data will be encrypted and uploaded
  *      to somewhere and here is just a URL to retrieve it.
  *
- *      DKDContentType_Image indicates this is an image, it may send the image
+ *      ContentType_Image indicates this is an image, it may send the image
  *      data directly(encrypt the image data with Base64), but we suggest to
  *      include a URL for this image just like the 'File' message, of course
  *      you can get a thumbnail of this image here.
  *
- *      DKDContentType_Audio indicates this is a voice message, you can get
+ *      ContentType_Audio indicates this is a voice message, you can get
  *      a URL to retrieve the voice data just like the 'File' message.
  *
- *      DKDContentType_Video indicates this is a video file.
+ *      ContentType_Video indicates this is a video file.
  *
- *      DKDContentType_Page indicates this is a web page.
+ *      ContentType_Page indicates this is a web page.
  *
- *      DKDContentType_Quote indicates this message has quoted another message
+ *      ContentType_Quote indicates this message has quoted another message
  *      and the message content should be a plaintext.
  *
- *      DKDContentType_Command indicates this is a command message.
+ *      ContentType_Command indicates this is a command message.
  *
- *      DKDContentType_Forward indicates here contains a TOP-SECRET message
+ *      ContentType_Forward indicates here contains a TOP-SECRET message
  *      which needs your help to redirect it to the true receiver.
  *
  *  Bits:
@@ -130,35 +130,35 @@ var ContentType = struct {
 	// Top-Secret message forward by proxy (MTA)
 	FORWARD MessageType
 }{
-	ANY: i2a(0x00), // 0000 0000 (Undefined)
+	ANY:              i2a(0x00), // 0000 0000 (Undefined)
 
-	TEXT: i2a(0x01), // 0000 0001
+	TEXT:             i2a(0x01), // 0000 0001
 
-	FILE:  i2a(0x10), // 0001 0000
-	IMAGE: i2a(0x12), // 0001 0010
-	AUDIO: i2a(0x14), // 0001 0100
-	VIDEO: i2a(0x16), // 0001 0110
+	FILE:             i2a(0x10), // 0001 0000
+	IMAGE:            i2a(0x12), // 0001 0010
+	AUDIO:            i2a(0x14), // 0001 0100
+	VIDEO:            i2a(0x16), // 0001 0110
 
 	// Web Page
-	PAGE: i2a(0x20), // 0010 0000
+	PAGE:             i2a(0x20), // 0010 0000
 
 	// Name Card
-	NAME_CARD: i2a(0x33), // 0011 0011
+	NAME_CARD:        i2a(0x33), // 0011 0011
 
 	// Quote a message before and reply it with text
-	QUOTE: i2a(0x37), // 0011 0111
+	QUOTE:            i2a(0x37), // 0011 0111
 
-	MONEY:         i2a(0x40), // 0100 0000
-	TRANSFER:      i2a(0x41), // 0100 0001
-	LUCK_MONEY:    i2a(0x42), // 0100 0010
-	CLAIM_PAYMENT: i2a(0x48), // 0100 1000 (Claim for Payment)
-	SPLIT_BILL:    i2a(0x49), // 0100 1001 (Split the Bill)
+	MONEY:            i2a(0x40), // 0100 0000
+	TRANSFER:         i2a(0x41), // 0100 0001
+	LUCK_MONEY:       i2a(0x42), // 0100 0010
+	CLAIM_PAYMENT:    i2a(0x48), // 0100 1000 (Claim for Payment)
+	SPLIT_BILL:       i2a(0x49), // 0100 1001 (Split the Bill)
 
-	COMMAND: i2a(0x88), // 1000 1000
-	HISTORY: i2a(0x89), // 1000 1001 (Entity History Command)
+	COMMAND:          i2a(0x88), // 1000 1000
+	HISTORY:          i2a(0x89), // 1000 1001 (Entity History Command)
 
 	// Application Customized
-	APPLICATION: i2a(0xA0), // 1010 0000 (Application 0nly, Reserved)
+	APPLICATION:      i2a(0xA0), // 1010 0000 (Application 0nly, Reserved)
 	//APPLICATION_1:  i2a(0xA1), // 1010 0001 (Reserved)
 	//...                        // 1010 ???? (Reserved)
 	//APPLICATION_15: i2a(0xAF), // 1010 1111 (Reserved)
@@ -166,14 +166,14 @@ var ContentType = struct {
 	//CUSTOMIZED_0:   i2a(0xC0), // 1100 0000 (Reserved)
 	//CUSTOMIZED_1:   i2a(0xC1), // 1100 0001 (Reserved)
 	//...                        // 1100 ???? (Reserved)
-	ARRAY: i2a(0xCA), // 1100 1010 (Content Array)
+	ARRAY:            i2a(0xCA), // 1100 1010 (Content Array)
 	//...                        // 1100 ???? (Reserved)
-	CUSTOMIZED: i2a(0xCC), // 1100 1100 (Customized Content)
+	CUSTOMIZED:       i2a(0xCC), // 1100 1100 (Customized Content)
 	//...                        // 1100 ???? (Reserved)
-	COMBINE_FORWARD: i2a(0xCF), // 1100 1111 (Combine and Forward)
+	COMBINE_FORWARD:  i2a(0xCF), // 1100 1111 (Combine and Forward)
 
 	// Top-Secret message forward by proxy (MTA)
-	FORWARD: i2a(0xFF), // 1111 1111
+	FORWARD:          i2a(0xFF), // 1111 1111
 }
 
 func i2a(i int) string {

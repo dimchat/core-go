@@ -38,6 +38,7 @@ import (
  *
  *      data:[<mime type>][;charset=<charset>][;<encoding>],<encoded data>
  */
+
 type DataURI interface {
 	Head() DataHeader // "mime-type", "charset", "encoding"
 	Body() string     // encoded data
@@ -54,8 +55,8 @@ type DataURI interface {
 
 /**
  *  Head of data URI
- *  ~~~~~~~~~~~~~~~~
  */
+
 type DataHeader interface {
 	MimeType() string // default is "text/plain"
 	Encoding() string // default is URL Escaped Encoding (RFC 2396)
@@ -68,9 +69,7 @@ type DataHeader interface {
 	String() string
 }
 
-/**
- *  Split text string for data URI
- */
+// ParseDataURI splits text string for data URI
 func ParseDataURI(uri string) DataURI {
 	if uri == "" {
 		return nil
@@ -113,9 +112,7 @@ func NewDataHeader(mimeType, encoding string, extra StringKeyMap) *BaseHeader {
 //    "data:image/png;base64,{BASE64_ENCODE}"
 //    "data:text/plain;charset=utf-8;base64,SGVsbG8sIHdvcmxkIQ=="
 
-/**
- *  Split headers between 'data:' and first ',' from URI string
- */
+// splitHeader splits headers between 'data:' and first ',' from URI string
 func splitHeader(uri string, end int) DataHeader {
 	if end < 6 {
 		// header empty

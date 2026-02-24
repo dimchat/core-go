@@ -103,8 +103,8 @@ func (uri *BaseURI) String() string {
 
 /**
  *  Head of data URI
- *  ~~~~~~~~~~~~~~~~
  */
+
 type BaseHeader struct {
 	//DataHeader
 

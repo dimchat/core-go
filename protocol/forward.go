@@ -32,61 +32,61 @@ package protocol
 
 import . "github.com/dimchat/dkd-go/protocol"
 
-/**
- *  Top-Secret Content
- *
- *  <blockquote><pre>
- *  data format: {
- *      "type" : i2s(0xFF),
- *      "sn"   : 456,
- *
- *      "forward" : {...}  // reliable (secure + certified) message
- *      "secrets" : [...]  // reliable (secure + certified) messages
- *  }
- *  </pre></blockquote>
- */
+// ForwardContent defines the interface for top-secret forwarded message content
+//
+// Extends the base Content interface for transmitting secure/certified messages
+// Used to forward one or more reliable (secure + certified) messages
+//
+//	Data structure: {
+//	    "type"    : i2s(0xFF),
+//	    "sn"      : 456,
+//
+//	    "forward" : {...},  // Single reliable (secure + certified) message (optional)
+//	    "secrets" : [...]   // List of reliable (secure + certified) messages
+//	}
 type ForwardContent interface {
 	Content
 
-	// secret messages
+	// SecretMessages returns the list of reliable (secure + certified) messages
+	//
+	// Maps to the "secrets" field in the data structure (includes "forward" if present)
 	SecretMessages() []ReliableMessage
 }
 
-/**
- *  Combine Forward Content
- *
- *  <blockquote><pre>
- *  data format: {
- *      "type" : i2s(0xCF),
- *      "sn"   : 123,
- *
- *      "title"    : "...",  // chat title
- *      "messages" : [...]   // chat history
- *  }
- *  </pre></blockquote>
- */
+// CombineContent defines the interface for combined/merged message content
+//
+// Extends the base Content interface for grouping multiple chat messages (chat history)
+//
+//	Data structure: {
+//	    "type"     : i2s(0xCF),
+//	    "sn"       : 123,
+//
+//	    "title"    : "...",  // Chat title/description for the combined messages
+//	    "messages" : [...]   // List of InstantMessage instances (chat history)
+//	}
 type CombineContent interface {
 	Content
 
+	// Title returns the chat title/description for the combined messages
 	Title() string
 
+	// Messages returns the list of InstantMessage instances (chat history)
 	Messages() []InstantMessage
 }
 
-/**
- *  Array Content
- *
- *  <blockquote><pre>
- *  data format: {
- *      "type" : i2s(0xCA),
- *      "sn"   : 123,
- *
- *      "contents" : [...]  // content array
- *  }
- *  </pre></blockquote>
- */
+// ArrayContent defines the interface for array-based message content
+//
+// Extends the base Content interface for wrapping a list of heterogeneous Content instances
+//
+//	Data structure: {
+//	   "type"     : i2s(0xCA),
+//	   "sn"       : 123,
+//
+//	   "contents" : [...]  // content array
+//	}
 type ArrayContent interface {
 	Content
 
+	// Contents returns the list of heterogeneous Content instances
 	Contents() []Content
 }

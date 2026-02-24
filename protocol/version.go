@@ -37,14 +37,14 @@ package protocol
  *
  *  discussion Generate and check ID/Address
  *
- *      MKMMetaVersion_MKM give a seed string first, and sign this seed to get
+ *      MetaVersion_MKM give a seed string first, and sign this seed to get
  *      fingerprint; after that, use the fingerprint to generate address.
  *      This will get a firm relationship between (username, address and key).
  *
- *      MKMMetaVersion_BTC use the key data to generate address directly.
+ *      MetaVersion_BTC use the key data to generate address directly.
  *      This can build a BTC address for the entity ID (no username).
  *
- *      MKMMetaVersion_ExBTC use the key data to generate address directly, and
+ *      MetaVersion_ExBTC use the key data to generate address directly, and
  *      sign the seed to get fingerprint (just for binding username and key).
  *      This can build a BTC address, and bind a username to the entity ID.
  *

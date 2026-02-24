@@ -38,6 +38,7 @@ import (
 /**
  *  Command Helper
  */
+
 type CommandHelper interface {
 	SetCommandFactory(cmd string, factory CommandFactory)
 	GetCommandFactory(cmd string) CommandFactory
@@ -58,6 +59,7 @@ func GetCommandHelper() CommandHelper {
 /**
  *  Helper for QuoteContent & ReceiptCommand
  */
+
 type QuoteHelper interface {
 	PurifyForQuote(head Envelope, body Content) StringKeyMap
 	PurifyForReceipt(head Envelope, body Content) StringKeyMap
@@ -78,7 +80,7 @@ type QuotePurifier struct {
 }
 
 // Override
-func (helper QuotePurifier) PurifyForQuote(head Envelope, body Content) StringKeyMap {
+func (QuotePurifier) PurifyForQuote(head Envelope, body Content) StringKeyMap {
 	from := head.Sender()
 	to := body.Group()
 	if to == nil {
@@ -96,7 +98,7 @@ func (helper QuotePurifier) PurifyForQuote(head Envelope, body Content) StringKe
 }
 
 // Override
-func (helper QuotePurifier) PurifyForReceipt(head Envelope, body Content) StringKeyMap {
+func (QuotePurifier) PurifyForReceipt(head Envelope, body Content) StringKeyMap {
 	if head == nil {
 		return nil
 	}

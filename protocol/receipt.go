@@ -35,34 +35,45 @@ import (
 	. "github.com/dimchat/mkm-go/types"
 )
 
-/**
- *  Receipt Command
- *
- *  <blockquote><pre>
- *  data format: {
- *      "type" : i2s(0x88),
- *      "sn"   : 456,
- *
- *      "command" : "receipt",
- *      "text"    : "...",  // text message
- *      "origin"  : {       // original message envelope
- *          "sender"    : "...",
- *          "receiver"  : "...",
- *          "time"      : 0,
- *
- *          "sn"        : 123,
- *          "signature" : "..."
- *      }
- *  }
- *  </pre></blockquote>
- */
+// ReceiptCommand defines the interface for message receipt/acknowledgment commands
+//
+// Extends the Command interface for confirming message delivery/receipt
+// Used to notify senders that their messages have been received/processed
+//
+//	Data structure: {
+//	    "type"    : i2s(0x88),
+//	    "sn"      : 456,
+//
+//	    "command" : "receipt",  // Fixed command name: "receipt"
+//	    "text"    : "...",      // Optional receipt message/comment
+//	    "origin"  : {           // Envelope of the original message being acknowledged
+//	        "sender"    : "...",
+//	        "receiver"  : "...",
+//	        "time"      : 0,
+//
+//	        "sn"        : 123,
+//	        "signature" : "..."
+//	    }
+//	}
 type ReceiptCommand interface {
 	Command
 
+	// Text returns the optional receipt message/comment (acknowledgment note)
+	//
+	// Typical values: "Message received", "Read", "Processed", etc.
 	Text() string
 
+	// OriginalEnvelope returns the envelope of the original message being acknowledged
 	OriginalEnvelope() Envelope
+
+	// OriginalSerialNumber returns the serial number (SN) of the original message
+	//
+	// Extracts the "sn" field from the "origin" envelope for quick reference
 	OriginalSerialNumber() SerialNumberType
+
+	// OriginalSignature returns the signature of the original message
+	//
+	// Used to verify the authenticity of the message being acknowledged
 	OriginalSignature() string
 }
 

@@ -35,51 +35,48 @@ import (
 	. "github.com/dimchat/mkm-go/protocol"
 )
 
-/**
- *  Money Content
- *
- *  <blockquote><pre>
- *  data format: {
- *      "type" : i2s(0x40),
- *      "sn"   : 123,
- *
- *      "currency" : "RMB", // USD, USDT, ...
- *      "amount"   : 100.00
- *  }
- *  </pre></blockquote>
- */
+// MoneyContent defines the interface for monetary message content
+//
+// Extends the base Content interface for messages involving currency/amount information
+//
+//	Data structure: {
+//	     "type"     : i2s(0x40),
+//	     "sn"       : 123,
+//	     "currency" : "RMB",  // USD, USDT, ...
+//	     "amount"   : 100.00
+//	}
 type MoneyContent interface {
 	Content
 
+	// Currency returns the currency code (e.g., "RMB", "USD", "USDT", ...)
 	Currency() string
 
+	// Amount returns the monetary amount as a float value
 	Amount() float64
 	SetAmount(amount float64)
 }
 
-/**
- *  Transfer Money
- *
- *  <blockquote><pre>
- *  data format: {
- *      "type" : i2s(0x41),
- *      "sn"   : 123,
- *
- *      "currency" : "RMB",    // USD, USDT, ...
- *      "amount"   : 100.00,
- *      "remitter" : "{FROM}", // sender ID
- *      "remittee" : "{TO}"    // receiver ID
- *  }
- *  </pre></blockquote>
- */
+// TransferContent defines the interface for money transfer message contents
+//
+// Extends MoneyContent with sender/receiver information for fund transfers
+//
+//	Data structure: {
+//	    "type"     : i2s(0x41),
+//	    "sn"       : 123,
+//
+//	    "currency" : "RMB",    // USD, USDT, ...
+//	    "amount"   : 100.00,
+//	    "remitter" : "{FROM}", // sender ID
+//	    "remittee" : "{TO}"    // receiver ID
+//	}
 type TransferContent interface {
 	MoneyContent
 
-	// sender
+	// Remitter returns the sender's entity ID (funds origin)
 	Remitter() ID
 	SetRemitter(sender ID)
 
-	// receiver
+	// Remittee returns the receiver's entity ID (funds destination)
 	Remittee() ID
 	SetRemittee(receiver ID)
 }

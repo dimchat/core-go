@@ -35,30 +35,31 @@ import (
 	. "github.com/dimchat/mkm-go/types"
 )
 
-/**
- *  Quote Content
- *
- *  <blockquote><pre>
- *  data format: {
- *      "type" : i2s(0x37),
- *      "sn"   : 456,
- *
- *      "text"   : "...",  // text message
- *      "origin" : {       // original message envelope
- *          "sender"   : "...",
- *          "receiver" : "...",
- *
- *          "type"     : i2s(0x01),
- *          "sn"       : 123,
- *      }
- *  }
- *  </pre></blockquote>
- */
+// QuoteContent defines the interface for quoted/reply message content
+//
+// Extends the base Content interface for replying to a specific message (with context)
+//
+//	Data structure: {
+//	    "type"   : i2s(0x37),
+//	    "sn"     : 456,
+//
+//	    "text"   : "...",  // Reply text/message
+//	    "origin" : {       // Envelope of the original quoted message
+//	        "sender"   : "...",
+//	        "receiver" : "...",
+//	        "type"     : i2s(0x01),  // Message type of the original content
+//	        "sn"       : 123,        // Serial number of the original message
+//	    }
+//	}
 type QuoteContent interface {
 	Content
 
+	// Text returns the reply text/message for the quote
 	Text() string
 
+	// OriginalEnvelope returns the envelope of the original quoted message
+	//
+	// Contains sender/receiver/type/sn of the message being replied to
 	OriginalEnvelope() Envelope
 	OriginalSerialNumber() SerialNumberType
 }

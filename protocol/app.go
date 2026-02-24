@@ -32,47 +32,43 @@ package protocol
 
 import . "github.com/dimchat/dkd-go/protocol"
 
-/**
- *  Content for Application 0nly
- *
- *  <blockquote><pre>
- *  data format: {
- *      "type" : i2s(0xA0),
- *      "sn"   : 123,
- *
- *      "app"   : "{APP_ID}",  // application (e.g.: "chat.dim.sechat")
- *      "extra" : info         // others
- *  }
- *  </pre></blockquote>
- */
+// AppContent defines the interface for application-customized message contents
+//
+// Extends the base Content interface for messages intended for a specific application
+//
+//	Data structure: {
+//	    "type" : i2s(0xA0),
+//	    "sn"   : 123,
+//
+//	    "app"  : "{APP_ID}",  // application (e.g.: "chat.dim.sechat")
+//	    "extra": info         // others
+//	}
 type AppContent interface {
 	Content
 
-	// get App ID
+	// Application returns the target application ID (e.g., "chat.dim.sechat")
 	Application() string
 }
 
-/**
- *  Application Customized message
- *
- *  <blockquote><pre>
- *  data format: {
- *      "type" : i2s(0xCC),
- *      "sn"   : 123,
- *
- *      "app"   : "{APP_ID}",  // application (e.g.: "chat.dim.sechat")
- *      "mod"   : "{MODULE}",  // module name (e.g.: "drift_bottle")
- *      "act"   : "{ACTION}",  // action name (3.g.: "throw")
- *      "extra" : info         // action parameters
- *  }
- *  </pre></blockquote>
- */
+// CustomizedContent defines the interface for customized message contents
+//
+// Extends AppContent for fine-grained application message routing (module + action)
+//
+//	Data structure: {
+//	    "type" : i2s(0xCC),
+//	    "sn"   : 123,
+//
+//	    "app"  : "{APP_ID}",  // application (e.g.: "chat.dim.sechat")
+//	    "mod"  : "{MODULE}",  // module name (e.g.: "drift_bottle")
+//	    "act"  : "{ACTION}",  // action name (3.g.: "throw")
+//	    "extra": info         // action parameters
+//	}
 type CustomizedContent interface {
 	AppContent
 
-	// get Module Name
+	// Module returns the target module name within the application (e.g., "drift_bottle")
 	Module() string
 
-	// get Action Name
+	// Action returns the action name to execute in the module (e.g., "throw")
 	Action() string
 }

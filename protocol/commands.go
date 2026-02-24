@@ -35,62 +35,54 @@ import (
 	. "github.com/dimchat/mkm-go/types"
 )
 
-/**
- *  Meta Command
- *
- *  <blockquote><pre>
- *  data format: {
- *      "type" : i2s(0x88),
- *      "sn"   : 123,
- *
- *      "command" : "meta", // command name
- *      "did"     : "{ID}", // contact's ID
- *      "meta"    : {...}   // when meta is null, means query meta for ID
- *  }
- *  </pre></blockquote>
- */
+// MetaCommand defines the interface for meta information exchange commands
+//
+// Extends the base Command interface for querying/updating entity meta information
+//
+//	Data structure: {
+//	    "type"    : i2s(0x88),
+//	    "sn"      : 123,
+//
+//	    "command" : "meta",  // Fixed command name: "meta"
+//	    "did"     : "{ID}",  // Target entity ID (contact's ID)
+//	    "meta"    : {...}    // Meta info (nil = query meta for the specified ID)
+//	}
 type MetaCommand interface {
 	Command
 
-	/**
-	 *  Entity ID
-	 */
+	// ID returns the target entity ID for the meta command (contact's ID)
 	ID() ID
 
-	/**
-	 *  Entity Meta
-	 */
+	// Meta returns the meta information associated with the command
+	//
+	// Returns nil if the command is a meta query (rather than an update)
 	Meta() Meta
 }
 
-/**
- *  Document Command
- *
- *  <blockquote><pre>
- *  data format: {
- *      "type" : i2s(0x88),
- *      "sn"   : 123,
- *
- *      "command"   : "documents", // command name
- *      "did"       : "{ID}",      // entity ID
- *      "meta"      : {...},       // only for handshaking with new friend
- *      "documents" : [...],       // when this is null, means to query
- *      "last_time" : 12345        // old document time for querying
- *  }
- *  </pre></blockquote>
- */
+// DocumentCommand defines the interface for document/profile exchange commands
+//
+// Extends MetaCommand for querying/updating entity documents (profiles/TAI)
+//
+//	Data structure: {
+//	    "type"      : i2s(0x88),
+//	    "sn"        : 123,
+//
+//	    "command"   : "documents",  // Fixed command name: "documents"
+//	    "did"       : "{ID}",       // Target entity ID
+//	    "meta"      : {...},        // Optional meta info (only for new friend handshake)
+//	    "documents" : [...],        // List of entity documents (nil = query documents)
+//	    "last_time" : 12345         // Timestamp of last document (for incremental query)
+//	}
 type DocumentCommand interface {
 	MetaCommand
 
-	/**
-	 *  Entity Documents
-	 */
+	// Documents returns the list of entity documents/profiles in the command
+	//
+	// Returns nil if the command is a document query (rather than an update)
 	Documents() []Document
 
-	/**
-	 *  Last document time for querying
-	 *
-	 * @return time of last document from sender
-	 */
+	// LastTime returns the timestamp of the last document from the sender
+	//
+	// Used for incremental document queries (only get documents newer than this time)
 	LastTime() Time
 }
