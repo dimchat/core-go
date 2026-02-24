@@ -36,32 +36,33 @@ import (
 	. "github.com/dimchat/mkm-go/types"
 )
 
-/**
- *  Secure Message
- *  <p>
- *      Instant Message encrypted by a symmetric key
- *  </p>
- *
- *  <blockquote><pre>
- *  data format: {
- *      //-- envelope
- *      "sender"   : "moki@xxx",
- *      "receiver" : "hulk@yyy",
- *      "time"     : 123,
- *
- *      //-- content data and key/keys
- *      "data"     : "...",  // base64_encode( symmetric_encrypt(content))
- *      "keys"     : {
- *          "{ID}"   : "...",  // base64_encode(asymmetric_encrypt(pwd))
- *          "digest" : "..."   // hash(pwd.data)
- *      }
- *  }
- *  </pre></blockquote>
- */
+// EncryptedMessage (SecureMessage) represents an end-to-end encrypted message
+//
+// # Extends BaseMessage with symmetrically encrypted content and asymmetrically encrypted keys
+//
+// Core security design: Content is encrypted with a symmetric key, which is then
+// encrypted with the receiver's public key (stored in the "keys" field)
+//
+//	Data structure: {
+//	    // Envelope metadata
+//	    "sender"   : "moki@xxx",
+//	    "receiver" : "hulk@yyy",
+//	    "time"     : 123,
+//
+//	    // Encrypted content and keys
+//	    "data"     : "...",    // base64_encode( symmetric_encrypt(content))
+//	    "keys"     : {
+//	        "{ID}"   : "...",  // base64_encode(asymmetric_encrypt(pwd))
+//	        "digest" : "..."   // hash(pwd.data)
+//	    }
+//	}
 type EncryptedMessage struct {
 	//SecureMessage
 	*BaseMessage
 
+	// data stores the Base64-encoded symmetrically encrypted message content
+	//
+	// Generated via: base64_encode(symmetric_encrypt(plaintext_content))
 	data TransportableData
 }
 

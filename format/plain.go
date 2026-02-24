@@ -35,14 +35,15 @@ import . "github.com/dimchat/mkm-go/format"
 /**
  *  UTF-8 encoding
  */
+
 type PlainData struct {
 	//TransportableData
 	*BaseData
 }
 
-func NewPlainData(encoded string, bytes []byte) *PlainData {
+func NewPlainData(text string, bytes []byte) *PlainData {
 	return &PlainData{
-		BaseData: NewBaseData(encoded, bytes),
+		BaseData: NewBaseData(text, bytes),
 	}
 }
 

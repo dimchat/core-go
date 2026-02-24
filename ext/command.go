@@ -35,6 +35,7 @@ import . "github.com/dimchat/mkm-go/types"
 /**
  *  Command GeneralFactory
  */
+
 type GeneralCommandHelper interface {
 	//CommandHelper
 

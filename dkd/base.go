@@ -40,26 +40,9 @@ import (
 )
 
 /**
- *  Message Content
- *  <p>
- *      This class is for creating message content
- *  </p>
- *
- *  <blockquote><pre>
- *  data format: {
- *      "type"    : i2s(0),         // message type
- *      "sn"      : 0,              // serial number
- *
- *      "time"    : 123,            // message time
- *      "group"   : "{GroupID}",    // for group message
- *
- *      //-- message info
- *      "text"    : "text",         // for text message
- *      "command" : "Command Name"  // for system command
- *      //...
- *  }
- *  </pre></blockquote>
+ *  Base Message Content
  */
+
 type BaseContent struct {
 	//Content
 	*Dictionary
@@ -148,17 +131,8 @@ func (content *BaseContent) SetGroup(group ID) {
 
 /**
  *  Base Command Content
- *
- *  <blockquote><pre>
- *  data format: {
- *      "type" : i2s(0x88),
- *      "sn"   : 123,
- *
- *      "command" : "...", // command name
- *      "extra"   : info   // command parameters
- *  }
- *  </pre></blockquote>
  */
+
 type BaseCommand struct {
 	//Command
 	*BaseContent

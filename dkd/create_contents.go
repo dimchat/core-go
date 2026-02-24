@@ -45,16 +45,8 @@ func NewContentWithMap(dict StringKeyMap) Content {
 
 /**
  *  Text Content
- *
- *  <blockquote><pre>
- *  data format: {
- *      "type" : i2s(0x01),
- *      "sn"   : 123,
- *
- *      "text" : "..."
- *  }
- *  </pre></blockquote>
  */
+
 func NewTextContent(text string) TextContent {
 	return NewBaseTextContent(nil, text)
 }
@@ -64,20 +56,9 @@ func NewTextContentWithMap(dict StringKeyMap) Content {
 }
 
 /**
- *  Name Card
- *
- *  <blockquote><pre>
- *  data format: {
- *      "type" : i2s(0x33),
- *      "sn"   : 123,
- *
- *      "did"    : "{ID}",        // contact's ID
- *      "name"   : "{nickname}",  // contact's name
- *      "avatar" : "{URL}",       // avatar - PNF(URL)
- *      ...
- *  }
- *  </pre></blockquote>
+ *  Name Card Content
  */
+
 func NewNameCard(did ID, name string, avatar TransportableFile) NameCard {
 	return NewNameCardContent(nil, did, name, avatar)
 }
@@ -87,26 +68,9 @@ func NewNameCardWithMap(dict StringKeyMap) Content {
 }
 
 /**
- *  Web Page
- *
- *  <blockquote><pre>
- *  data format: {
- *      "type" : i2s(0x20),
- *      "sn"   : 123,
- *
- *      "title" : "...",                // Web title
- *      "desc"  : "...",
- *      "icon"  : "data:image/x-icon;base64,...",
- *
- *      "URL"   : "https://github.com/moky/dimp",
- *
- *      "HTML"      : "...",            // Web content
- *      "mime_type" : "text/html",      // Content-Type
- *      "encoding"  : "utf8",
- *      "base"      : "about:blank"     // Base URL
- *  }
- *  </pre></blockquote>
+ *  Web Page Content
  */
+
 func NewPageContentWithURL(url URL, title string, icon TransportableFile, desc string) PageContent {
 	return NewWebPageContent(nil, title, icon, desc, url, "")
 }
@@ -120,17 +84,8 @@ func NewPageContentWithMap(dict StringKeyMap) Content {
 
 /**
  *  Top-Secret Content
- *
- *  <blockquote><pre>
- *  data format: {
- *      "type" : i2s(0xFF),
- *      "sn"   : 456,
- *
- *      "forward" : {...}  // reliable (secure + certified) message
- *      "secrets" : [...]  // reliable (secure + certified) messages
- *  }
- *  </pre></blockquote>
  */
+
 func NewForwardMessage(msg ReliableMessage) ForwardContent {
 	messages := []ReliableMessage{msg}
 	return NewSecretContent(nil, messages)
@@ -146,17 +101,8 @@ func NewForwardContentWithMap(dict StringKeyMap) Content {
 
 /**
  *  Combine Forward Content
- *
- *  <blockquote><pre>
- *  data format: {
- *      "type" : i2s(0xCF),
- *      "sn"   : 123,
- *
- *      "title"    : "...",  // chat title
- *      "messages" : [...]   // chat history
- *  }
- *  </pre></blockquote>
  */
+
 func NewCombineMessages(title string, messages []InstantMessage) CombineContent {
 	return NewCombineForwardContent(nil, title, messages)
 }
@@ -167,16 +113,8 @@ func NewCombineContentWithMap(dict StringKeyMap) Content {
 
 /**
  *  Array Content
- *
- *  <blockquote><pre>
- *  data format: {
- *      "type" : i2s(0xCA),
- *      "sn"   : 123,
- *
- *      "contents" : [...]  // content array
- *  }
- *  </pre></blockquote>
  */
+
 func NewArrayContent(contents []Content) ArrayContent {
 	return NewListContent(nil, contents)
 }
@@ -186,27 +124,9 @@ func NewArrayContentWithMap(dict StringKeyMap) Content {
 }
 
 /**
- *  File Content
- *
- *  <blockquote><pre>
- *  data format: {
- *      "type" : i2s(0x10),
- *      "sn"   : 123,
- *
- *      "data"     : "...",        // base64_encode(fileContent)
- *      "filename" : "photo.png",
- *
- *      "URL"      : "http://...", // download from CDN
- *      // before fileContent uploaded to a public CDN,
- *      // it should be encrypted by a symmetric key
- *      "key"      : {             // symmetric key to decrypt file data
- *          "algorithm" : "AES",   // "DES", ...
- *          "data"      : "{BASE64_ENCODE}",
- *          ...
- *      }
- *  }
- *  </pre></blockquote>
+ *  File Contents
  */
+
 func NewFileContent(data TransportableData, filename string, url URL, password DecryptKey) FileContent {
 	return NewBaseFileContent(nil, "", data, filename, url, password)
 }
@@ -224,6 +144,7 @@ func NewFileContentWithMap(dict StringKeyMap) Content {
 /**
  *  Image Content
  */
+
 func NewImageContent(data TransportableData, filename string, url URL, password DecryptKey) ImageContent {
 	return NewImageFileContent(nil, data, filename, url, password, nil)
 }
@@ -241,6 +162,7 @@ func NewImageContentWithMap(dict StringKeyMap) Content {
 /**
  *  Audio Content
  */
+
 func NewAudioContent(data TransportableData, filename string, url URL, password DecryptKey) AudioContent {
 	return NewAudioFileContent(nil, data, filename, url, password)
 }
@@ -258,6 +180,7 @@ func NewAudioContentWithMap(dict StringKeyMap) Content {
 /**
  *  Video Content
  */
+
 func NewVideoContent(data TransportableData, filename string, url URL, password DecryptKey) VideoContent {
 	return NewVideoFileContent(nil, data, filename, url, password, nil)
 }
@@ -273,18 +196,9 @@ func NewVideoContentWithMap(dict StringKeyMap) Content {
 }
 
 /**
- *  Money Content
- *
- *  <blockquote><pre>
- *  data format: {
- *      "type" : i2s(0x40),
- *      "sn"   : 123,
- *
- *      "currency" : "RMB", // USD, USDT, ...
- *      "amount"   : 100.00
- *  }
- *  </pre></blockquote>
+ *  Money Contents
  */
+
 func NewMoneyContent(currency string, amount float64) MoneyContent {
 	return NewBaseMoneyContent(nil, "", currency, amount)
 }
@@ -303,23 +217,8 @@ func NewTransferContentWithMap(dict StringKeyMap) Content {
 
 /**
  *  Quote Content
- *
- *  <blockquote><pre>
- *  data format: {
- *      "type" : i2s(0x37),
- *      "sn"   : 456,
- *
- *      "text"   : "...",  // text message
- *      "origin" : {       // original message envelope
- *          "sender"   : "...",
- *          "receiver" : "...",
- *
- *          "type"     : i2s(0x01),
- *          "sn"       : 123,
- *      }
- *  }
- *  </pre></blockquote>
  */
+
 func NewQuoteContent(text string, head Envelope, body Content) QuoteContent {
 	origin := PurifyForQuote(head, body)
 	return NewBaseQuoteContent(nil, text, origin)
@@ -330,20 +229,9 @@ func NewQuoteContentWithMap(dict StringKeyMap) Content {
 }
 
 /**
- *  Application Customized message
- *
- *  <blockquote><pre>
- *  data format: {
- *      "type" : i2s(0xCC),
- *      "sn"   : 123,
- *
- *      "app"   : "{APP_ID}",  // application (e.g.: "chat.dim.sechat")
- *      "mod"   : "{MODULE}",  // module name (e.g.: "drift_bottle")
- *      "act"   : "{ACTION}",  // action name (3.g.: "throw")
- *      "extra" : info         // action parameters
- *  }
- *  </pre></blockquote>
+ *  Application Customized Content
  */
+
 func NewCustomizedContent(app, mod, act string) CustomizedContent {
 	return NewAppCustomizedContent(nil, "", app, mod, act)
 }

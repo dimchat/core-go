@@ -35,6 +35,7 @@ import . "github.com/dimchat/mkm-go/format"
 /**
  *  Base-64 encoding
  */
+
 type Base64Data struct {
 	//TransportableData
 	*BaseData

@@ -56,32 +56,27 @@ import (
  *         signature = sender.private_key.sign(data)
  */
 
-/**
- *  Message with Envelope
- *  <p>
- *      Base classes for messages
- *  </p>
- *  <p>
- *      This class is used to create a message
- *      with the envelope fields, such as 'sender', 'receiver', and 'time'
- *  </p>
- *
- *  <blockquote><pre>
- *  data format: {
- *      //-- envelope
- *      "sender"   : "moki@xxx",
- *      "receiver" : "hulk@yyy",
- *      "time"     : 123,
- *
- *      //-- body
- *      ...
- *  }
- *  </pre></blockquote>
- */
+// BaseMessage is the abstract base class for all concrete message implementations
+//
+// Combines message envelope metadata (sender/receiver/time) with message body content
+// Serves as the foundation for PlainMessage, EncryptedMessage, and NetworkMessage
+//
+//	Standard data structure: {
+//	    // Envelope metadata (routing information)
+//	    "sender"   : "moki@xxx",
+//	    "receiver" : "hulk@yyy",
+//	    "time"     : 123,
+//
+//	    // Message body (content varies by concrete implementation)
+//	    ... // Content-specific fields (content/data/keys/signature)
+//	}
 type BaseMessage struct {
 	//Message
 	*Dictionary
 
+	// envelope stores the message envelope (routing metadata)
+	//
+	// Contains sender, receiver, and timestamp for message delivery
 	envelope Envelope
 }
 

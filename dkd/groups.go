@@ -37,19 +37,9 @@ import (
 )
 
 /**
- *  History Command Content
- *
- *  <blockquote><pre>
- *  data format: {
- *      "type" : i2s(0x89),
- *      "sn"   : 123,
- *
- *      "command" : "...", // command name
- *      "time"    : 0,     // command timestamp
- *      "extra"   : info   // command parameters
- *  }
- *  </pre></blockquote>
+ *  History Command
  */
+
 type BaseHistoryCommand struct {
 	//HistoryCommand
 	*BaseCommand
@@ -63,20 +53,8 @@ func NewBaseHistoryCommand(dict StringKeyMap, cmd string) *BaseHistoryCommand {
 
 /**
  *  Group History
- *
- *  <blockquote><pre>
- *  data format: {
- *      "type" : i2s(0x89),
- *      "sn"   : 123,
- *
- *      "command" : "reset",   // "invite", "quit", ...
- *      "time"    : 123.456,   // command timestamp
- *
- *      "group"   : "{GROUP_ID}",
- *      "members" : ["{MEMBER_ID}",]
- *  }
- *  </pre></blockquote>
  */
+
 type BaseGroupCommand struct {
 	//GroupCommand
 	*BaseCommand
@@ -133,9 +111,7 @@ func NewInviteGroupCommand(dict StringKeyMap, group ID, members []ID) *InviteGro
 	}
 }
 
-/**
- *  Deprecated, use 'reset' instead
- */
+// Deprecated, use 'reset' instead
 type ExpelGroupCommand struct {
 	//ExpelCommand
 	*BaseGroupCommand

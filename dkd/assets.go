@@ -38,18 +38,9 @@ import (
 )
 
 /**
- *  Money Content
- *
- *  <blockquote><pre>
- *  data format: {
- *      "type" : i2s(0x40),
- *      "sn"   : 123,
- *
- *      "currency" : "RMB", // USD, USDT, ...
- *      "amount"   : 100.00
- *  }
- *  </pre></blockquote>
+ *  Money Contents
  */
+
 type BaseMoneyContent struct {
 	//MoneyContent
 	*BaseContent
@@ -90,20 +81,9 @@ func (content *BaseMoneyContent) SetAmount(amount float64) {
 }
 
 /**
- *  Transfer Money
- *
- *  <blockquote><pre>
- *  data format: {
- *      "type" : i2s(0x41),
- *      "sn"   : 123,
- *
- *      "currency" : "RMB",    // USD, USDT, ...
- *      "amount"   : 100.00,
- *      "remitter" : "{FROM}", // sender ID
- *      "remittee" : "{TO}"    // receiver ID
- *  }
- *  </pre></blockquote>
+ *  Transfer Money Content
  */
+
 type TransferMoneyContent struct {
 	//TransferContent
 	*BaseMoneyContent

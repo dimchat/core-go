@@ -35,31 +35,28 @@ import (
 	. "github.com/dimchat/mkm-go/types"
 )
 
-/**
- *  Reliable Message signed by an asymmetric key
- *  <p>
- *      This class is used to sign the SecureMessage
- *      It contains a 'signature' field which signed with sender's private key
- *  </p>
- *
- *  <blockquote><pre>
- *  data format: {
- *      //-- envelope
- *      "sender"   : "moki@xxx",
- *      "receiver" : "hulk@yyy",
- *      "time"     : 123,
- *
- *      //-- content data and key/keys
- *      "data"     : "...",  // base64_encode( symmetric_encrypt(content))
- *      "keys"     : {
- *          "{ID}"   : "...",  // base64_encode(asymmetric_encrypt(pwd))
- *          "digest" : "..."   // hash(pwd.data)
- *      },
- *      //-- signature
- *      "signature": "..."   // base64_encode(asymmetric_sign(data))
- *  }
- *  </pre></blockquote>
- */
+// NetworkMessage (ReliableMessage) represents a signed and encrypted message
+//
+// # Extends EncryptedMessage with a digital signature for authenticity verification
+//
+// The signature is generated using the sender's private key to prove message origin
+//
+//	Data structure: {
+//	    // Envelope metadata
+//	    "sender"   : "moki@xxx",
+//	    "receiver" : "hulk@yyy",
+//	    "time"     : 123,
+//
+//	    // Encrypted content and keys (from EncryptedMessage)
+//	    "data"     : "...",    // base64_encode( symmetric_encrypt(content))
+//	    "keys"     : {
+//	        "{ID}"   : "...",  // base64_encode(asymmetric_encrypt(pwd))
+//	        "digest" : "..."   // hash(pwd.data)
+//	    },
+//
+//	    // Digital signature for authenticity
+//	    "signature": "..."   // base64_encode(asymmetric_sign(data))
+//	}
 type NetworkMessage struct {
 	//ReliableMessage
 	*EncryptedMessage

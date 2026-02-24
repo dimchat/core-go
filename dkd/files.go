@@ -40,27 +40,8 @@ import (
 
 /**
  *  Image File Content
- *
- *  <blockquote><pre>
- *  data format: {
- *      "type" : i2s(0x12),
- *      "sn"   : 123,
- *
- *      "data"     : "...",        // base64_encode(fileContent)
- *      "filename" : "photo.png",
- *
- *      "URL"      : "http://...", // download from CDN
- *      // before fileContent uploaded to a public CDN,
- *      // it should be encrypted by a symmetric key
- *      "key"      : {             // symmetric key to decrypt file data
- *          "algorithm" : "AES",   // "DES", ...
- *          "data"      : "{BASE64_ENCODE}",
- *          ...
- *      },
- *      "thumbnail" : "data:image/jpeg;base64,..."
- *  }
- *  </pre></blockquote>
  */
+
 type ImageFileContent struct {
 	//ImageContent
 	*BaseFileContent
@@ -109,28 +90,8 @@ func (content *ImageFileContent) SetThumbnail(thumbnail TransportableFile) {
 
 /**
  *  Audio File Content
- *
- *  <blockquote><pre>
- *  data format: {
- *      "type" : i2s(0x14),
- *      "sn"   : 123,
- *
- *      "data"     : "...",        // base64_encode(fileContent)
- *      "filename" : "voice.mp4",
- *
- *      "URL"      : "http://...", // download from CDN
- *      // before fileContent uploaded to a public CDN,
- *      // it should be encrypted by a symmetric key
- *      "key"      : {             // symmetric key to decrypt file data
- *          "algorithm" : "AES",   // "DES", ...
- *          "data"      : "{BASE64_ENCODE}",
- *          ...
- *      },
- *      "duration" : 123.45,
- *      "text"     : "..."         // Automatic Speech Recognition
- *  }
- *  </pre></blockquote>
  */
+
 type AudioFileContent struct {
 	//AudioContent
 	*BaseFileContent
@@ -170,27 +131,8 @@ func (content *AudioFileContent) SetText(text string) {
 
 /**
  *  Video File Content
- *
- *  <blockquote><pre>
- *  data format: {
- *      "type" : i2s(0x16),
- *      "sn"   : 123,
- *
- *      "data"     : "...",        // base64_encode(fileContent)
- *      "filename" : "movie.mp4",
- *
- *      "URL"      : "http://...", // download from CDN
- *      // before fileContent uploaded to a public CDN,
- *      // it should be encrypted by a symmetric key
- *      "key"      : {             // symmetric key to decrypt file data
- *          "algorithm" : "AES",   // "DES", ...
- *          "data"      : "{BASE64_ENCODE}",
- *          ...
- *      },
- *      "snapshot" : "data:image/jpeg;base64,..."
- *  }
- *  </pre></blockquote>
  */
+
 type VideoFileContent struct {
 	//VideoContent
 	*BaseFileContent

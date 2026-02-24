@@ -39,32 +39,55 @@ import (
 /**
  *  PNF Wrapper
  */
+
+// TransportableFileWrapper defines the interface for wrapping PNF (Portable Network File) data
+//
+// Provides a standardized way to access and modify core PNF properties (data, filename, URL, decrypt key)
+// Implements serialization to StringKeyMap for data interchange
 type TransportableFileWrapper interface {
 
-	// serialize data
+	// Map serializes the PNF wrapper data to a StringKeyMap
+	//
+	// Returns a key-value representation of all PNF properties for network transmission/storage
 	Map() StringKeyMap
 
 	/**
 	 *  file data
 	 */
+
+	// Data returns the raw file content (TransportableData format, unencrypted)
+	//
+	// Typically Base64-encoded binary data of the file
 	Data() TransportableData
 	SetData(data TransportableData)
 
 	/**
 	 *  file name
 	 */
+
+	// Filename returns the name of the file (including extension)
+	//
+	// Example: "photo.png", "document.pdf", "audio.mp3"
 	Filename() string
 	SetFilename(filename string)
 
 	/**
 	 *  download URL
 	 */
+
+	// URL returns the CDN download URL for the file (alternative to direct data)
+	//
+	// Used when file content is stored remotely (instead of embedding in Data())
 	URL() URL
 	SetURL(url URL)
 
 	/**
 	 *  decrypt key
 	 */
+
+	// Password returns the symmetric decrypt key for CDN-hosted encrypted files
+	//
+	// Maps to the "key" field in the PNF data structure (required for encrypted remote files)
 	Password() DecryptKey
 	SetPassword(password DecryptKey)
 }
@@ -79,6 +102,7 @@ func CreateTransportableFileWrapper(content StringKeyMap,
 /**
  *  Wrapper Factory
  */
+
 type TransportableFileWrapperFactory interface {
 
 	// Create PNF Wrapper
@@ -107,36 +131,45 @@ func (pnfWrapperFactory) CreateTransportableFileWrapper(content StringKeyMap,
 	return NewPortableNetworkFileWrapper(content, data, filename, url, key)
 }
 
-/**
- *  File Content MixIn
- *
- *  <blockquote><pre>
- *  {
- *      "data"     : "...",        // base64_encode(fileContent)
- *      "filename" : "photo.png",
- *
- *      "URL"      : "http://...", // download from CDN
- *      // before fileContent uploaded to a public CDN,
- *      // it should be encrypted by a symmetric key
- *      "key"      : {             // symmetric key to decrypt file data
- *          "algorithm" : "AES",   // "DES", ...
- *          "data"      : "{BASE64_ENCODE}",
- *          ...
- *      }
- *  }
- *  </pre></blockquote>
- */
+// PortableNetworkFileWrapper is a concrete implementation of TransportableFileWrapper (Mixin)
+//
+// Provides storage and access to PNF (Portable Network File) data with CDN support and encryption
+//
+//	Standard PNF data structure: {
+//	    "data"     : "...",        // Base64-encoded raw file content (unencrypted)
+//	    "filename" : "photo.png",  // File name with extension
+//
+//	    "URL"      : "http://...", // Optional CDN download URL (alternative to "data" field)
+//	    "key"      : {             // Optional symmetric decrypt key (for CDN-hosted encrypted files)
+//	        "algorithm" : "AES",   // Encryption algorithm (e.g., DES, AES)
+//	        "data"      : "{BASE64_ENCODE}",
+//	        ...
+//	    }
+//	 }
+//
+// Security Note: Files uploaded to public CDNs MUST be encrypted with a symmetric key
+// (the "key" field provides decryption capability for authorized recipients)
 type PortableNetworkFileWrapper struct {
 	//TransportableFileWrapper
 
+	// dictionary stores the serialized StringKeyMap representation of the PNF data
+	//
+	// Used for network transmission/storage and property serialization
 	dictionary StringKeyMap
 
-	// file content (not encrypted)
+	// attachment stores the raw, unencrypted file content (TransportableData format)
+	//
+	// This field holds the direct file data (Base64-encoded) when not using CDN URL
 	attachment TransportableData
 
-	// download from CDN
+	// remoteURL stores the CDN download URL for remote file access
+	//
+	// Alternative to embedding file data in the "data" field
 	remoteURL URL
-	// key to decrypt data downloaded from CDN
+
+	// password stores the symmetric decrypt key for CDN-hosted encrypted files
+	//
+	// Required to decrypt files downloaded from public CDNs (maps to "key" field in data structure)
 	password DecryptKey
 }
 

@@ -39,33 +39,14 @@ import (
 )
 
 /**
- *  Receipt Command Content
- *
- *  <blockquote><pre>
- *  data format: {
- *      "type" : i2s(0x88),
- *      "sn"   : 456,
- *
- *      "command" : "receipt",
- *      "text"    : "...",  // text message
- *      "origin"  : {       // original message envelope
- *          "sender"    : "...",
- *          "receiver"  : "...",
- *          "time"      : 0,
- *
- *          "sn"        : 123,
- *          "signature" : "..."
- *      }
- *  }
- *  </pre></blockquote>
+ *  Receipt Command
  */
+
 type BaseReceiptCommand struct {
 	//ReceiptCommand
 	*BaseCommand
 
-	/**
-	 *  original message envelope
-	 */
+	// original message envelope
 	envelope Envelope
 }
 

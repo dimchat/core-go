@@ -86,6 +86,11 @@ func NewEmbedDataWithType(mimeType string, body []byte) TransportableData {
 	return NewEmbedData("", body, nil, head)
 }
 
+func NewEmbedDataWithURI(uri DataURI) TransportableData {
+	head := uri.Head()
+	return NewEmbedData("", nil, uri, head)
+}
+
 //
 //  PNF
 //

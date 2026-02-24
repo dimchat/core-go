@@ -38,17 +38,8 @@ import (
 
 /**
  *  Top-Secret Content
- *
- *  <blockquote><pre>
- *  data format: {
- *      "type" : i2s(0xFF),
- *      "sn"   : 456,
- *
- *      "forward" : {...}  // reliable (secure + certified) message
- *      "secrets" : [...]  // reliable (secure + certified) messages
- *  }
- *  </pre></blockquote>
  */
+
 type SecretContent struct {
 	//ForwardContent
 	*BaseContent
@@ -99,17 +90,8 @@ func (content *SecretContent) SecretMessages() []ReliableMessage {
 
 /**
  *  Combine Forward Content
- *
- *  <blockquote><pre>
- *  data format: {
- *      "type" : i2s(0xCF),
- *      "sn"   : 123,
- *
- *      "title"    : "...",  // chat title
- *      "messages" : [...]   // chat history
- *  }
- *  </pre></blockquote>
  */
+
 type CombineForwardContent struct {
 	//CombineContent
 	*BaseContent
@@ -169,16 +151,8 @@ func (content *CombineForwardContent) Messages() []InstantMessage {
 
 /**
  *  Array Content
- *
- *  <blockquote><pre>
- *  data format: {
- *      "type" : i2s(0xCA),
- *      "sn"   : 123,
- *
- *      "contents" : [...]  // content array
- *  }
- *  </pre></blockquote>
  */
+
 type ListContent struct {
 	//ArrayContent
 	*BaseContent

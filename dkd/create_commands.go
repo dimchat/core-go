@@ -47,18 +47,8 @@ func NewHistoryCommandWithMap(dict StringKeyMap) Command {
 
 /**
  *  Meta Command
- *
- *  <blockquote><pre>
- *  data format: {
- *      "type" : i2s(0x88),
- *      "sn"   : 123,
- *
- *      "command" : "meta", // command name
- *      "did"     : "{ID}", // contact's ID
- *      "meta"    : {...}   // when meta is null, means query meta for ID
- *  }
- *  </pre></blockquote>
  */
+
 func NewCommandForQueryMeta(did ID) MetaCommand {
 	return NewBaseMetaCommand(nil, META, did, nil)
 }
@@ -73,20 +63,8 @@ func NewMetaCommandWithMap(dict StringKeyMap) Command {
 
 /**
  *  Document Command
- *
- *  <blockquote><pre>
- *  data format: {
- *      "type" : i2s(0x88),
- *      "sn"   : 123,
- *
- *      "command"   : "documents", // command name
- *      "did"       : "{ID}",      // entity ID
- *      "meta"      : {...},       // only for handshaking with new friend
- *      "documents" : [...],       // when this is null, means to query
- *      "last_time" : 12345        // old document time for querying
- *  }
- *  </pre></blockquote>
  */
+
 func NewCommandForQueryDocuments(did ID, lastTime Time) DocumentCommand {
 	return NewBaseDocumentCommand(nil, did, nil, nil, lastTime)
 }
@@ -106,25 +84,8 @@ func NewDocumentCommandWithMap(dict StringKeyMap) Command {
 
 /**
  *  Receipt Command
- *
- *  <blockquote><pre>
- *  data format: {
- *      "type" : i2s(0x88),
- *      "sn"   : 456,
- *
- *      "command" : "receipt",
- *      "text"    : "...",  // text message
- *      "origin"  : {       // original message envelope
- *          "sender"    : "...",
- *          "receiver"  : "...",
- *          "time"      : 0,
- *
- *          "sn"        : 123,
- *          "signature" : "..."
- *      }
- *  }
- *  </pre></blockquote>
  */
+
 func NewReceiptCommand(text string, head Envelope, body Content) ReceiptCommand {
 	origin := PurifyForReceipt(head, body)
 	return NewBaseReceiptCommand(nil, text, origin)
@@ -136,20 +97,8 @@ func NewReceiptCommandWithMap(dict StringKeyMap) Command {
 
 /**
  *  Group History
- *
- *  <blockquote><pre>
- *  data format: {
- *      "type" : i2s(0x89),
- *      "sn"   : 123,
- *
- *      "command" : "reset",   // "invite", "quit", ...
- *      "time"    : 123.456,   // command timestamp
- *
- *      "group"   : "{GROUP_ID}",
- *      "members" : ["{MEMBER_ID}",]
- *  }
- *  </pre></blockquote>
  */
+
 func NewGroupCommand(cmd string, group ID, members []ID) GroupCommand {
 	return NewBaseGroupCommand(nil, cmd, group, members)
 }

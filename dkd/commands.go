@@ -37,19 +37,9 @@ import (
 )
 
 /**
- *  Meta Command Content
- *
- *  <blockquote><pre>
- *  data format: {
- *      "type" : i2s(0x88),
- *      "sn"   : 123,
- *
- *      "command" : "meta", // command name
- *      "did"     : "{ID}", // contact's ID
- *      "meta"    : {...}   // when meta is null, means query meta for ID
- *  }
- *  </pre></blockquote>
+ *  Meta Command
  */
+
 type BaseMetaCommand struct {
 	//MetaCommand
 	*BaseCommand
@@ -101,21 +91,9 @@ func (content *BaseMetaCommand) Meta() Meta {
 }
 
 /**
- *  Document Command Content
- *
- *  <blockquote><pre>
- *  data format: {
- *      "type" : i2s(0x88),
- *      "sn"   : 123,
- *
- *      "command"   : "documents", // command name
- *      "did"       : "{ID}",      // entity ID
- *      "meta"      : {...},       // only for handshaking with new friend
- *      "documents" : [...],       // when this is null, means to query
- *      "last_time" : 12345        // old document time for querying
- *  }
- *  </pre></blockquote>
+ *  Document Command
  */
+
 type BaseDocumentCommand struct {
 	//DocumentCommand
 	*BaseMetaCommand

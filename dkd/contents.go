@@ -38,16 +38,8 @@ import (
 
 /**
  *  Text Content
- *
- *  <blockquote><pre>
- *  data format: {
- *      "type" : i2s(0x01),
- *      "sn"   : 123,
- *
- *      "text" : "..."
- *  }
- *  </pre></blockquote>
  */
+
 type BaseTextContent struct {
 	//TextContent
 	*BaseContent
@@ -75,25 +67,8 @@ func (content *BaseTextContent) Text() string {
 
 /**
  *  Web Page Content
- *
- *  <blockquote><pre>
- *  data format: {
- *      "type" : i2s(0x20),
- *      "sn"   : 123,
- *
- *      "title" : "...",                // Web title
- *      "desc"  : "...",
- *      "icon"  : "data:image/x-icon;base64,...",
- *
- *      "URL"   : "https://github.com/moky/dimp",
- *
- *      "HTML"      : "...",            // Web content
- *      "mime_type" : "text/html",      // Content-Type
- *      "encoding"  : "utf8",
- *      "base"      : "about:blank"     // Base URL
- *  }
- *  </pre></blockquote>
  */
+
 type WebPageContent struct {
 	//PageContent
 	*BaseContent
@@ -214,20 +189,9 @@ func (content *WebPageContent) SetHTML(html string) {
 }
 
 /**
- *  Name Card
- *
- *  <blockquote><pre>
- *  data format: {
- *      "type" : i2s(0x33),
- *      "sn"   : 123,
- *
- *      "did"    : "{ID}",        // contact's ID
- *      "name"   : "{nickname}",  // contact's name
- *      "avatar" : "{URL}",       // avatar - PNF(URL)
- *      ...
- *  }
- *  </pre></blockquote>
+ *  Name Card Content
  */
+
 type NameCardContent struct {
 	//NameCard
 	*BaseContent

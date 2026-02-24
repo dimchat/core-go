@@ -37,20 +37,9 @@ import (
 )
 
 /**
- *  Application Customized message
- *
- *  <blockquote><pre>
- *  data format: {
- *      "type" : i2s(0xCC),
- *      "sn"   : 123,
- *
- *      "app"   : "{APP_ID}",  // application (e.g.: "chat.dim.sechat")
- *      "mod"   : "{MODULE}",  // module name (e.g.: "drift_bottle")
- *      "act"   : "{ACTION}",  // action name (3.g.: "throw")
- *      "extra" : info         // action parameters
- *  }
- *  </pre></blockquote>
+ *  Application Customized Content
  */
+
 type AppCustomizedContent struct {
 	//CustomizedContent
 	*BaseContent

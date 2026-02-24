@@ -38,24 +38,24 @@ import (
 	. "github.com/dimchat/mkm-go/types"
 )
 
-/**
- *  User Document
- *  ~~~~~~~~~~~~~
- *
- *  This interface is defined for authorizing other apps to login,
- *  which can generate a temporary asymmetric key pair for messaging.
- */
+// BaseVisa is the concrete implementation of the Visa interface (user profile document)
+//
+// Extends BaseDocument with user-specific fields (encryption public key, avatar)
+// Core purpose: Authorize third-party app login and enable secure asymmetric messaging
+//
+// Security Note: The encryption key (visa.key) should be different from meta.key to enhance security
 type BaseVisa struct {
 	//Visa
 	*BaseDocument
 
-	// Public Key for encryption
-	// ~~~~~~~~~~~~~~~~~~~~~~~~~
-	// For safety considerations, the visa.key which used to encrypt message data
-	// should be different with meta.key
+	// publicKey stores the public encryption key for secure messaging
+	//
+	// Used by other users to encrypt messages sent to this user (asymmetric encryption)
+	// For security, this key SHOULD differ from the meta.key (signature verification key)
 	publicKey EncryptKey
 
-	// Avatar URL
+	// image stores the user's avatar (PNF/Portable Network File format)
+	// Typically a URL
 	image TransportableFile
 }
 
@@ -126,10 +126,10 @@ func (doc *BaseVisa) SetAvatar(img TransportableFile) {
 	doc.image = img
 }
 
-/**
- *  Group Document
- *  ~~~~~~~~~~~~~~
- */
+// BaseBulletin is the concrete implementation of the Bulletin interface (group profile document)
+//
+// Extends BaseDocument with core group metadata functionality
+// Contains essential group profile information (name, founder, etc.)
 type BaseBulletin struct {
 	//Bulletin
 	*BaseDocument

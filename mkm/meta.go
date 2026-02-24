@@ -38,72 +38,65 @@ import (
 	. "github.com/dimchat/mkm-go/types"
 )
 
-/**
- *  User/Group Meta info
- *  <p>
- *      This class is used to generate entity ID
- *  </p>
- *
- *  <blockquote><pre>
- *  data format: {
- *      "type"        : 1,              // algorithm version
- *      "key"         : "{public key}", // PK = secp256k1(SK);
- *      "seed"        : "moKy",         // user/group name
- *      "fingerprint" : "..."           // CT = sign(seed, SK);
- *  }
- *
- *  algorithm:
- *      fingerprint = sign(seed, SK);
- *
- *  abstract method:
- *      - GenerateAddress(network EntityType) Address
- *  </pre></blockquote>
- */
+// BaseMeta is the base implementation of Meta interface for User/Group entity metadata
+//
+// Core responsibility: Generate and validate entity IDs (Address) using cryptographic metadata
+//
+//	Standard data structure: {
+//	    "type"        : 1,              // algorithm version
+//	    "key"         : "{public key}", // PK = secp256k1(SK);
+//	    "seed"        : "moKy",         // user/group name
+//	    "fingerprint" : "..."           // CT = sign(seed, SK);
+//	}
+//
+//	 Core cryptographic algorithm:
+//	     fingerprint = sign(seed, private_key)  // Generate fingerprint with private key
+//	     verify(seed, fingerprint, public_key)  // Validate fingerprint with public key
+//
+//	 Abstract behavior (implemented by concrete subclasses):
+//	     GenerateAddress(network EntityType) Address - Derive entity address for specific network
 type BaseMeta struct {
 	//Meta
 	*Dictionary
 
-	/**
-	 *  Meta algorithm version
-	 *
-	 *  <pre>
-	 *  1 = MKM : username@address (default)
-	 *  2 = BTC : btc_address
-	 *  4 = ETH : eth_address
-	 *      ...
-	 *  </pre>
-	 */
+	// version represents the meta algorithm (MetaType)
+	//
+	// Supported versions (advisory):
+	//  1 = MKM : username@address (default, standard user/group addressing)
+	//  2 = BTC : Bitcoin-style address format
+	//  4 = ETH : Ethereum-style address format
+	//  ...
 	version MetaType
 
-	/**
-	 *  Public key (used for signature)
-	 *  <p>
-	 *      RSA / ECC
-	 *  </p>
-	 */
+	// publicKey is the public verification key for signature validation
+	//
+	// Supports RSA (Rivest-Shamir-Adleman) and ECC (Elliptic Curve Cryptography) algorithms
+	// Used to verify the authenticity of the fingerprint
 	publicKey VerifyKey
 
-	/**
-	 *  Seed to generate fingerprint
-	 *  <p>
-	 *      Username / Group-X
-	 *  </p>
-	 */
+	// seed is the base value used to generate the cryptographic fingerprint
+	//
+	// Typically the user's nickname or group name (e.g., "moKy", "Group-X")
 	seed string
 
-	/**
-	 *  Fingerprint to verify ID and public key
-	 *
-	 *  <pre>
-	 *  Build: fingerprint = sign(seed, privateKey)
-	 *  Check: verify(seed, fingerprint, publicKey)
-	 *  </pre>
-	 */
+	// fingerprint is the cryptographic signature of the seed
+	//
+	// Used to verify the integrity of the entity ID and public key
+	//     Build: fingerprint = sign(seed, privateKey)
+	//     Check: verify(seed, fingerprint, publicKey)
 	fingerprint TransportableData
 
-	status int8 // 1 for valid, -1 for invalid
+	// status indicates the validation status of the metadata
+	//
+	// Values:
+	//     1 = valid (fingerprint verified)
+	//     0 = unvalidated
+	//    -1 = invalid (verification failed)
+	status int8
 
-	// protected
+	// HasSeed is a protected flag indicating if the seed value is present
+	//
+	// Used internally to control fingerprint generation logic
 	HasSeed bool
 }
 

@@ -37,28 +37,28 @@ import (
 	. "github.com/dimchat/mkm-go/types"
 )
 
-/**
- *  Envelope for message
- *  <p>
- *      This class is used to create a message envelope
- *      which contains 'sender', 'receiver' and 'time'
- *  </p>
- *
- *  <blockquote><pre>
- *  data format: {
- *      "sender"   : "moki@xxx",
- *      "receiver" : "hulk@yyy",
- *      "time"     : 123
- *  }
- *  </pre></blockquote>
- */
+// MessageEnvelope represents the envelope/header for all messages in the system
+//
+// Contains core routing metadata: sender ID, receiver ID, and message timestamp
+// Acts as the transport wrapper for message content (agnostic to content type)
+//
+//	Standard data structure: {
+//	    "sender"   : "moki@xxx",
+//	    "receiver" : "hulk@yyy",
+//	    "time"     : 123
+//	}
 type MessageEnvelope struct {
 	//Envelope
 	*Dictionary
 
-	sender   ID
+	// sender is the unique ID of the message sender
+	sender ID
+
+	// receiver is the unique ID of the message receiver
 	receiver ID
-	time     Time
+
+	// time is the timestamp when the message was created/sent
+	time Time
 }
 
 func NewMessageEnvelope(dict StringKeyMap, sender, receiver ID, time Time) *MessageEnvelope {
@@ -132,6 +132,7 @@ func (env *MessageEnvelope) Time() Time {
  *  the 'receiver' will be changed to a member ID, and
  *  the group ID will be saved as 'group'.
  */
+
 // Override
 func (env *MessageEnvelope) Group() ID {
 	group := env.Get("group")
@@ -151,6 +152,7 @@ func (env *MessageEnvelope) SetGroup(group ID) {
  *  we pick out the content type and set it in envelope
  *  to let the station do its job.
  */
+
 // Override
 func (env *MessageEnvelope) Type() MessageType {
 	return env.GetString("type", "")

@@ -36,25 +36,28 @@ import (
 	. "github.com/dimchat/mkm-go/types"
 )
 
-/**
- *  Instant Message
- *
- *  <blockquote><pre>
- *  data format: {
- *      //-- envelope
- *      "sender"   : "moki@xxx",
- *      "receiver" : "hulk@yyy",
- *      "time"     : 123,
- *
- *      //-- content
- *      "content"  : {...}
- *  }
- *  </pre></blockquote>
- */
+// PlainMessage (InstantMessage) represents an unencrypted/cleartext message
+//
+// # Extends BaseMessage with direct access to unencrypted Content
+//
+// Used for non-sensitive messages or local processing before encryption
+//
+//	Data structure: {
+//	    // Envelope metadata
+//	    "sender"   : "moki@xxx",
+//	    "receiver" : "hulk@yyy",
+//	    "time"     : 123,
+//
+//	    // Unencrypted content
+//	    "content"  : {...} // Raw Content object (TextContent, FileContent, etc.)
+//	}
 type PlainMessage struct {
 	//InstantMessage
 	*BaseMessage
 
+	// content stores the unencrypted message content (plaintext)
+	//
+	// Can be any Content type (TextContent, FileContent, Command, etc.)
 	content Content
 }
 
