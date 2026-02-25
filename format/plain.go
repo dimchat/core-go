@@ -87,7 +87,7 @@ func (ted *PlainData) Size() int {
 //
 
 // Override
-func (ted *PlainData) Serialize() interface{} {
+func (ted *PlainData) Serialize() any {
 	return serialize(ted)
 }
 
@@ -95,6 +95,6 @@ func (ted *PlainData) Serialize() interface{} {
 //  IObject
 //
 
-func (ted *PlainData) Equal(other interface{}) bool {
+func (ted *PlainData) Equal(other any) bool {
 	return equals(ted, other)
 }

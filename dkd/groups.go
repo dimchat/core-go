@@ -51,6 +51,15 @@ func NewBaseHistoryCommand(dict StringKeyMap, cmd string) *BaseHistoryCommand {
 	}
 }
 
+// Override
+func (content *BaseHistoryCommand) Event() string {
+	event := content.Get("event")
+	if event == nil {
+		event = content.Get("command")
+	}
+	return ConvertString(event, "")
+}
+
 /**
  *  Group History
  */

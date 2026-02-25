@@ -218,7 +218,7 @@ func (doc *BaseDocument) Properties() StringKeyMap {
 }
 
 // Override
-func (doc *BaseDocument) GetProperty(name string) interface{} {
+func (doc *BaseDocument) GetProperty(name string) any {
 	dict := doc.Properties()
 	if dict == nil {
 		return nil
@@ -231,7 +231,7 @@ func (doc *BaseDocument) GetProperty(name string) interface{} {
 }
 
 // Override
-func (doc *BaseDocument) SetProperty(name string, value interface{}) {
+func (doc *BaseDocument) SetProperty(name string, value any) {
 	// 1. reset status
 	doc.status = 0
 	// 2. update property value with name

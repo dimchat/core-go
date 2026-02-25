@@ -81,7 +81,7 @@ type CommandFactory interface {
 //  Factory method
 //
 
-func ParseCommand(content interface{}) Command {
+func ParseCommand(content any) Command {
 	helper := GetCommandHelper()
 	return helper.ParseCommand(content)
 }

@@ -129,7 +129,7 @@ func (ted *EmbedData) Size() int {
 //
 
 // Override
-func (ted *EmbedData) Serialize() interface{} {
+func (ted *EmbedData) Serialize() any {
 	return serialize(ted)
 }
 
@@ -137,6 +137,6 @@ func (ted *EmbedData) Serialize() interface{} {
 //  IObject
 //
 
-func (ted *EmbedData) Equal(other interface{}) bool {
+func (ted *EmbedData) Equal(other any) bool {
 	return equals(ted, other)
 }

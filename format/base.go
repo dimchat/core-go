@@ -102,7 +102,7 @@ func size(ted TransportableData) int {
 //  TransportableResource
 //
 
-func serialize(ted TransportableData) interface{} {
+func serialize(ted TransportableData) any {
 	return ted.String()
 }
 
@@ -110,7 +110,7 @@ func serialize(ted TransportableData) interface{} {
 //  IObject
 //
 
-func equals(ted EncodeData, other interface{}) bool {
+func equals(ted EncodeData, other any) bool {
 	if other == nil {
 		return ted.IsEmpty()
 	} else if other == ted {

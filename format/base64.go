@@ -86,7 +86,7 @@ func (ted *Base64Data) Size() int {
 //
 
 // Override
-func (ted *Base64Data) Serialize() interface{} {
+func (ted *Base64Data) Serialize() any {
 	return serialize(ted)
 }
 
@@ -94,6 +94,6 @@ func (ted *Base64Data) Serialize() interface{} {
 //  IObject
 //
 
-func (ted *Base64Data) Equal(other interface{}) bool {
+func (ted *Base64Data) Equal(other any) bool {
 	return equals(ted, other)
 }

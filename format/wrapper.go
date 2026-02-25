@@ -190,7 +190,7 @@ func NewPortableNetworkFileWrapper(dict StringKeyMap,
 	}
 }
 
-func (wrapper *PortableNetworkFileWrapper) Get(key string) interface{} {
+func (wrapper *PortableNetworkFileWrapper) Get(key string) any {
 	value, exists := wrapper.dictionary[key]
 	if !exists {
 		return nil
@@ -198,7 +198,7 @@ func (wrapper *PortableNetworkFileWrapper) Get(key string) interface{} {
 	return value
 }
 
-func (wrapper *PortableNetworkFileWrapper) Set(key string, value interface{}) {
+func (wrapper *PortableNetworkFileWrapper) Set(key string, value any) {
 	if ValueIsNil(value) {
 		delete(wrapper.dictionary, key)
 	} else {

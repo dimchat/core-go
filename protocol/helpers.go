@@ -43,7 +43,7 @@ type CommandHelper interface {
 	SetCommandFactory(cmd string, factory CommandFactory)
 	GetCommandFactory(cmd string) CommandFactory
 
-	ParseCommand(content interface{}) Command
+	ParseCommand(content any) Command
 }
 
 var sharedCommandHelper CommandHelper = nil

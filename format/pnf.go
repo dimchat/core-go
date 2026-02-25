@@ -162,7 +162,7 @@ func (pnf *PortableNetworkFile) Map() StringKeyMap {
 }
 
 // Override
-func (pnf *PortableNetworkFile) Serialize() interface{} {
+func (pnf *PortableNetworkFile) Serialize() any {
 	uri := pnf.getURIString()
 	if uri != "" {
 		// this PNF can be simplified to a URI string

@@ -53,6 +53,9 @@ const (
 //	}
 type HistoryCommand interface {
 	Command
+
+	// Event returns the string value of "event" or "command"
+	Event() string
 }
 
 // Group command name constants for group membership/role operations
