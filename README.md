@@ -157,6 +157,50 @@ func (content *BaseHandshakeCommand) State() HandshakeState {
 ### Extends Content
 
 ```go
+import . "github.com/dimchat/dkd-go/protocol"
+
+// AppContent defines the interface for application-customized message contents
+//
+// Extends the base Content interface for messages intended for a specific application
+//
+//	Data structure: {
+//	    "type" : i2s(0xA0),
+//	    "sn"   : 123,
+//
+//	    "app"  : "{APP_ID}",  // application (e.g.: "chat.dim.sechat")
+//	    "extra": info         // others
+//	}
+type AppContent interface {
+	Content
+
+	// Application returns the target application ID (e.g., "chat.dim.sechat")
+	Application() string
+}
+
+// CustomizedContent defines the interface for customized message contents
+//
+// Extends the base Content interface for messages intended for a specific module + action
+//
+//	Data structure: {
+//	    "type" : i2s(0xCC),
+//	    "sn"   : 123,
+//
+//	    "mod"  : "{MODULE}",  // module name (e.g.: "drift_bottle")
+//	    "act"  : "{ACTION}",  // action name (3.g.: "throw")
+//	    "extra": info         // action parameters
+//	}
+type CustomizedContent interface {
+	Content
+
+	// Module returns the target module name within the application (e.g., "drift_bottle")
+	Module() string
+
+	// Action returns the action name to execute in the module (e.g., "throw")
+	Action() string
+}
+```
+
+```go
 import (
 	. "github.com/dimchat/core-go/dkd"
 	. "github.com/dimchat/core-go/protocol"
@@ -168,32 +212,49 @@ import (
 //	    "sn"   : 123,
 //
 //	    "app"  : "{APP_ID}",  // application (e.g.: "chat.dim.sechat")
+//	    "mod"  : "{MODULE}",  // module name (e.g.: "drift_bottle")
+//	    "act"  : "{ACTION}",  // action name (3.g.: "throw")
 //	    "extra": info         // others
 //	}
 
-type ApplicationContent struct {
-	//AppContent
+type AppCustomizedContent struct {
+	//AppContent, CustomizedContent
 	*BaseContent
 }
 
-func NewApplicationContent(dict StringKeyMap, app string) AppContent {
+func NewAppCustomizedContent(dict StringKeyMap, msgType MessageType, app, mod, act string) *AppCustomizedContent {
 	if dict != nil {
-		// init application content with map
-		return &ApplicationContent{
+		// init app customized content with map
+		return &AppCustomizedContent{
 			BaseContent: NewBaseContent(dict, ""),
 		}
 	}
-	// new application content
-	content := &ApplicationContent{
-		BaseContent: NewBaseContent(nil, ContentType.APPLICATION),
+	// new app customized content
+	if msgType == "" {
+		msgType = ContentType.CUSTOMIZED
+	}
+	content := &AppCustomizedContent{
+		BaseContent: NewBaseContent(nil, msgType),
 	}
 	content.Set("app", app)
+	content.Set("mod", mod)
+	content.Set("act", act)
 	return content
 }
 
 // Override
-func (content *ApplicationContent) Application() string {
+func (content *AppCustomizedContent) Application() string {
 	return content.GetString("app", "")
+}
+
+// Override
+func (content *AppCustomizedContent) Module() string {
+	return content.GetString("mod", "")
+}
+
+// Override
+func (content *AppCustomizedContent) Action() string {
+	return content.GetString("act", "")
 }
 ```
 

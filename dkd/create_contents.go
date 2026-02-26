@@ -227,15 +227,3 @@ func NewQuoteContent(text string, head Envelope, body Content) QuoteContent {
 func NewQuoteContentWithMap(dict StringKeyMap) Content {
 	return NewBaseQuoteContent(dict, "", nil)
 }
-
-/**
- *  Application Customized Content
- */
-
-func NewCustomizedContent(app, mod, act string) CustomizedContent {
-	return NewAppCustomizedContent(nil, "", app, mod, act)
-}
-
-func NewCustomizedContentWithMap(dict StringKeyMap) Content {
-	return NewAppCustomizedContent(dict, "", "", "", "")
-}

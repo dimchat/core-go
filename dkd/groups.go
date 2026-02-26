@@ -66,13 +66,12 @@ func (content *BaseHistoryCommand) Event() string {
 
 type BaseGroupCommand struct {
 	//GroupCommand
-	*BaseCommand
-	//*BaseHistoryCommand
+	*BaseHistoryCommand
 }
 
 func NewBaseGroupCommand(dict StringKeyMap, cmd string, group ID, members []ID) *BaseGroupCommand {
 	content := &BaseGroupCommand{
-		BaseCommand: NewBaseCommand(dict, ContentType.HISTORY, cmd),
+		BaseHistoryCommand: NewBaseHistoryCommand(dict, cmd),
 	}
 	if group != nil {
 		content.SetGroup(group)
